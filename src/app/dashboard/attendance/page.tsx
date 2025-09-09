@@ -16,15 +16,6 @@ import 'jspdf-autotable';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
 
-type MonthlySummary = {
-  [employeeName: string]: {
-    present: number;
-    absent: number;
-    leave: number;
-    workingDays: number;
-  };
-};
-
 const getStatusVariant = (status: AttendanceStatus) => {
   switch (status) {
     case 'Present':
@@ -37,20 +28,6 @@ const getStatusVariant = (status: AttendanceStatus) => {
       return 'outline';
   }
 };
-
-const getWorkingDaysInMonth = (year: number, month: number) => {
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    let workingDays = 0;
-    for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-        const dayOfWeek = date.getDay();
-        if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 0 = Sunday, 6 = Saturday
-            workingDays++;
-        }
-    }
-    return workingDays;
-};
-
 
 export default function AttendancePage() {
   const { user } = useAuth();
@@ -73,24 +50,6 @@ export default function AttendancePage() {
         return recordDate.getMonth() === month && recordDate.getFullYear() === year;
     });
   }, [selectedDate, userAttendanceRecords]);
-
-  const monthlySummary: MonthlySummary = useMemo(() => {
-    const year = selectedDate.getFullYear();
-    const month = selectedDate.getMonth();
-    const workingDays = getWorkingDaysInMonth(year, month);
-
-    return monthlyRecords.reduce((acc: MonthlySummary, record) => {
-      if (!acc[record.name]) {
-        acc[record.name] = { present: 0, absent: 0, leave: 0, workingDays: workingDays };
-      }
-      const status = record.status.toLowerCase() as keyof Omit<MonthlySummary[string], 'workingDays'>;
-      if (status in acc[record.name]) {
-        acc[record.name][status]++;
-      }
-      return acc;
-    }, {});
-  }, [monthlyRecords, selectedDate]);
-
 
   const displayedRecords = useMemo(() => {
     return monthlyRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -121,8 +80,7 @@ export default function AttendancePage() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     
-    // Add Detailed Records
-    doc.text(`Detailed Attendance Records - ${selectedMonthFormatted}`, 14, 16);
+    doc.text(`Daily Attendance - ${selectedMonthFormatted}`, 14, 16);
     (doc as any).autoTable({
         head: [['Employee Name', 'Date', 'Time In', 'Time Out', 'Status']],
         body: displayedRecords.map(r => [
@@ -134,29 +92,6 @@ export default function AttendancePage() {
         ]),
         startY: 20,
         didDrawPage: function (data) {
-            // Header
-            doc.setFontSize(20);
-            doc.setTextColor(40);
-        },
-    });
-
-    // Add a new page for the summary
-    doc.addPage();
-
-    // Add Summary Records
-    doc.text(`Monthly Attendance Summary - ${selectedMonthFormatted}`, 14, 16);
-    (doc as any).autoTable({
-        head: [['Employee Name', 'Working Days', 'Present', 'Absent', 'Leave']],
-        body: Object.entries(monthlySummary).map(([name, summary]) => [
-            name,
-            summary.workingDays,
-            summary.present,
-            summary.absent,
-            summary.leave
-        ]),
-        startY: 20,
-        didDrawPage: function (data) {
-            // Header
             doc.setFontSize(20);
             doc.setTextColor(40);
         },
@@ -236,7 +171,13 @@ export default function AttendancePage() {
                     ))
                 ) : (
                     <TableRow>
-                        <TableCell colSpan={5} className="text-center">No attendance records for this month.</TableCell>
+                        <TableCell className="font-medium">{user?.name}</TableCell>
+                        <TableCell>{selectedDate.toLocaleDateString()}</TableCell>
+                        <TableCell>--:--</TableCell>
+                        <TableCell>--:--</TableCell>
+                        <TableCell>
+                            <Badge variant="outline">Not Marked</Badge>
+                        </TableCell>
                     </TableRow>
                 )}
                 </TableBody>
