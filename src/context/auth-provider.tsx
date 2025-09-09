@@ -1,18 +1,30 @@
+
 'use client';
 
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
+import { attendanceRecords as defaultAttendanceRecords } from '@/lib/placeholder-data';
 
 type UserRole = 'Admin' | 'Employee';
 type User = {
+  id: string;
   name: string;
   email: string;
   role: UserRole;
 };
 
 type StoredUser = User & { passwordHash: string };
+
+type AttendanceRecord = {
+  employeeId: string;
+  name: string;
+  date: string;
+  timeIn: string;
+  timeOut: string;
+  status: 'Present' | 'Absent' | 'Leave' | 'Not Marked';
+};
 
 type AuthContextType = {
   user: User | null;
@@ -23,16 +35,16 @@ type AuthContextType = {
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
   importUsers: (users: StoredUser[]) => Promise<void>;
   resetUsers: () => Promise<void>;
-  updateUser: (email: string, data: Partial<Omit<User, 'email'>>) => Promise<void>;
+  updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
+  attendanceRecords: AttendanceRecord[];
+  markAttendance: (employeeId: string, date: string, type: 'timeIn' | 'timeOut') => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 
-// A simple (and not secure) hashing function for demonstration purposes.
-// In a real app, use a library like bcrypt.
 const simpleHash = async (text: string): Promise<string> => {
   const encoder = new TextEncoder();
   const data = encoder.encode(text);
@@ -42,8 +54,8 @@ const simpleHash = async (text: string): Promise<string> => {
 };
 
 const getDefaultUsers = async (): Promise<{ [email: string]: StoredUser }> => ({
-  'admin@example.com': { name: 'Admin User', email: 'admin@example.com', role: 'Admin', passwordHash: await simpleHash('admin123') },
-  'employee@example.com': { name: 'Employee User', email: 'employee@example.com', role: 'Employee', passwordHash: await simpleHash('emp123') },
+  'admin@example.com': { id: 'EMP000', name: 'Admin User', email: 'admin@example.com', role: 'Admin', passwordHash: await simpleHash('admin123') },
+  'employee@example.com': { id: 'EMP101', name: 'Employee User', email: 'employee@example.com', role: 'Employee', passwordHash: await simpleHash('emp123') },
 });
 
 
@@ -51,6 +63,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [mockUsers, setMockUsers] = useState<{ [email: string]: StoredUser }>({});
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+
 
   const router = useRouter();
   const pathname = usePathname();
@@ -61,6 +75,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('users', JSON.stringify(users));
     } catch (error) {
       console.error("Failed to save users to localStorage", error);
+    }
+  }, []);
+
+  const syncAttendanceToStorage = useCallback((records: AttendanceRecord[]) => {
+    try {
+      localStorage.setItem('attendance', JSON.stringify(records));
+    } catch (error) {
+      console.error("Failed to save attendance to localStorage", error);
     }
   }, []);
   
@@ -91,6 +113,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setMockUsers(storedUsers);
 
+      let storedAttendance: AttendanceRecord[] = [];
+      try {
+        const attendanceFromStorage = localStorage.getItem('attendance');
+        if (attendanceFromStorage) {
+          storedAttendance = JSON.parse(attendanceFromStorage);
+        } else {
+          storedAttendance = defaultAttendanceRecords;
+          syncAttendanceToStorage(storedAttendance);
+        }
+      } catch (error) {
+        console.error("Failed to parse attendance from localStorage, resetting to default.", error);
+        storedAttendance = defaultAttendanceRecords;
+        syncAttendanceToStorage(storedAttendance);
+      }
+      setAttendanceRecords(storedAttendance);
+
+
       try {
         const storedUser = localStorage.getItem('user');
         const lastActivity = localStorage.getItem('lastActivity');
@@ -113,13 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initAuth();
-  }, [syncUsersToStorage]);
-
-  const handleUserActivity = useCallback(() => {
-    if (user) {
-      localStorage.setItem('lastActivity', Date.now().toString());
-    }
-  }, [user]);
+  }, [syncUsersToStorage, syncAttendanceToStorage]);
 
   useEffect(() => {
     let activityTimer: NodeJS.Timeout;
@@ -153,7 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         clearTimeout(activityTimer);
         events.forEach(event => window.removeEventListener(event, activityListener));
     };
-}, [user, logout, toast]);
+  }, [user, logout, toast]);
 
 
   const login = async (email: string, pass: string): Promise<void> => {
@@ -186,10 +219,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           reject(new Error('An account with this email already exists.'));
         } else {
           const passwordHash = await simpleHash(pass);
-          const newUser: StoredUser = { name, email, role, passwordHash };
+          const newUserId = `EMP${Object.keys(mockUsers).length + 100}`;
+          const newUser: StoredUser = { id: newUserId, name, email, role, passwordHash };
           const updatedUsers = { ...mockUsers, [email]: newUser };
           setMockUsers(updatedUsers);
           syncUsersToStorage(updatedUsers);
+
+          // Also create a blank attendance record for the new user for today
+          const today = new Date().toISOString().split('T')[0];
+          const newAttendanceRecord: AttendanceRecord = {
+            employeeId: newUserId,
+            name: name,
+            date: today,
+            timeIn: '--:--',
+            timeOut: '--:--',
+            status: 'Not Marked',
+          };
+          const updatedAttendance = [...attendanceRecords, newAttendanceRecord];
+          setAttendanceRecords(updatedAttendance);
+          syncAttendanceToStorage(updatedAttendance);
+
           setIsLoading(false);
           resolve();
         }
@@ -204,7 +253,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const importUsers = async (users: any[]): Promise<void> => {
       const newUsers: { [email: string]: StoredUser } = {};
       for (const u of users) {
-          if (u.email && u.name && u.role && u.password) {
+          if (u.email && u.name && u.role && u.password && u.id) {
               newUsers[u.email] = {
                   ...u,
                   passwordHash: await simpleHash(u.password),
@@ -220,9 +269,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const defaultUsers = await getDefaultUsers();
     setMockUsers(defaultUsers);
     syncUsersToStorage(defaultUsers);
+    setAttendanceRecords(defaultAttendanceRecords);
+    syncAttendanceToStorage(defaultAttendanceRecords);
   };
 
-  const updateUser = async (email: string, data: Partial<Omit<User, 'email'>>): Promise<void> => {
+  const updateUser = async (email: string, data: Partial<Omit<User, 'email' | 'id'>>): Promise<void> => {
     if (mockUsers[email]) {
       const updatedUsers = {
         ...mockUsers,
@@ -230,7 +281,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       setMockUsers(updatedUsers);
       syncUsersToStorage(updatedUsers);
-      // If the currently logged-in user is the one being updated, update their session data too.
       if (user?.email === email) {
         const { passwordHash: _, ...userToStore } = updatedUsers[email];
         setUser(userToStore);
@@ -245,7 +295,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     syncUsersToStorage(remainingUsers);
   };
   
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser };
+  const markAttendance = (employeeId: string, date: string, type: 'timeIn' | 'timeOut') => {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+
+    setAttendanceRecords(prevRecords => {
+      const updatedRecords = prevRecords.map(record => {
+        if (record.employeeId === employeeId && record.date === date) {
+          const updatedRecord = { ...record, [type]: timeString };
+          if (type === 'timeIn') {
+            updatedRecord.status = 'Present';
+          }
+          return updatedRecord;
+        }
+        return record;
+      });
+      syncAttendanceToStorage(updatedRecords);
+      return updatedRecords;
+    });
+  };
+
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, markAttendance };
 
   if (isLoading) {
     return (

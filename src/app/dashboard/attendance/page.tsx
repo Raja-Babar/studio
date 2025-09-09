@@ -5,7 +5,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { attendanceRecords } from '@/lib/placeholder-data';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -13,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useToast } from '@/hooks/use-toast';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
 
@@ -30,18 +30,21 @@ const getStatusVariant = (status: AttendanceStatus) => {
 };
 
 export default function AttendancePage() {
-  const { user } = useAuth();
+  const { user, attendanceRecords, markAttendance } = useAuth();
+  const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [_, setForceRender] = useState(false); // To force re-render on state change
 
   const isEmployee = user?.role === 'Employee';
 
   const userAttendanceRecords = useMemo(() => {
+    const records = attendanceRecords;
     if (isEmployee) {
-      return attendanceRecords.filter(r => r.name === user.name);
+      return records.filter(r => r.name === user.name);
     }
-    return attendanceRecords;
-  }, [isEmployee, user?.name]);
-
+    return records;
+  }, [isEmployee, user?.name, attendanceRecords]);
+  
   const monthlyRecords = useMemo(() => {
     const month = selectedDate.getMonth();
     const year = selectedDate.getFullYear();
@@ -63,14 +66,14 @@ export default function AttendancePage() {
   const handleMonthChange = (month: string) => {
     const newDate = new Date(selectedDate);
     newDate.setMonth(parseInt(month, 10));
-    newDate.setDate(1); // Set to the first day of the month to avoid issues
+    newDate.setDate(1); 
     setSelectedDate(newDate);
   };
 
   const handleYearChange = (year: string) => {
     const newDate = new Date(selectedDate);
     newDate.setFullYear(parseInt(year, 10));
-    newDate.setDate(1); // Set to the first day of the month to avoid issues
+    newDate.setDate(1);
     setSelectedDate(newDate);
   };
 
@@ -100,6 +103,24 @@ export default function AttendancePage() {
     doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
 };
 
+  const handleClockIn = (employeeId: string, date: string) => {
+    markAttendance(employeeId, date, 'timeIn');
+    toast({ title: 'Clocked In', description: 'Your arrival time has been recorded.' });
+    setForceRender(prev => !prev);
+  };
+
+  const handleClockOut = (employeeId: string, date: string) => {
+    markAttendance(employeeId, date, 'timeOut');
+    toast({ title: 'Clocked Out', description: 'Your departure time has been recorded.' });
+    setForceRender(prev => !prev);
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear();
+  }
 
   return (
     <div className="space-y-6">
@@ -124,7 +145,7 @@ export default function AttendancePage() {
             <Select onValueChange={handleYearChange} defaultValue={selectedDate.getFullYear().toString()}>
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Year" />
-                </SelectTrigger>
+                </Trigger>
                 <SelectContent>
                     {years.map(year => (
                         <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
@@ -156,27 +177,40 @@ export default function AttendancePage() {
                 </TableHeader>
                 <TableBody>
                 {displayedRecords.length > 0 ? (
-                    displayedRecords.map((record, index) => (
-                        <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
-                        <TableCell className="font-medium">{record.name}</TableCell>
-                        <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
-                        <TableCell>{record.timeIn}</TableCell>
-                        <TableCell>{record.timeOut}</TableCell>
-                        <TableCell>
-                            <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
-                            {record.status}
-                            </Badge>
-                        </TableCell>
+                    displayedRecords.map((record) => {
+                      const canClockIn = isEmployee && isToday(new Date(record.date  + 'T00:00:00')) && record.timeIn === '--:--';
+                      const canClockOut = isEmployee && isToday(new Date(record.date + 'T00:00:00')) && record.timeIn !== '--:--' && record.timeOut === '--:--';
+
+                      return (
+                        <TableRow key={`${record.employeeId}-${record.date}`}>
+                            <TableCell className="font-medium">{record.name}</TableCell>
+                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
+                            <TableCell>
+                                {canClockIn ? (
+                                    <Button size="sm" onClick={() => handleClockIn(record.employeeId, record.date)}>Clock In</Button>
+                                ) : (
+                                    record.timeIn
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                {canClockOut ? (
+                                    <Button size="sm" variant="outline" onClick={() => handleClockOut(record.employeeId, record.date)}>Clock Out</Button>
+                                ) : (
+                                    record.timeOut
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
+                                {record.status}
+                                </Badge>
+                            </TableCell>
                         </TableRow>
-                    ))
+                      )
+                    })
                 ) : (
                     <TableRow>
-                        <TableCell className="font-medium">{user?.name}</TableCell>
-                        <TableCell>{selectedDate.toLocaleDateString()}</TableCell>
-                        <TableCell>--:--</TableCell>
-                        <TableCell>--:--</TableCell>
-                        <TableCell>
-                            <Badge variant="outline">Not Marked</Badge>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          No attendance records for this month.
                         </TableCell>
                     </TableRow>
                 )}
@@ -188,3 +222,4 @@ export default function AttendancePage() {
     </div>
   );
 }
+

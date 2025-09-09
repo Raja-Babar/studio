@@ -20,6 +20,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
 type User = {
+    id: string;
     name: string;
     email: string;
     role: 'Admin' | 'Employee';
@@ -49,8 +50,8 @@ export default function UserManagementPage() {
     const doc = new jsPDF();
     doc.text('Panhwar Portal Users Report', 14, 16);
     (doc as any).autoTable({
-        head: [['Name', 'Role', 'Email']],
-        body: allUsers.map(u => [u.name, u.role, u.email]),
+        head: [['ID', 'Name', 'Role', 'Email']],
+        body: allUsers.map(u => [u.id, u.name, u.role, u.email]),
         startY: 20
     });
     doc.save('panhwar_portal_users.pdf');
@@ -58,7 +59,6 @@ export default function UserManagementPage() {
   };
 
   const handleDelete = async (email: string) => {
-    // Prevent admin from deleting themselves
     if (user?.email === email) {
       toast({ variant: 'destructive', title: 'Action Forbidden', description: 'You cannot delete your own account.' });
       return;
@@ -77,7 +77,6 @@ export default function UserManagementPage() {
   
   const handleUpdate = async () => {
     if (selectedUser) {
-      // Prevent changing the role of the main admin account if it's the one being edited.
       if (selectedUser.email === 'admin@example.com' && editedRole !== 'Admin') {
           toast({ variant: 'destructive', title: 'Update Failed', description: 'Cannot change the role of the primary admin.' });
           return;
@@ -92,25 +91,23 @@ export default function UserManagementPage() {
 
 
   if (user?.role !== 'Admin') {
-    return null; // Or a loading/access denied component
+    return null;
   }
 
   const handleMonthChange = (month: string) => {
     const newDate = new Date(selectedDate);
     newDate.setMonth(parseInt(month, 10));
-    newDate.setDate(1); // Set to the first day of the month to avoid issues
+    newDate.setDate(1); 
     setSelectedDate(newDate);
   };
 
   const handleYearChange = (year: string) => {
     const newDate = new Date(selectedDate);
     newDate.setFullYear(parseInt(year, 10));
-    newDate.setDate(1); // Set to the first day of the month to avoid issues
+    newDate.setDate(1); 
     setSelectedDate(newDate);
   };
 
-  // Assuming you might want to provide years based on when users were created or some other metric.
-  // For now, let's use a simple static range around the current year.
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
   const months = Array.from({ length: 12 }, (_, i) => ({ value: i, name: new Date(0, i).toLocaleString('en-US', { month: 'long' }) }));
@@ -161,6 +158,7 @@ export default function UserManagementPage() {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>ID</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Email</TableHead>
@@ -170,6 +168,7 @@ export default function UserManagementPage() {
             <TableBody>
               {allUsers.map((u) => (
                 <TableRow key={u.email}>
+                  <TableCell>{u.id}</TableCell>
                   <TableCell className="font-medium">{u.name}</TableCell>
                   <TableCell>
                     <Badge variant={u.role === 'Admin' ? 'destructive' : 'secondary'}>
@@ -252,4 +251,3 @@ export default function UserManagementPage() {
     </div>
   );
 }
-
