@@ -12,6 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
 
+type MonthlySummary = {
+  [employeeName: string]: {
+    present: number;
+    absent: number;
+    leave: number;
+  };
+};
+
 const getStatusVariant = (status: AttendanceStatus) => {
   switch (status) {
     case 'Present':
@@ -38,14 +46,32 @@ export default function AttendancePage() {
     return attendanceRecords;
   }, [isEmployee, user?.name]);
 
-  const displayedRecords = useMemo(() => {
+  const monthlyRecords = useMemo(() => {
     const month = selectedDate.getMonth();
     const year = selectedDate.getFullYear();
     return userAttendanceRecords.filter(r => {
         const recordDate = new Date(r.date + 'T00:00:00');
         return recordDate.getMonth() === month && recordDate.getFullYear() === year;
-    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    });
   }, [selectedDate, userAttendanceRecords]);
+
+  const monthlySummary: MonthlySummary = useMemo(() => {
+    return monthlyRecords.reduce((acc: MonthlySummary, record) => {
+      if (!acc[record.name]) {
+        acc[record.name] = { present: 0, absent: 0, leave: 0 };
+      }
+      const status = record.status.toLowerCase() as keyof MonthlySummary[string];
+      if (status in acc[record.name]) {
+        acc[record.name][status]++;
+      }
+      return acc;
+    }, {});
+  }, [monthlyRecords]);
+
+
+  const displayedRecords = useMemo(() => {
+    return monthlyRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [monthlyRecords]);
 
   const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -98,49 +124,81 @@ export default function AttendancePage() {
         </div>
       </div>
       
-      <div className="grid gap-6">
-        <div>
-            <Card>
-                <CardHeader>
-                <CardTitle>Detailed Records</CardTitle>
-                <CardDescription>All attendance entries for {selectedMonthFormatted}.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                <Table>
-                    <TableHeader>
-                    <TableRow>
-                        <TableHead>Employee Name</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Time In</TableHead>
-                        <TableHead>Time Out</TableHead>
-                        <TableHead>Status</TableHead>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardHeader>
+          <CardTitle>Monthly Summary</CardTitle>
+          <CardDescription>Total attendance summary for {selectedMonthFormatted}.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+                <TableHeader>
+                <TableRow>
+                    <TableHead>Employee Name</TableHead>
+                    <TableHead className="text-center">Present</TableHead>
+                    <TableHead className="text-center">Absent</TableHead>
+                    <TableHead className="text-center">Leave</TableHead>
+                </TableRow>
+                </TableHeader>
+                <TableBody>
+                {Object.entries(monthlySummary).length > 0 ? (
+                    Object.entries(monthlySummary).map(([name, summary]) => (
+                    <TableRow key={name}>
+                        <TableCell className="font-medium">{name}</TableCell>
+                        <TableCell className="text-center">{summary.present}</TableCell>
+                        <TableCell className="text-center">{summary.absent}</TableCell>
+                        <TableCell className="text-center">{summary.leave}</TableCell>
                     </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                    {displayedRecords.length > 0 ? (
-                        displayedRecords.map((record, index) => (
-                            <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
-                            <TableCell className="font-medium">{record.name}</TableCell>
-                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
-                            <TableCell>{record.timeIn}</TableCell>
-                            <TableCell>{record.timeOut}</TableCell>
-                            <TableCell>
-                                <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
-                                {record.status}
-                                </Badge>
-                            </TableCell>
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={5} className="text-center">No attendance records for this month.</TableCell>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={4} className="text-center">No summary data for this month.</TableCell>
+                    </TableRow>
+                )}
+                </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+            <CardTitle>Detailed Records</CardTitle>
+            <CardDescription>All attendance entries for {selectedMonthFormatted}.</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <Table>
+                <TableHeader>
+                <TableRow>
+                    <TableHead>Employee Name</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Time In</TableHead>
+                    <TableHead>Time Out</TableHead>
+                    <TableHead>Status</TableHead>
+                </TableRow>
+                </TableHeader>
+                <TableBody>
+                {displayedRecords.length > 0 ? (
+                    displayedRecords.map((record, index) => (
+                        <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
+                        <TableCell className="font-medium">{record.name}</TableCell>
+                        <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
+                        <TableCell>{record.timeIn}</TableCell>
+                        <TableCell>{record.timeOut}</TableCell>
+                        <TableCell>
+                            <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
+                            {record.status}
+                            </Badge>
+                        </TableCell>
                         </TableRow>
-                    )}
-                    </TableBody>
-                </Table>
-                </CardContent>
-            </Card>
-        </div>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={5} className="text-center">No attendance records for this month.</TableCell>
+                    </TableRow>
+                )}
+                </TableBody>
+            </Table>
+            </CardContent>
+        </Card>
       </div>
     </div>
   );
