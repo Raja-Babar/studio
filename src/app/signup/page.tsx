@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -23,23 +23,27 @@ import { useToast } from '@/hooks/use-toast';
 import { BookCopy } from 'lucide-react';
 
 const formSchema = z.object({
+  name: z.string().min(2, {
+    message: 'Name must be at least 2 characters.',
+  }),
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
-  password: z.string().min(1, {
-    message: 'Password is required.',
+  password: z.string().min(6, {
+    message: 'Password must be at least 6 characters.',
   }),
 });
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { signup } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: '',
       email: '',
       password: '',
     },
@@ -48,17 +52,17 @@ export default function LoginPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await login(values.email, values.password);
+      await signup(values.name, values.email, values.password);
       toast({
-        title: 'Login Successful',
-        description: 'Welcome back!',
+        title: 'Signup Successful',
+        description: 'You can now log in with your credentials.',
       });
-      router.push('/dashboard');
+      router.push('/login');
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
+        title: 'Signup Failed',
         description: errorMessage,
       });
     } finally {
@@ -71,15 +75,28 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <Card className="shadow-2xl">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
+             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
                 <BookCopy className="h-8 w-8 text-primary" />
             </div>
-            <CardTitle className="text-3xl font-bold tracking-tight">Panhwar Portal</CardTitle>
-            <CardDescription>M.H. Panhwar Institute App</CardDescription>
+            <CardTitle className="text-3xl font-bold tracking-tight">Create an Account</CardTitle>
+            <CardDescription>Enter your details to get started.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Your Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="email"
@@ -87,7 +104,7 @@ export default function LoginPage() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="admin@example.com" {...field} />
+                        <Input placeholder="you@example.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -107,17 +124,15 @@ export default function LoginPage() {
                   )}
                 />
                 <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? 'Signing In...' : 'Sign In'}
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
                 </Button>
                 <div className="text-center text-sm text-muted-foreground">
                     <p>
-                        Don't have an account?{' '}
-                        <Link href="/signup" className="font-semibold text-primary underline-offset-4 hover:underline">
-                            Sign up
+                        Already have an account?{' '}
+                        <Link href="/login" className="font-semibold text-primary underline-offset-4 hover:underline">
+                            Log in
                         </Link>
                     </p>
-                    <p className="mt-2">Admin: admin@example.com / password</p>
-                    <p>Employee: employee@example.com / password</p>
                 </div>
               </form>
             </Form>
