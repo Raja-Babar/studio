@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -25,12 +26,12 @@ import { useAuth } from '@/hooks/use-auth';
 
 const adminNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard/library', icon: BookCopy, label: 'Library' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
   { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
   { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
-  { href: '/dashboard/library', icon: BookCopy, label: 'Library' },
   { href: '/dashboard/publications', icon: BookOpen, label: 'Publications' },
   { href: '/dashboard/scanning', icon: ScanLine, label: 'I.T & Scanning' },
   { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
