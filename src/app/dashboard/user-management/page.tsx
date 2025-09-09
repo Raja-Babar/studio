@@ -15,6 +15,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 type User = {
     name: string;
@@ -41,17 +43,15 @@ export default function UserManagementPage() {
   }, [user, router, getUsers]);
   
   const handleExport = () => {
-    const dataStr = JSON.stringify(getUsers(), null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = 'panhwar_portal_users.json';
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-
-    toast({ title: 'Success', description: 'User data exported successfully.' });
+    const doc = new jsPDF();
+    doc.text('Panhwar Portal Users Report', 14, 16);
+    (doc as any).autoTable({
+        head: [['Name', 'Email', 'Role']],
+        body: allUsers.map(u => [u.name, u.email, u.role]),
+        startY: 20
+    });
+    doc.save('panhwar_portal_users.pdf');
+    toast({ title: 'Success', description: 'User data exported successfully as PDF.' });
   };
 
   const handleDelete = async (email: string) => {
@@ -109,7 +109,7 @@ export default function UserManagementPage() {
             </div>
             <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={handleExport}>
-                    <Download className="mr-2 h-4 w-4" /> Export
+                    <Download className="mr-2 h-4 w-4" /> Export PDF
                 </Button>
             </div>
         </CardHeader>
