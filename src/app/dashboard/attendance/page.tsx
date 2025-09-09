@@ -1,4 +1,3 @@
-
 // src/app/dashboard/attendance/page.tsx
 'use client';
 
@@ -12,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { useToast } from '@/hooks/use-toast';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 
@@ -30,10 +28,8 @@ const getStatusVariant = (status: AttendanceStatus) => {
 };
 
 export default function AttendancePage() {
-  const { user, attendanceRecords, markAttendance } = useAuth();
-  const { toast } = useToast();
+  const { user, attendanceRecords } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [_, setForceRender] = useState(false); // To force re-render on state change
 
   const isEmployee = user?.role === 'Employee';
 
@@ -103,24 +99,6 @@ export default function AttendancePage() {
     doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
 };
 
-  const handleClockIn = (employeeId: string, date: string) => {
-    markAttendance(employeeId, date, 'timeIn');
-    toast({ title: 'Clocked In', description: 'Your arrival time has been recorded.' });
-    setForceRender(prev => !prev);
-  };
-
-  const handleClockOut = (employeeId: string, date: string) => {
-    markAttendance(employeeId, date, 'timeOut');
-    toast({ title: 'Clocked Out', description: 'Your departure time has been recorded.' });
-    setForceRender(prev => !prev);
-  };
-
-  const isToday = (date: Date) => {
-    const today = new Date();
-    return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear();
-  };
 
   return (
     <div className="space-y-6">
@@ -177,37 +155,19 @@ export default function AttendancePage() {
                 </TableHeader>
                 <TableBody>
                 {displayedRecords.length > 0 ? (
-                    displayedRecords.map((record) => {
-                      if (!user) return null;
-                      const canClockIn = isEmployee && isToday(new Date(record.date  + 'T00:00:00')) && record.timeIn === '--:--';
-                      const canClockOut = isEmployee && isToday(new Date(record.date + 'T00:00:00')) && record.timeIn !== '--:--' && record.timeOut === '--:--';
-
-                      return (
-                        <TableRow key={`${record.employeeId}-${record.date}`}>
-                            <TableCell className="font-medium">{record.name}</TableCell>
-                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
-                            <TableCell>
-                                {canClockIn ? (
-                                    <Button size="sm" onClick={() => handleClockIn(record.employeeId, record.date)}>Clock In</Button>
-                                ) : (
-                                    record.timeIn
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                {canClockOut ? (
-                                    <Button size="sm" variant="outline" onClick={() => handleClockOut(record.employeeId, record.date)}>Clock Out</Button>
-                                ) : (
-                                    record.timeOut
-                                )}
-                            </TableCell>
-                            <TableCell>
-                                <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
-                                {record.status}
-                                </Badge>
-                            </TableCell>
-                        </TableRow>
-                      )
-                    })
+                    displayedRecords.map((record) => (
+                    <TableRow key={`${record.employeeId}-${record.date}`}>
+                        <TableCell className="font-medium">{record.name}</TableCell>
+                        <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
+                        <TableCell>{record.timeIn}</TableCell>
+                        <TableCell>{record.timeOut}</TableCell>
+                        <TableCell>
+                            <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
+                            {record.status}
+                            </Badge>
+                        </TableCell>
+                    </TableRow>
+                    ))
                 ) : (
                     <TableRow>
                        {isEmployee && user && (
