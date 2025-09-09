@@ -122,16 +122,16 @@ export function ReportAssistantForm({ pettyCashRecords, scanningProgressRecords,
                     <CardHeader>
                         <CardTitle>Content Recommendations</CardTitle>
                     </CardHeader>
-                    <CardContent className="prose prose-sm max-w-none text-foreground">
-                        <p>{recommendations.reportContentRecommendations}</p>
+                    <CardContent className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
+                        <div>{recommendations.reportContentRecommendations}</div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader>
                         <CardTitle>Formatting Recommendations</CardTitle>
                     </CardHeader>
-                    <CardContent className="prose prose-sm max-w-none text-foreground">
-                        <p>{recommendations.reportFormattingRecommendations}</p>
+                    <CardContent className="prose prose-sm max-w-none text-foreground whitespace-pre-wrap">
+                        <div>{recommendations.reportFormattingRecommendations}</div>
                     </CardContent>
                 </Card>
             </div>

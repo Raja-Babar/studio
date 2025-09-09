@@ -19,8 +19,8 @@ const GenerateReportRecommendationsInputSchema = z.object({
 export type GenerateReportRecommendationsInput = z.infer<typeof GenerateReportRecommendationsInputSchema>;
 
 const GenerateReportRecommendationsOutputSchema = z.object({
-  reportContentRecommendations: z.string().describe('AI-generated recommendations for the report content.'),
-  reportFormattingRecommendations: z.string().describe('AI-generated recommendations for the report formatting.'),
+  reportContentRecommendations: z.string().describe('AI-generated recommendations for the report content, formatted as a markdown list.'),
+  reportFormattingRecommendations: z.string().describe('AI-generated recommendations for the report formatting, formatted as a markdown list.'),
 });
 export type GenerateReportRecommendationsOutput = z.infer<typeof GenerateReportRecommendationsOutputSchema>;
 
@@ -45,7 +45,13 @@ const prompt = ai.definePrompt({
   1. Report Content: Key insights, trends, and significant findings that should be included in the report.
   2. Report Formatting: Suggestions for organizing the report, including sections, tables, charts, and other visual aids.
 
-  Ensure the recommendations are clear, concise, and actionable for the administrator. Return the recommendations in a structured format that is easy to implement.`,
+  Ensure the recommendations are clear, concise, and actionable for the administrator. Return the recommendations in a structured format that is easy to implement.
+  Present your recommendations as markdown-formatted lists.
+  For example:
+  - First recommendation
+  - Second recommendation
+  - Third recommendation
+  `,
 });
 
 const generateReportRecommendationsFlow = ai.defineFlow(
