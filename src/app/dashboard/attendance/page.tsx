@@ -7,8 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { attendanceRecords } from '@/lib/placeholder-data';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
 type AttendanceRecord = {
@@ -60,8 +61,7 @@ const getMonthlyProgressData = (records: AttendanceRecord[], selectedDate: Date)
 
 export default function AttendancePage() {
   const { user } = useAuth();
-  const [currentDate] = useState<Date>(new Date());
-  const [displayedRecords, setDisplayedRecords] = useState<AttendanceRecord[]>([]);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const isEmployee = user?.role === 'Employee';
 
@@ -72,30 +72,66 @@ export default function AttendancePage() {
     return attendanceRecords;
   }, [isEmployee, user?.name]);
 
-  useEffect(() => {
-    const timezoneOffset = currentDate.getTimezoneOffset() * 60000;
-    const localISOTime = (new Date(currentDate.valueOf() - timezoneOffset)).toISOString().slice(0, 10);
-    setDisplayedRecords(userAttendanceRecords.filter(r => r.date === localISOTime));
-  }, [currentDate, userAttendanceRecords]);
+  const displayedRecords = useMemo(() => {
+    const month = selectedDate.getMonth();
+    const year = selectedDate.getFullYear();
+    return userAttendanceRecords.filter(r => {
+        const recordDate = new Date(r.date + 'T00:00:00');
+        return recordDate.getMonth() === month && recordDate.getFullYear() === year;
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [selectedDate, userAttendanceRecords]);
 
-  const monthlyProgressData = getMonthlyProgressData(userAttendanceRecords, currentDate);
-  const currentDateFormatted = currentDate.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const monthlyProgressData = getMonthlyProgressData(userAttendanceRecords, selectedDate);
   
-  const currentMonthFormatted = currentDate.toLocaleDateString('en-US', {
+  const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
   });
 
+  const handleMonthChange = (month: string) => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(parseInt(month, 10));
+    setSelectedDate(newDate);
+  };
+
+  const handleYearChange = (year: string) => {
+    const newDate = new Date(selectedDate);
+    newDate.setFullYear(parseInt(year, 10));
+    setSelectedDate(newDate);
+  };
+
+  const years = Array.from(new Set(attendanceRecords.map(r => new Date(r.date).getFullYear()))).sort((a,b) => b-a);
+  const months = Array.from({ length: 12 }, (_, i) => ({ value: i, name: new Date(0, i).toLocaleString('en-US', { month: 'long' }) }));
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Attendance</h1>
-        <p className="text-muted-foreground mt-2">View and manage employee attendance records.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Attendance</h1>
+          <p className="text-muted-foreground mt-2">View and manage employee attendance records.</p>
+        </div>
+        <div className="flex gap-2">
+            <Select onValueChange={handleMonthChange} defaultValue={selectedDate.getMonth().toString()}>
+                <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select Month" />
+                </SelectTrigger>
+                <SelectContent>
+                    {months.map(month => (
+                        <SelectItem key={month.value} value={month.value.toString()}>{month.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+            <Select onValueChange={handleYearChange} defaultValue={selectedDate.getFullYear().toString()}>
+                <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                    {years.map(year => (
+                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
       </div>
       
       <div className="grid gap-6">
@@ -103,7 +139,7 @@ export default function AttendancePage() {
             <Card>
                 <CardHeader>
                 <CardTitle>Detailed Records</CardTitle>
-                <CardDescription>All attendance entries for {currentDateFormatted}.</CardDescription>
+                <CardDescription>All attendance entries for {selectedMonthFormatted}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                 <Table>
@@ -121,7 +157,7 @@ export default function AttendancePage() {
                         displayedRecords.map((record, index) => (
                             <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
                             <TableCell className="font-medium">{record.name}</TableCell>
-                            <TableCell>{record.date}</TableCell>
+                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
                             <TableCell>{record.timeIn}</TableCell>
                             <TableCell>{record.timeOut}</TableCell>
                             <TableCell>
@@ -133,7 +169,7 @@ export default function AttendancePage() {
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={5} className="text-center">No attendance records for this day.</TableCell>
+                            <TableCell colSpan={5} className="text-center">No attendance records for this month.</TableCell>
                         </TableRow>
                     )}
                     </TableBody>
@@ -143,8 +179,8 @@ export default function AttendancePage() {
 
             <Card className="mt-6">
                 <CardHeader>
-                    <CardTitle>Monthly Progress for {currentMonthFormatted}</CardTitle>
-                    <CardDescription>Total days each employee was present in the current month.</CardDescription>
+                    <CardTitle>Monthly Progress for {selectedMonthFormatted}</CardTitle>
+                    <CardDescription>Total days each employee was present in the selected month.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
