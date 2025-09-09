@@ -158,7 +158,9 @@ export default function AttendancePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Attendance</h1>
-          <p className="text-muted-foreground mt-2">View and manage employee attendance records.</p>
+          <p className="text-muted-foreground mt-2">
+            Viewing records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>
+          </p>
         </div>
         <div className="flex gap-2">
             <Select onValueChange={handleMonthChange} defaultValue={selectedDate.getMonth().toString()}>
@@ -189,7 +191,7 @@ export default function AttendancePage() {
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
                     <CardTitle>Detailed Records</CardTitle>
-                    <CardDescription>All attendance entries for {selectedMonthFormatted}.</CardDescription>
+                    <CardDescription>All attendance entries for the selected period.</CardDescription>
                 </div>
                 <Button variant="outline" size="sm" onClick={handleExportDetailedPDF}>
                     <Download className="mr-2 h-4 w-4" /> Export PDF
@@ -234,7 +236,7 @@ export default function AttendancePage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
                 <CardTitle>Monthly Summary</CardTitle>
-                <CardDescription>Total attendance summary for {selectedMonthFormatted}.</CardDescription>
+                <CardDescription>Total attendance summary for the selected period.</CardDescription>
             </div>
              <Button variant="outline" size="sm" onClick={handleExportSummaryPDF}>
                 <Download className="mr-2 h-4 w-4" /> Export PDF
@@ -251,7 +253,7 @@ export default function AttendancePage() {
                     <TableHead className="text-center">Leave</TableHead>
                 </TableRow>
                 </TableHeader>
-                <TableBody>
+                <Tbody>
                 {Object.entries(monthlySummary).length > 0 ? (
                     Object.entries(monthlySummary).map(([name, summary]) => (
                     <TableRow key={name}>
@@ -267,7 +269,7 @@ export default function AttendancePage() {
                         <TableCell colSpan={5} className="text-center">No summary data for this month.</TableCell>
                     </TableRow>
                 )}
-                </TableBody>
+                </Tbody>
             </Table>
           </CardContent>
         </Card>
