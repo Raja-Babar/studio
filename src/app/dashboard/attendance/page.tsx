@@ -253,7 +253,7 @@ export default function AttendancePage() {
                     <TableHead className="text-center">Leave</TableHead>
                 </TableRow>
                 </TableHeader>
-                <Tbody>
+                <TableBody>
                 {Object.entries(monthlySummary).length > 0 ? (
                     Object.entries(monthlySummary).map(([name, summary]) => (
                     <TableRow key={name}>
@@ -269,7 +269,7 @@ export default function AttendancePage() {
                         <TableCell colSpan={5} className="text-center">No summary data for this month.</TableCell>
                     </TableRow>
                 )}
-                </Tbody>
+                </TableBody>
             </Table>
           </CardContent>
         </Card>
