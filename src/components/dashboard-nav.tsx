@@ -19,6 +19,7 @@ import {
   ScanLine,
   Sparkles,
   Users,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -33,6 +34,7 @@ const adminNavItems = [
   { href: '/dashboard/publications', icon: BookOpen, label: 'Publications' },
   { href: '/dashboard/scanning', icon: ScanLine, label: 'I.T & Scanning' },
   { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
+  { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
 ];
 
 const employeeNavItems = [
