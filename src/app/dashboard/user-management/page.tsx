@@ -173,7 +173,7 @@ export default function UserManagementPage() {
                         <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This will reset all user data to the default settings, deleting any new users you have created. This action cannot be undone.
-                        </Description>
+                        </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
