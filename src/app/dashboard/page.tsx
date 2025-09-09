@@ -58,7 +58,7 @@ function AdminDashboard() {
   const stats = [
     { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management' },
     { title: 'Projects Ongoing', value: '5', icon: Briefcase },
-    { title: 'Monthly Salaries', value: '$25,600', icon: DollarSign },
+    { title: 'Monthly Salaries', value: '$25,600', icon: DollarSign, href: '/dashboard/salaries' },
     { title: 'Scanning Progress', value: '75%', icon: BarChart },
   ];
 
