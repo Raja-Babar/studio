@@ -11,7 +11,6 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { useToast } from '@/hooks/use-toast';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 
@@ -29,9 +28,8 @@ const getStatusVariant = (status: AttendanceStatus) => {
 };
 
 export default function AttendancePage() {
-  const { user, attendanceRecords, markAttendance } = useAuth();
+  const { user, attendanceRecords } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const { toast } = useToast();
 
   const isEmployee = user?.role === 'Employee';
 
@@ -101,28 +99,6 @@ export default function AttendancePage() {
     doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
   };
 
-  const handleClockIn = () => {
-    if(user) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        markAttendance(user.id, todayStr, 'timeIn');
-        toast({
-            title: 'Clocked In',
-            description: 'Your arrival time has been recorded.'
-        });
-    }
-  }
-
-  const handleClockOut = () => {
-    if(user) {
-        const todayStr = new Date().toISOString().split('T')[0];
-        markAttendance(user.id, todayStr, 'timeOut');
-        toast({
-            title: 'Clocked Out',
-            description: 'Your departure time has been recorded.'
-        });
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
@@ -178,33 +154,19 @@ export default function AttendancePage() {
                 </TableHeader>
                 <TableBody>
                 {displayedRecords.length > 0 ? (
-                    displayedRecords.map((record) => {
-                      const isToday = record.date === new Date().toISOString().split('T')[0];
-                      const canClockIn = isToday && isEmployee && record.timeIn === '--:--';
-                      const canClockOut = isToday && isEmployee && record.timeIn !== '--:--' && record.timeOut === '--:--';
-
-                      return (
+                    displayedRecords.map((record) => (
                         <TableRow key={`${record.employeeId}-${record.date}`}>
                             <TableCell className="font-medium">{record.name}</TableCell>
                             <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
-                            <TableCell>
-                              {canClockIn ? (
-                                <Button size="sm" onClick={handleClockIn}>Clock In</Button>
-                              ) : record.timeIn}
-                            </TableCell>
-                            <TableCell>
-                              {canClockOut ? (
-                                <Button size="sm" onClick={handleClockOut}>Clock Out</Button>
-                              ) : record.timeOut}
-                            </TableCell>
+                            <TableCell>{record.timeIn}</TableCell>
+                            <TableCell>{record.timeOut}</TableCell>
                             <TableCell>
                                 <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
                                 {record.status}
                                 </Badge>
                             </TableCell>
                         </TableRow>
-                      );
-                    })
+                    ))
                 ) : (
                     <TableRow>
                        {isEmployee && user ? (

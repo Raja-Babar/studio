@@ -38,7 +38,6 @@ type AuthContextType = {
   updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
-  markAttendance: (employeeId: string, date: string, type: 'timeIn' | 'timeOut') => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -295,27 +294,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     syncUsersToStorage(remainingUsers);
   };
   
-  const markAttendance = (employeeId: string, date: string, type: 'timeIn' | 'timeOut') => {
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-    setAttendanceRecords(prevRecords => {
-      const updatedRecords = prevRecords.map(record => {
-        if (record.employeeId === employeeId && record.date === date) {
-          const updatedRecord = { ...record, [type]: timeString };
-          if (type === 'timeIn') {
-            updatedRecord.status = 'Present';
-          }
-          return updatedRecord;
-        }
-        return record;
-      });
-      syncAttendanceToStorage(updatedRecords);
-      return updatedRecords;
-    });
-  };
-
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, markAttendance };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords };
 
   if (isLoading) {
     return (

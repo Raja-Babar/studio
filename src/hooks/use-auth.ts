@@ -34,7 +34,6 @@ type AuthContextType = {
   updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
-  markAttendance: (employeeId: string, date: string, type: 'timeIn' | 'timeOut') => void;
 };
 
 export const useAuth = (): AuthContextType => {
