@@ -147,42 +147,6 @@ export default function AttendancePage() {
       
       <div className="grid gap-6">
         <Card>
-          <CardHeader>
-          <CardTitle>Monthly Summary</CardTitle>
-          <CardDescription>Total attendance summary for {selectedMonthFormatted}.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Employee Name</TableHead>
-                    <TableHead className="text-center">Working Days</TableHead>
-                    <TableHead className="text-center">Present</TableHead>
-                    <TableHead className="text-center">Absent</TableHead>
-                    <TableHead className="text-center">Leave</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {Object.entries(monthlySummary).length > 0 ? (
-                    Object.entries(monthlySummary).map(([name, summary]) => (
-                    <TableRow key={name}>
-                        <TableCell className="font-medium">{name}</TableCell>
-                        <TableCell className="text-center">{summary.workingDays}</TableCell>
-                        <TableCell className="text-center">{summary.present}</TableCell>
-                        <TableCell className="text-center">{summary.absent}</TableCell>
-                        <TableCell className="text-center">{summary.leave}</TableCell>
-                    </TableRow>
-                    ))
-                ) : (
-                    <TableRow>
-                        <TableCell colSpan={5} className="text-center">No summary data for this month.</TableCell>
-                    </TableRow>
-                )}
-                </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-        <Card>
             <CardHeader>
             <CardTitle>Detailed Records</CardTitle>
             <CardDescription>All attendance entries for {selectedMonthFormatted}.</CardDescription>
@@ -221,6 +185,42 @@ export default function AttendancePage() {
                 </TableBody>
             </Table>
             </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+          <CardTitle>Monthly Summary</CardTitle>
+          <CardDescription>Total attendance summary for {selectedMonthFormatted}.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+                <TableHeader>
+                <TableRow>
+                    <TableHead>Employee Name</TableHead>
+                    <TableHead className="text-center">Working Days</TableHead>
+                    <TableHead className="text-center">Present</TableHead>
+                    <TableHead className="text-center">Absent</TableHead>
+                    <TableHead className="text-center">Leave</TableHead>
+                </TableRow>
+                </TableHeader>
+                <TableBody>
+                {Object.entries(monthlySummary).length > 0 ? (
+                    Object.entries(monthlySummary).map(([name, summary]) => (
+                    <TableRow key={name}>
+                        <TableCell className="font-medium">{name}</TableCell>
+                        <TableCell className="text-center">{summary.workingDays}</TableCell>
+                        <TableCell className="text-center">{summary.present}</TableCell>
+                        <TableCell className="text-center">{summary.absent}</TableCell>
+                        <TableCell className="text-center">{summary.leave}</TableCell>
+                    </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                        <TableCell colSpan={5} className="text-center">No summary data for this month.</TableCell>
+                    </TableRow>
+                )}
+                </TableBody>
+            </Table>
+          </CardContent>
         </Card>
       </div>
     </div>
