@@ -40,7 +40,6 @@ const adminNavItems = [
 const employeeNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'My Attendance' },
-  { href: '/dashboard/employee-reports', icon: FileText, label: 'Employee Reports' },
 ];
 
 export function DashboardNav() {
