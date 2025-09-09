@@ -26,7 +26,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold tracking-tight">Welcome, {user.name}!</h1>
+      <h1 className="text-4xl font-bold tracking-tight">Welcome, {user.name}!</h1>
       {user.role === 'Admin' ? (
         <AdminDashboard />
       ) : (
@@ -73,20 +73,20 @@ function AdminDashboard() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">Admin Overview</h2>
+      <h2 className="text-3xl font-semibold mb-4">Admin Overview</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
             const card = (
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className={`text-sm font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
+                    <CardTitle className={`text-base font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                     {stat.value ? (
                         <>
                             <div className="text-2xl font-bold">{stat.value}</div>
-                            <p className="text-xs text-muted-foreground">+2.1% from last month</p>
+                            <p className="text-sm text-muted-foreground">+2.1% from last month</p>
                         </>
                     ) : (
                         <div className="text-2xl font-bold">&nbsp;</div>
