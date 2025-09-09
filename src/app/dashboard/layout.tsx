@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { DashboardNav } from '@/components/dashboard-nav';
 import { UserNav } from '@/components/user-nav';
-import { BookCopy } from 'lucide-react';
+import { BookCopy, ShieldCheck } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -26,8 +26,8 @@ export default function DashboardLayout({
     return (
         <div className="flex h-screen w-screen items-center justify-center bg-background">
             <div className="flex items-center space-x-2">
-                <BookCopy className="h-8 w-8 animate-pulse text-primary" />
-                <p className="text-lg text-muted-foreground">Loading Portal...</p>
+                <ShieldCheck className="h-8 w-8 animate-pulse text-primary" />
+                <p className="text-lg text-muted-foreground">Loading Secure Portal...</p>
             </div>
         </div>
     );

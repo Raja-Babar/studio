@@ -18,11 +18,13 @@ import {
   BookOpen,
   ScanLine,
   Sparkles,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
 const adminNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
   { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
   { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
@@ -51,7 +53,7 @@ export function DashboardNav() {
           <SidebarMenuItem key={item.href}>
             <Link href={item.href}>
               <SidebarMenuButton
-                isActive={pathname === item.href}
+                isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
                 tooltip={item.label}
               >
                 <item.icon />

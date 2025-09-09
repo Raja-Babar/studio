@@ -116,8 +116,8 @@ export default function LoginPage() {
                             Sign up
                         </Link>
                     </p>
-                    <p className="mt-2">Admin: admin@example.com / password</p>
-                    <p>Employee: employee@example.com / password</p>
+                    <p className="mt-2">Admin: admin@example.com / admin123</p>
+                    <p>Employee: employee@example.com / emp123</p>
                 </div>
               </form>
             </Form>
