@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Download, Upload, Trash2, Edit } from 'lucide-react';
+import { Download, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -23,11 +23,10 @@ type User = {
 };
 
 export default function UserManagementPage() {
-  const { user, getUsers, importUsers, resetUsers, deleteUser, updateUser } = useAuth();
+  const { user, getUsers, deleteUser, updateUser } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [allUsers, setAllUsers] = useState<User[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editedName, setEditedName] = useState('');
@@ -53,46 +52,6 @@ export default function UserManagementPage() {
     linkElement.click();
 
     toast({ title: 'Success', description: 'User data exported successfully.' });
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        try {
-          const text = e.target?.result;
-          if (typeof text === 'string') {
-            const importedData = JSON.parse(text);
-            // Simple validation
-            if (Array.isArray(importedData) && importedData.every(u => u.name && u.email && u.role && u.password)) {
-              await importUsers(importedData);
-              setAllUsers(getUsers());
-              toast({ title: 'Success', description: 'Users imported successfully. You may need to refresh for all changes to apply.' });
-            } else {
-              throw new Error('Invalid file format.');
-            }
-          }
-        } catch (error) {
-          toast({ variant: 'destructive', title: 'Import Failed', description: 'Could not import users. Please check the file format.' });
-        }
-      };
-      reader.readAsText(file);
-    }
-    // Reset file input
-    if(fileInputRef.current) {
-        fileInputRef.current.value = '';
-    }
-  };
-
-  const handleReset = async () => {
-    await resetUsers();
-    setAllUsers(getUsers());
-    toast({ title: 'Success', description: 'User data has been reset to default.' });
   };
 
   const handleDelete = async (email: string) => {
@@ -149,16 +108,6 @@ export default function UserManagementPage() {
                 <CardDescription>A list of all registered users in the system.</CardDescription>
             </div>
             <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleImportClick}>
-                    <Upload className="mr-2 h-4 w-4" /> Import
-                </Button>
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
-                    accept="application/json"
-                />
                 <Button variant="outline" size="sm" onClick={handleExport}>
                     <Download className="mr-2 h-4 w-4" /> Export
                 </Button>
