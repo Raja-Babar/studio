@@ -1,3 +1,4 @@
+
 export const pettyCashRecords = JSON.stringify(
   [
     { "date": "2024-07-01", "description": "Office Supplies", "amount": -55.20 },
@@ -20,29 +21,39 @@ export const scanningProgressRecords = JSON.stringify(
 
 // Corresponds to the default users in auth-provider.tsx
 export const attendanceRecords = [
-  // Admin User records
-  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-28', status: 'Present' },
-  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-27', status: 'Present' },
-  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-26', status: 'Present' },
-  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-25', status: 'Absent' },
-  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-24', status: 'Present' },
+  // Admin User records for today
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-29', time: '09:00 AM', status: 'Present' },
+
+  // Employee User records for today
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-29', time: '09:15 AM', status: 'Present' },
+
+  // Other employee records for today
+  { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-29', time: '09:05 AM', status: 'Present' },
+  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-29', time: '09:02 AM', status: 'Present' },
+  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-29', time: '--:--', status: 'Absent' },
+  { employeeId: 'EMP004', name: 'Zainab Omar', date: '2024-07-29', time: '09:30 AM', status: 'Present' },
+  { employeeId: 'EMP005', name: 'Bilal Ahmed', date: '2024-07-29', time: '--:--', status: 'Leave' },
+  { employeeId: 'EMP006', name: 'Sana Javed', date: '2024-07-29', time: '08:55 AM', status: 'Present' },
+  { employeeId: 'EMP007', name: 'Umar Farooq', date: '2024-07-29', time: '09:10 AM', status: 'Present' },
+
+  // Previous days' records for chart data
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-28', time: '09:01 AM', status: 'Present' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-27', time: '09:03 AM', status: 'Present' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-26', time: '08:58 AM', status: 'Present' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-25', time: '--:--', status: 'Absent' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-24', time: '09:05 AM', status: 'Present' },
   
-  // Employee User records
-  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-28', status: 'Present' },
-  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-27', status: 'Leave' },
-  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-26', status: 'Present' },
-  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-25', status: 'Present' },
-  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-24', status: 'Present' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-28', time: '09:12 AM', status: 'Present' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-27', time: '--:--', status: 'Leave' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-26', time: '09:18 AM', status: 'Present' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-25', time: '09:11 AM', status: 'Present' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-24', time: '09:09 AM', status: 'Present' },
   
-  // Other employee records for Admin to see
-  { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-28', status: 'Present' },
-  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-28', status: 'Present' },
-  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-28', status: 'Absent' },
-  { employeeId: 'EMP004', name: 'Zainab Omar', date: '2024-07-28', status: 'Present' },
-  { employeeId: 'EMP005', name: 'Bilal Ahmed', date: '2024-07-28', status: 'Leave' },
-  { employeeId: 'EMP006', name: 'Sana Javed', date: '2024-07-28', status: 'Present' },
-  { employeeId: 'EMP007', name: 'Umar Farooq', date: '2024-07-28', status: 'Present' },
-  { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-27', status: 'Present' },
-  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-27', status: 'Present' },
-  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-27', status: 'Present' },
+  { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-28', time: '09:06 AM', status: 'Present' },
+  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-28', time: '09:03 AM', status: 'Present' },
+  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-28', time: '--:--', status: 'Absent' },
+  
+  { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-27', time: '09:00 AM', status: 'Present' },
+  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-27', time: '09:01 AM', status: 'Present' },
+  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-27', time: '08:59 AM', status: 'Present' },
 ];

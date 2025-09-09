@@ -1,3 +1,4 @@
+
 // src/app/dashboard/attendance/page.tsx
 'use client';
 
@@ -14,6 +15,7 @@ type AttendanceRecord = {
     employeeId: string;
     name: string;
     date: string;
+    time: string;
     status: string;
 };
 
@@ -35,7 +37,7 @@ const getMonthlyProgressData = (records: AttendanceRecord[], selectedDate: Date)
     const year = selectedDate.getFullYear();
 
     const monthlyRecords = records.filter(record => {
-        const recordDate = new Date(record.date + 'T00:00:00');
+        const recordDate = new Date(record.date + 'T00:00:00'); // Use T00:00:00 to avoid timezone issues
         return recordDate.getMonth() === month && recordDate.getFullYear() === year;
     });
 
@@ -108,6 +110,7 @@ export default function AttendancePage() {
                     <TableRow>
                         <TableHead>Employee Name</TableHead>
                         <TableHead>Date</TableHead>
+                        <TableHead>Time</TableHead>
                         <TableHead>Status</TableHead>
                     </TableRow>
                     </TableHeader>
@@ -117,6 +120,7 @@ export default function AttendancePage() {
                             <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
                             <TableCell className="font-medium">{record.name}</TableCell>
                             <TableCell>{record.date}</TableCell>
+                            <TableCell>{record.time}</TableCell>
                             <TableCell>
                                 <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
                                 {record.status}
@@ -126,7 +130,7 @@ export default function AttendancePage() {
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={3} className="text-center">No attendance records for this day.</TableCell>
+                            <TableCell colSpan={4} className="text-center">No attendance records for this day.</TableCell>
                         </TableRow>
                     )}
                     </TableBody>
