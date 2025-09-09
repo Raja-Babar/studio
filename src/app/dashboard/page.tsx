@@ -59,7 +59,7 @@ function AdminDashboard() {
   const stats = [
     { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management' },
     { title: 'Projects Ongoing', value: '5', icon: Briefcase },
-    { title: 'Monthly Salaries', value: null, icon: DollarSign, href: '/dashboard/salaries' },
+    { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
     { title: 'Scanning Progress', value: '75%', icon: BarChart },
   ];
 
@@ -79,7 +79,7 @@ function AdminDashboard() {
             const card = (
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                    <CardTitle className={`text-sm font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
