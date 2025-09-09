@@ -77,12 +77,12 @@ function AdminDashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
             const card = (
-                 <Card className="flex flex-col">
+                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className={`text-base font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
-                    <CardContent className="flex-grow">
+                    <CardContent>
                     {stat.value ? (
                         <>
                             <div className="text-2xl font-bold">{stat.value}</div>
@@ -97,12 +97,12 @@ function AdminDashboard() {
 
             if (stat.href) {
                 return (
-                    <Link href={stat.href} key={stat.title} className="flex">
+                    <Link href={stat.href} key={stat.title}>
                        {card}
                     </Link>
                 )
             }
-            return <div key={stat.title} className="flex">{card}</div>;
+            return <div key={stat.title}>{card}</div>;
         })}
       </div>
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
