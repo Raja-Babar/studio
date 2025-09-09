@@ -17,6 +17,7 @@ type MonthlySummary = {
     present: number;
     absent: number;
     leave: number;
+    workingDays: number;
   };
 };
 
@@ -32,6 +33,20 @@ const getStatusVariant = (status: AttendanceStatus) => {
       return 'outline';
   }
 };
+
+const getWorkingDaysInMonth = (year: number, month: number) => {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let workingDays = 0;
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) { // 0 = Sunday, 6 = Saturday
+            workingDays++;
+        }
+    }
+    return workingDays;
+};
+
 
 export default function AttendancePage() {
   const { user } = useAuth();
@@ -56,17 +71,21 @@ export default function AttendancePage() {
   }, [selectedDate, userAttendanceRecords]);
 
   const monthlySummary: MonthlySummary = useMemo(() => {
+    const year = selectedDate.getFullYear();
+    const month = selectedDate.getMonth();
+    const workingDays = getWorkingDaysInMonth(year, month);
+
     return monthlyRecords.reduce((acc: MonthlySummary, record) => {
       if (!acc[record.name]) {
-        acc[record.name] = { present: 0, absent: 0, leave: 0 };
+        acc[record.name] = { present: 0, absent: 0, leave: 0, workingDays: workingDays };
       }
-      const status = record.status.toLowerCase() as keyof MonthlySummary[string];
+      const status = record.status.toLowerCase() as keyof Omit<MonthlySummary[string], 'workingDays'>;
       if (status in acc[record.name]) {
         acc[record.name][status]++;
       }
       return acc;
     }, {});
-  }, [monthlyRecords]);
+  }, [monthlyRecords, selectedDate]);
 
 
   const displayedRecords = useMemo(() => {
@@ -81,12 +100,14 @@ export default function AttendancePage() {
   const handleMonthChange = (month: string) => {
     const newDate = new Date(selectedDate);
     newDate.setMonth(parseInt(month, 10));
+    newDate.setDate(1); // Set to the first day of the month to avoid issues
     setSelectedDate(newDate);
   };
 
   const handleYearChange = (year: string) => {
     const newDate = new Date(selectedDate);
     newDate.setFullYear(parseInt(year, 10));
+    newDate.setDate(1); // Set to the first day of the month to avoid issues
     setSelectedDate(newDate);
   };
 
@@ -124,7 +145,7 @@ export default function AttendancePage() {
         </div>
       </div>
       
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6">
         <Card>
           <CardHeader>
           <CardTitle>Monthly Summary</CardTitle>
@@ -135,6 +156,7 @@ export default function AttendancePage() {
                 <TableHeader>
                 <TableRow>
                     <TableHead>Employee Name</TableHead>
+                    <TableHead className="text-center">Working Days</TableHead>
                     <TableHead className="text-center">Present</TableHead>
                     <TableHead className="text-center">Absent</TableHead>
                     <TableHead className="text-center">Leave</TableHead>
@@ -145,6 +167,7 @@ export default function AttendancePage() {
                     Object.entries(monthlySummary).map(([name, summary]) => (
                     <TableRow key={name}>
                         <TableCell className="font-medium">{name}</TableCell>
+                        <TableCell className="text-center">{summary.workingDays}</TableCell>
                         <TableCell className="text-center">{summary.present}</TableCell>
                         <TableCell className="text-center">{summary.absent}</TableCell>
                         <TableCell className="text-center">{summary.leave}</TableCell>
@@ -152,7 +175,7 @@ export default function AttendancePage() {
                     ))
                 ) : (
                     <TableRow>
-                        <TableCell colSpan={4} className="text-center">No summary data for this month.</TableCell>
+                        <TableCell colSpan={5} className="text-center">No summary data for this month.</TableCell>
                     </TableRow>
                 )}
                 </TableBody>
