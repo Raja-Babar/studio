@@ -17,3 +17,16 @@ export const scanningProgressRecords = JSON.stringify(
     { "book_id": "BK005", "title": "Modern Agriculture", "status": "Scanning-QC", "scanner": "Ahmed", "qc_by": null }
   ], null, 2
 );
+
+export const attendanceRecords = [
+  { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-28', status: 'Present' },
+  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-28', status: 'Present' },
+  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-28', status: 'Absent' },
+  { employeeId: 'EMP004', name: 'Zainab Omar', date: '2024-07-28', status: 'Present' },
+  { employeeId: 'EMP005', name: 'Bilal Ahmed', date: '2024-07-28', status: 'Leave' },
+  { employeeId: 'EMP006', name: 'Sana Javed', date: '2024-07-28', status: 'Present' },
+  { employeeId: 'EMP007', name: 'Umar Farooq', date: '2024-07-28', status: 'Present' },
+  { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-27', status: 'Present' },
+  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-27', status: 'Present' },
+  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-27', status: 'Present' },
+];

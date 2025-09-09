@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
 import { DashboardNav } from '@/components/dashboard-nav';
 import { UserNav } from '@/components/user-nav';
-import { BookCopy, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -38,7 +38,7 @@ export default function DashboardLayout({
       <Sidebar>
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-            <BookCopy className="h-7 w-7 text-primary" />
+            <ShieldCheck className="h-7 w-7 text-primary" />
             <span className="text-lg font-semibold">Panhwar Portal</span>
           </div>
           <DashboardNav />
