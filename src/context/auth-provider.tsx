@@ -23,6 +23,8 @@ type AuthContextType = {
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
   importUsers: (users: StoredUser[]) => Promise<void>;
   resetUsers: () => Promise<void>;
+  updateUser: (email: string, data: Partial<Omit<User, 'email'>>) => Promise<void>;
+  deleteUser: (email: string) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -219,8 +221,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setMockUsers(defaultUsers);
     syncUsersToStorage(defaultUsers);
   };
+
+  const updateUser = async (email: string, data: Partial<Omit<User, 'email'>>): Promise<void> => {
+    if (mockUsers[email]) {
+      const updatedUsers = {
+        ...mockUsers,
+        [email]: { ...mockUsers[email], ...data }
+      };
+      setMockUsers(updatedUsers);
+      syncUsersToStorage(updatedUsers);
+      // If the currently logged-in user is the one being updated, update their session data too.
+      if (user?.email === email) {
+        const { passwordHash: _, ...userToStore } = updatedUsers[email];
+        setUser(userToStore);
+        localStorage.setItem('user', JSON.stringify(userToStore));
+      }
+    }
+  };
+
+  const deleteUser = async (email: string): Promise<void> => {
+    const { [email]: _, ...remainingUsers } = mockUsers;
+    setMockUsers(remainingUsers);
+    syncUsersToStorage(remainingUsers);
+  };
   
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser };
 
   if (isLoading) {
     return (

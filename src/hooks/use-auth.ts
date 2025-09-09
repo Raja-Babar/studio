@@ -21,6 +21,8 @@ type AuthContextType = {
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
   importUsers: (users: StoredUser[]) => Promise<void>;
   resetUsers: () => Promise<void>;
+  updateUser: (email: string, data: Partial<Omit<User, 'email'>>) => Promise<void>;
+  deleteUser: (email: string) => Promise<void>;
 };
 
 export const useAuth = (): AuthContextType => {
