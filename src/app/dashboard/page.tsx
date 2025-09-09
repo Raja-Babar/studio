@@ -57,10 +57,10 @@ function AdminDashboard() {
   const totalEmployees = getUsers().length;
 
   const stats = [
-    { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management' },
-    { title: 'Projects Ongoing', value: '5', icon: Briefcase },
+    { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management', subtext: "+5.1% from last month" },
+    { title: 'Projects Ongoing', value: '5', icon: Briefcase, subtext: "+1 from last month" },
     { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
-    { title: 'Scanning Progress', value: '75%', icon: BarChart },
+    { title: 'Scanning Progress', value: '75%', icon: BarChart, subtext: "+2.1% from last month" },
   ];
 
   const reportStages = [
@@ -76,33 +76,27 @@ function AdminDashboard() {
       <h2 className="text-3xl font-semibold mb-4">Admin Overview</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
-            const card = (
+            const cardContent = (
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className={`text-base font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                    {stat.value ? (
-                        <>
-                            <div className="text-2xl font-bold">{stat.value}</div>
-                            <p className="text-sm text-muted-foreground">+2.1% from last month</p>
-                        </>
-                    ) : (
-                        <div className="text-2xl font-bold">&nbsp;</div>
-                    )}
+                    <div className="text-2xl font-bold">{stat.value || <>&nbsp;</>}</div>
+                    <p className="text-sm text-muted-foreground h-4">{stat.subtext || ''}</p>
                     </CardContent>
                 </Card>
             );
 
             if (stat.href) {
                 return (
-                    <Link href={stat.href} key={stat.title}>
-                       {card}
+                    <Link href={stat.href} key={stat.title} className="flex">
+                       {cardContent}
                     </Link>
                 )
             }
-            return <div key={stat.title}>{card}</div>;
+            return <div key={stat.title} className="flex">{cardContent}</div>;
         })}
       </div>
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
