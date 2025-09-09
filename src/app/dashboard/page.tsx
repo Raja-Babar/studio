@@ -34,8 +34,11 @@ export default function DashboardPage() {
 }
 
 function AdminDashboard() {
+  const { getUsers } = useAuth();
+  const totalEmployees = getUsers().length;
+
   const stats = [
-    { title: 'Total Employees', value: '42', icon: Users, href: '/dashboard/user-management' },
+    { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management' },
     { title: 'Projects Ongoing', value: '5', icon: Briefcase },
     { title: 'Monthly Salaries', value: '$25,600', icon: DollarSign },
     { title: 'Scanning Progress', value: '75%', icon: BarChart },
