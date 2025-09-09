@@ -44,6 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (email: string, pass: string): Promise<void> => {
+    setIsLoading(true);
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         const foundUser = MOCK_USERS[email as keyof typeof MOCK_USERS];
@@ -51,8 +52,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const { password, ...userToStore } = foundUser;
           setUser(userToStore);
           localStorage.setItem('user', JSON.stringify(userToStore));
+          setIsLoading(false);
           resolve();
         } else {
+          setIsLoading(false);
           reject(new Error('Invalid email or password.'));
         }
       }, 1000);
@@ -65,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/login');
   };
   
-  if (isLoading) {
+  if (isLoading && !user) {
     return (
         <div className="flex h-screen w-screen items-center justify-center">
             <div className="w-full max-w-md space-y-4">
