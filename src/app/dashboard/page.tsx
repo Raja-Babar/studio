@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { BarChart, Briefcase, DollarSign, Users } from 'lucide-react';
 import Link from 'next/link';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -33,6 +35,22 @@ export default function DashboardPage() {
   );
 }
 
+const getStatusVariant = (status: string) => {
+  switch (status) {
+    case 'Generated':
+      return 'default';
+    case 'Approved':
+      return 'secondary';
+    case 'In Review':
+      return 'outline';
+    case 'Draft':
+        return 'destructive'
+    default:
+      return 'outline';
+  }
+};
+
+
 function AdminDashboard() {
   const { getUsers } = useAuth();
   const totalEmployees = getUsers().length;
@@ -43,6 +61,14 @@ function AdminDashboard() {
     { title: 'Monthly Salaries', value: '$25,600', icon: DollarSign },
     { title: 'Scanning Progress', value: '75%', icon: BarChart },
   ];
+
+  const reportStages = [
+    { name: 'Q2 Financial Summary', stage: 'Generated', nextAction: 'N/A' },
+    { name: 'Employee Attendance Analysis', stage: 'Approved', nextAction: 'Generation Pending' },
+    { name: 'Scanning Project Progress', stage: 'In Review', nextAction: '2024-08-10' },
+    { name: 'Annual User Activity Report', stage: 'Draft', nextAction: '2024-08-05' },
+  ];
+
 
   return (
     <div>
@@ -72,14 +98,45 @@ function AdminDashboard() {
             return <div key={stat.title}>{card}</div>;
         })}
       </div>
-       <Card className="mt-6">
-          <CardHeader>
-              <CardTitle>Recent Activities</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">No recent activities to display.</p>
-          </CardContent>
-       </Card>
+       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <Card>
+            <CardHeader>
+                <CardTitle>Report Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Report Name</TableHead>
+                            <TableHead>Stage</TableHead>
+                            <TableHead>Next Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {reportStages.map((report) => (
+                            <TableRow key={report.name}>
+                                <TableCell className="font-medium">{report.name}</TableCell>
+                                <TableCell>
+                                    <Badge variant={getStatusVariant(report.stage)}>
+                                        {report.stage}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>{report.nextAction}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>Recent Activities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">No recent activities to display.</p>
+            </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
