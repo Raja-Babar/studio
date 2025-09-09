@@ -31,18 +31,28 @@ const getStatusVariant = (status: AttendanceStatus) => {
   }
 };
 
-const getChartData = (records: AttendanceRecord[]) => {
-    const counts = records.reduce((acc, record) => {
-        const status = record.status as AttendanceStatus;
-        acc[status] = (acc[status] || 0) + 1;
-        return acc;
-    }, {} as Record<AttendanceStatus, number>);
+const getMonthlyProgressData = (records: AttendanceRecord[], selectedDate: Date) => {
+    const month = selectedDate.getMonth();
+    const year = selectedDate.getFullYear();
 
-    return [
-        { status: 'Present', count: counts.Present || 0 },
-        { status: 'Absent', count: counts.Absent || 0 },
-        { status: 'Leave', count: counts.Leave || 0 },
-    ];
+    const monthlyRecords = records.filter(record => {
+        const recordDate = new Date(record.date + 'T00:00:00');
+        return recordDate.getMonth() === month && recordDate.getFullYear() === year;
+    });
+
+    const employeeProgress = monthlyRecords.reduce((acc, record) => {
+        if (record.status === 'Present') {
+            acc[record.name] = (acc[record.name] || 0) + 1;
+        } else if (!acc[record.name]) {
+            acc[record.name] = 0;
+        }
+        return acc;
+    }, {} as Record<string, number>);
+    
+    return Object.entries(employeeProgress).map(([name, presentDays]) => ({
+        name,
+        presentDays,
+    })).sort((a, b) => b.presentDays - a.presentDays);
 };
 
 
@@ -66,12 +76,18 @@ export default function AttendancePage() {
     setDisplayedRecords(userAttendanceRecords.filter(r => r.date === localISOTime));
   }, [selectedDate, userAttendanceRecords]);
 
-  const chartData = getChartData(displayedRecords);
+  const monthlyProgressData = getMonthlyProgressData(userAttendanceRecords, selectedDate);
   const selectedDateFormatted = selectedDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+  
+  const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+  });
+
 
   const markedDays = useMemo(() => {
     // We need to parse the date strings as UTC to avoid timezone issues with `new Date()`
@@ -127,14 +143,14 @@ export default function AttendancePage() {
 
             <Card className="mt-6">
                 <CardHeader>
-                    <CardTitle>Summary for {selectedDateFormatted}</CardTitle>
-                    <CardDescription>A quick overview of attendance for the selected day.</CardDescription>
+                    <CardTitle>Monthly Progress for {selectedMonthFormatted}</CardTitle>
+                    <CardDescription>Total days each employee was present in the selected month.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={chartData}>
+                        <BarChart data={monthlyProgressData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="status" />
+                            <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
                             <YAxis allowDecimals={false} />
                             <Tooltip
                                 contentStyle={{
@@ -144,7 +160,7 @@ export default function AttendancePage() {
                                 }}
                             />
                             <Legend />
-                            <Bar dataKey="count" fill="hsl(var(--primary))" name="Employees" />
+                            <Bar dataKey="presentDays" fill="hsl(var(--primary))" name="Present Days" />
                         </BarChart>
                     </ResponsiveContainer>
                 </CardContent>
