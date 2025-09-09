@@ -70,31 +70,6 @@ export default function AttendancePage() {
 
       <Card>
         <CardHeader>
-            <CardTitle>Today's Summary</CardTitle>
-            <CardDescription>A quick overview of attendance for {todayFormatted}.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="status" />
-                    <YAxis allowDecimals={false} />
-                    <Tooltip
-                        contentStyle={{
-                            background: "hsl(var(--card))",
-                            borderColor: "hsl(var(--border))",
-                            color: "hsl(var(--card-foreground))"
-                        }}
-                    />
-                    <Legend />
-                    <Bar dataKey="count" fill="hsl(var(--primary))" name="Employees" />
-                </BarChart>
-            </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Detailed Records</CardTitle>
           <CardDescription>All attendance entries for {todayFormatted}.</CardDescription>
         </CardHeader>
@@ -127,6 +102,31 @@ export default function AttendancePage() {
               )}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Today's Summary</CardTitle>
+            <CardDescription>A quick overview of attendance for {todayFormatted}.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="status" />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip
+                        contentStyle={{
+                            background: "hsl(var(--card))",
+                            borderColor: "hsl(var(--border))",
+                            color: "hsl(var(--card-foreground))"
+                        }}
+                    />
+                    <Legend />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" name="Employees" />
+                </BarChart>
+            </ResponsiveContainer>
         </CardContent>
       </Card>
     </div>
