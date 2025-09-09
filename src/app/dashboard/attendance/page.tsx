@@ -6,20 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { attendanceRecords } from '@/lib/placeholder-data';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
-type AttendanceRecord = {
-    employeeId: string;
-    name: string;
-    date: string;
-    timeIn: string;
-    timeOut: string;
-    status: string;
-};
 
 const getStatusVariant = (status: AttendanceStatus) => {
   switch (status) {
@@ -33,31 +24,6 @@ const getStatusVariant = (status: AttendanceStatus) => {
       return 'outline';
   }
 };
-
-const getMonthlyProgressData = (records: AttendanceRecord[], selectedDate: Date) => {
-    const month = selectedDate.getMonth();
-    const year = selectedDate.getFullYear();
-
-    const monthlyRecords = records.filter(record => {
-        const recordDate = new Date(record.date + 'T00:00:00'); // Use T00:00:00 to avoid timezone issues
-        return recordDate.getMonth() === month && recordDate.getFullYear() === year;
-    });
-
-    const employeeProgress = monthlyRecords.reduce((acc, record) => {
-        if (record.status === 'Present') {
-            acc[record.name] = (acc[record.name] || 0) + 1;
-        } else if (!acc[record.name]) {
-            acc[record.name] = 0;
-        }
-        return acc;
-    }, {} as Record<string, number>);
-    
-    return Object.entries(employeeProgress).map(([name, presentDays]) => ({
-        name,
-        presentDays,
-    })).sort((a, b) => b.presentDays - a.presentDays);
-};
-
 
 export default function AttendancePage() {
   const { user } = useAuth();
@@ -81,8 +47,6 @@ export default function AttendancePage() {
     }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [selectedDate, userAttendanceRecords]);
 
-  const monthlyProgressData = getMonthlyProgressData(userAttendanceRecords, selectedDate);
-  
   const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -174,31 +138,6 @@ export default function AttendancePage() {
                     )}
                     </TableBody>
                 </Table>
-                </CardContent>
-            </Card>
-
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle>Monthly Progress for {selectedMonthFormatted}</CardTitle>
-                    <CardDescription>Total days each employee was present in the selected month.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={monthlyProgressData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} interval={0} />
-                            <YAxis allowDecimals={false} />
-                            <Tooltip
-                                contentStyle={{
-                                    background: "hsl(var(--card))",
-                                    borderColor: "hsl(var(--border))",
-                                    color: "hsl(var(--card-foreground))"
-                                }}
-                            />
-                            <Legend />
-                            <Bar dataKey="presentDays" fill="hsl(var(--primary))" name="Present Days" />
-                        </BarChart>
-                    </ResponsiveContainer>
                 </CardContent>
             </Card>
         </div>
