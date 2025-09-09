@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,6 +15,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Terminal } from 'lucide-react';
 import type { GenerateReportRecommendationsOutput } from '@/ai/flows/generate-report-recommendations';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const formSchema = z.object({
   pettyCashRecords: z.string().min(10, {
@@ -60,50 +62,55 @@ export function ReportAssistantForm({ pettyCashRecords, scanningProgressRecords,
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle>Input Data</CardTitle>
-          <CardDescription>
-            Provide data from various records. You can use the pre-filled sample data.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="pettyCashRecords"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Petty Cash Records (JSON)</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter petty cash records" {...field} rows={8} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="scanningProgressRecords"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Scanning Progress Records (JSON)</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter scanning progress records" {...field} rows={8} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Generating...' : 'Generate Recommendations'}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+       <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <Accordion type="single" collapsible className="w-full" defaultValue="item-1">
+            <AccordionItem value="item-1">
+              <AccordionTrigger>
+                <div className="flex flex-col items-start">
+                    <h3 className="text-lg font-semibold">Input Data</h3>
+                    <p className="text-sm text-muted-foreground">View and edit the records used for generating recommendations.</p>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid md:grid-cols-2 gap-6 pt-4">
+                  <FormField
+                    control={form.control}
+                    name="pettyCashRecords"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Petty Cash Records (JSON)</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Enter petty cash records" {...field} rows={8} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="scanningProgressRecords"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Scanning Progress Records (JSON)</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Enter scanning progress records" {...field} rows={8} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? 'Generating...' : 'Generate Recommendations'}
+          </Button>
+        </form>
+      </Form>
 
       <div className="space-y-6">
         {error && (
@@ -117,7 +124,7 @@ export function ReportAssistantForm({ pettyCashRecords, scanningProgressRecords,
         {isLoading && <RecommendationsSkeleton />}
 
         {recommendations && (
-            <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="grid md:grid-cols-2 gap-6 animate-in fade-in duration-500">
                 <Card>
                     <CardHeader>
                         <CardTitle>Content Recommendations</CardTitle>
@@ -143,7 +150,7 @@ export function ReportAssistantForm({ pettyCashRecords, scanningProgressRecords,
 
 function RecommendationsSkeleton() {
     return (
-        <div className="space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
             <Card>
                 <CardHeader>
                     <Skeleton className="h-6 w-1/2" />
