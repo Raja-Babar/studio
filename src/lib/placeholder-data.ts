@@ -18,7 +18,23 @@ export const scanningProgressRecords = JSON.stringify(
   ], null, 2
 );
 
+// Corresponds to the default users in auth-provider.tsx
 export const attendanceRecords = [
+  // Admin User records
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-28', status: 'Present' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-27', status: 'Present' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-26', status: 'Present' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-25', status: 'Absent' },
+  { employeeId: 'EMP000', name: 'Admin User', date: '2024-07-24', status: 'Present' },
+  
+  // Employee User records
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-28', status: 'Present' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-27', status: 'Leave' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-26', status: 'Present' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-25', status: 'Present' },
+  { employeeId: 'EMP101', name: 'Employee User', date: '2024-07-24', status: 'Present' },
+  
+  // Other employee records for Admin to see
   { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-28', status: 'Present' },
   { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-28', status: 'Present' },
   { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-28', status: 'Absent' },
