@@ -1,15 +1,7 @@
-import { generateReportRecommendations } from '@/ai/flows/generate-report-recommendations';
 import { ReportAssistantForm } from './report-assistant-form';
 import { pettyCashRecords, scanningProgressRecords } from '@/lib/placeholder-data';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default async function ReportAssistantPage() {
-
-  const initialRecommendations = await generateReportRecommendations({
-    pettyCashRecords,
-    scanningProgressRecords,
-  });
-
+export default function ReportAssistantPage() {
   return (
     <div className="space-y-6">
       <div>
@@ -21,7 +13,7 @@ export default async function ReportAssistantPage() {
       <ReportAssistantForm
         pettyCashRecords={pettyCashRecords}
         scanningProgressRecords={scanningProgressRecords}
-        initialRecommendations={initialRecommendations}
+        initialRecommendations={null}
       />
     </div>
   );
