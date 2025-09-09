@@ -1,3 +1,4 @@
+// src/app/dashboard/page.tsx
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -5,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { BarChart, Briefcase, DollarSign, Users } from 'lucide-react';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -33,7 +35,7 @@ export default function DashboardPage() {
 
 function AdminDashboard() {
   const stats = [
-    { title: 'Total Employees', value: '42', icon: Users },
+    { title: 'Total Employees', value: '42', icon: Users, href: '/dashboard/user-management' },
     { title: 'Projects Ongoing', value: '5', icon: Briefcase },
     { title: 'Monthly Salaries', value: '$25,600', icon: DollarSign },
     { title: 'Scanning Progress', value: '75%', icon: BarChart },
@@ -43,18 +45,29 @@ function AdminDashboard() {
     <div>
       <h2 className="text-2xl font-semibold mb-4">Admin Overview</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-              <stat.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-xs text-muted-foreground">+2.1% from last month</p>
-            </CardContent>
-          </Card>
-        ))}
+        {stats.map((stat) => {
+            const card = (
+                 <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                    <stat.icon className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <p className="text-xs text-muted-foreground">+2.1% from last month</p>
+                    </CardContent>
+                </Card>
+            );
+
+            if (stat.href) {
+                return (
+                    <Link href={stat.href} key={stat.title}>
+                       {card}
+                    </Link>
+                )
+            }
+            return <div key={stat.title}>{card}</div>;
+        })}
       </div>
        <Card className="mt-6">
           <CardHeader>
