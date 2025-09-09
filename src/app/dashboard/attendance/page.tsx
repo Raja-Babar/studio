@@ -1,3 +1,4 @@
+
 // src/app/dashboard/attendance/page.tsx
 'use client';
 
