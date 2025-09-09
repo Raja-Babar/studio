@@ -56,4 +56,14 @@ export const attendanceRecords = [
   { employeeId: 'EMP001', name: 'Ali Khan', date: '2024-07-27', timeIn: '09:00 AM', timeOut: '05:00 PM', status: 'Present' },
   { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2024-07-27', timeIn: '09:01 AM', timeOut: '05:01 PM', status: 'Present' },
   { employeeId: 'EMP003', name: 'Fatima Ali', date: '2024-07-27', timeIn: '08:59 AM', timeOut: '04:59 PM', status: 'Present' },
+
+  // Data for 2023
+  { employeeId: 'EMP001', name: 'Ali Khan', date: '2023-07-29', timeIn: '09:00 AM', timeOut: '05:00 PM', status: 'Present' },
+  { employeeId: 'EMP002', name: 'Ahmed Raza', date: '2023-07-29', timeIn: '09:05 AM', timeOut: '05:05 PM', status: 'Present' },
+  { employeeId: 'EMP001', name: 'Ali Khan', date: '2023-07-28', timeIn: '09:02 AM', timeOut: '05:02 PM', status: 'Present' },
+
+  // Data for 2025
+  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2025-01-15', timeIn: '09:00 AM', timeOut: '05:00 PM', status: 'Present' },
+  { employeeId: 'EMP004', name: 'Zainab Omar', date: '2025-01-15', timeIn: '--:--', timeOut: '--:--', status: 'Leave' },
+  { employeeId: 'EMP003', name: 'Fatima Ali', date: '2025-01-16', timeIn: '09:05 AM', timeOut: '05:05 PM', status: 'Present' },
 ];
