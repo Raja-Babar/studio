@@ -9,6 +9,10 @@ import { attendanceRecords } from '@/lib/placeholder-data';
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
 
@@ -114,6 +118,41 @@ export default function AttendancePage() {
   const years = Array.from(new Set(attendanceRecords.map(r => new Date(r.date).getFullYear()))).sort((a,b) => b-a);
   const months = Array.from({ length: 12 }, (_, i) => ({ value: i, name: new Date(0, i).toLocaleString('en-US', { month: 'long' }) }));
 
+  const handleExportDetailedPDF = () => {
+    const doc = new jsPDF();
+    doc.text(`Detailed Attendance Records - ${selectedMonthFormatted}`, 14, 16);
+    (doc as any).autoTable({
+        head: [['Employee Name', 'Date', 'Time In', 'Time Out', 'Status']],
+        body: displayedRecords.map(r => [
+            r.name, 
+            new Date(r.date + 'T00:00:00').toLocaleDateString(), 
+            r.timeIn, 
+            r.timeOut, 
+            r.status
+        ]),
+        startY: 20
+    });
+    doc.save(`detailed_attendance_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+  };
+
+  const handleExportSummaryPDF = () => {
+    const doc = new jsPDF();
+    doc.text(`Monthly Attendance Summary - ${selectedMonthFormatted}`, 14, 16);
+    (doc as any).autoTable({
+        head: [['Employee Name', 'Working Days', 'Present', 'Absent', 'Leave']],
+        body: Object.entries(monthlySummary).map(([name, summary]) => [
+            name,
+            summary.workingDays,
+            summary.present,
+            summary.absent,
+            summary.leave
+        ]),
+        startY: 20
+    });
+    doc.save(`summary_attendance_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+  };
+
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -147,9 +186,14 @@ export default function AttendancePage() {
       
       <div className="grid gap-6">
         <Card>
-            <CardHeader>
-            <CardTitle>Detailed Records</CardTitle>
-            <CardDescription>All attendance entries for {selectedMonthFormatted}.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Detailed Records</CardTitle>
+                    <CardDescription>All attendance entries for {selectedMonthFormatted}.</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={handleExportDetailedPDF}>
+                    <Download className="mr-2 h-4 w-4" /> Export PDF
+                </Button>
             </CardHeader>
             <CardContent>
             <Table>
@@ -187,9 +231,14 @@ export default function AttendancePage() {
             </CardContent>
         </Card>
         <Card>
-          <CardHeader>
-          <CardTitle>Monthly Summary</CardTitle>
-          <CardDescription>Total attendance summary for {selectedMonthFormatted}.</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+                <CardTitle>Monthly Summary</CardTitle>
+                <CardDescription>Total attendance summary for {selectedMonthFormatted}.</CardDescription>
+            </div>
+             <Button variant="outline" size="sm" onClick={handleExportSummaryPDF}>
+                <Download className="mr-2 h-4 w-4" /> Export PDF
+            </Button>
           </CardHeader>
           <CardContent>
             <Table>
