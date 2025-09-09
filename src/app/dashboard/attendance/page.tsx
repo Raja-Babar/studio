@@ -74,7 +74,8 @@ export default function AttendancePage() {
   });
 
   const markedDays = useMemo(() => {
-    return userAttendanceRecords.map(r => new Date(r.date));
+    // We need to parse the date strings as UTC to avoid timezone issues with `new Date()`
+    return userAttendanceRecords.map(r => new Date(r.date + 'T00:00:00'));
   }, [userAttendanceRecords]);
 
 
