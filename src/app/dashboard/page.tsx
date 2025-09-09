@@ -1,3 +1,4 @@
+
 // src/app/dashboard/page.tsx
 'use client';
 
@@ -58,7 +59,7 @@ function AdminDashboard() {
   const stats = [
     { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management' },
     { title: 'Projects Ongoing', value: '5', icon: Briefcase },
-    { title: 'Monthly Salaries', value: '$25,600', icon: DollarSign, href: '/dashboard/salaries' },
+    { title: 'Monthly Salaries', value: null, icon: DollarSign, href: '/dashboard/salaries' },
     { title: 'Scanning Progress', value: '75%', icon: BarChart },
   ];
 
@@ -82,8 +83,14 @@ function AdminDashboard() {
                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                    <div className="text-2xl font-bold">{stat.value}</div>
-                    <p className="text-xs text-muted-foreground">+2.1% from last month</p>
+                    {stat.value ? (
+                        <>
+                            <div className="text-2xl font-bold">{stat.value}</div>
+                            <p className="text-xs text-muted-foreground">+2.1% from last month</p>
+                        </>
+                    ) : (
+                        <div className="text-2xl font-bold">&nbsp;</div>
+                    )}
                     </CardContent>
                 </Card>
             );
