@@ -205,7 +205,7 @@ export default function AttendancePage() {
       <div className="grid gap-6">
         <Card>
             <CardHeader>
-                <CardTitle>Detailed Records</CardTitle>
+                <CardTitle>Daily Attendance</CardTitle>
                 <CardDescription>All attendance entries for the selected period.</CardDescription>
             </CardHeader>
             <CardContent>
