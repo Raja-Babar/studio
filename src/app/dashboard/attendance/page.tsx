@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { attendanceRecords } from '@/lib/placeholder-data';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useEffect, useMemo, useState } from 'react';
-import { Calendar } from '@/components/ui/calendar';
 import { useAuth } from '@/hooks/use-auth';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
@@ -58,7 +57,7 @@ const getMonthlyProgressData = (records: AttendanceRecord[], selectedDate: Date)
 
 export default function AttendancePage() {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [currentDate] = useState<Date>(new Date());
   const [displayedRecords, setDisplayedRecords] = useState<AttendanceRecord[]>([]);
 
   const isEmployee = user?.role === 'Employee';
@@ -71,28 +70,22 @@ export default function AttendancePage() {
   }, [isEmployee, user?.name]);
 
   useEffect(() => {
-    const timezoneOffset = selectedDate.getTimezoneOffset() * 60000;
-    const localISOTime = (new Date(selectedDate.valueOf() - timezoneOffset)).toISOString().slice(0, 10);
+    const timezoneOffset = currentDate.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(currentDate.valueOf() - timezoneOffset)).toISOString().slice(0, 10);
     setDisplayedRecords(userAttendanceRecords.filter(r => r.date === localISOTime));
-  }, [selectedDate, userAttendanceRecords]);
+  }, [currentDate, userAttendanceRecords]);
 
-  const monthlyProgressData = getMonthlyProgressData(userAttendanceRecords, selectedDate);
-  const selectedDateFormatted = selectedDate.toLocaleDateString('en-US', {
+  const monthlyProgressData = getMonthlyProgressData(userAttendanceRecords, currentDate);
+  const currentDateFormatted = currentDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
   
-  const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
+  const currentMonthFormatted = currentDate.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
   });
-
-
-  const markedDays = useMemo(() => {
-    // We need to parse the date strings as UTC to avoid timezone issues with `new Date()`
-    return userAttendanceRecords.map(r => new Date(r.date + 'T00:00:00'));
-  }, [userAttendanceRecords]);
 
 
   return (
@@ -102,12 +95,12 @@ export default function AttendancePage() {
         <p className="text-muted-foreground mt-2">View and manage employee attendance records.</p>
       </div>
       
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
+      <div className="grid gap-6">
+        <div>
             <Card>
                 <CardHeader>
                 <CardTitle>Detailed Records</CardTitle>
-                <CardDescription>All attendance entries for {selectedDateFormatted}.</CardDescription>
+                <CardDescription>All attendance entries for {currentDateFormatted}.</CardDescription>
                 </CardHeader>
                 <CardContent>
                 <Table>
@@ -143,8 +136,8 @@ export default function AttendancePage() {
 
             <Card className="mt-6">
                 <CardHeader>
-                    <CardTitle>Monthly Progress for {selectedMonthFormatted}</CardTitle>
-                    <CardDescription>Total days each employee was present in the selected month.</CardDescription>
+                    <CardTitle>Monthly Progress for {currentMonthFormatted}</CardTitle>
+                    <CardDescription>Total days each employee was present in the current month.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
@@ -163,29 +156,6 @@ export default function AttendancePage() {
                             <Bar dataKey="presentDays" fill="hsl(var(--primary))" name="Present Days" />
                         </BarChart>
                     </ResponsiveContainer>
-                </CardContent>
-            </Card>
-        </div>
-        <div>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Calendar</CardTitle>
-                    <CardDescription>Select a day to view records. Marked days have attendance logs.</CardDescription>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                    <Calendar
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={(day) => day && setSelectedDate(day)}
-                        modifiers={{ marked: markedDays }}
-                        modifiersStyles={{
-                            marked: { 
-                                border: "2px solid hsl(var(--primary))",
-                                borderRadius: 'var(--radius)'
-                            },
-                        }}
-                        className="p-0"
-                    />
                 </CardContent>
             </Card>
         </div>
