@@ -118,8 +118,10 @@ export default function AttendancePage() {
   const years = Array.from(new Set(attendanceRecords.map(r => new Date(r.date).getFullYear()))).sort((a,b) => b-a);
   const months = Array.from({ length: 12 }, (_, i) => ({ value: i, name: new Date(0, i).toLocaleString('en-US', { month: 'long' }) }));
 
-  const handleExportDetailedPDF = () => {
+  const handleExportPDF = () => {
     const doc = new jsPDF();
+    
+    // Add Detailed Records
     doc.text(`Detailed Attendance Records - ${selectedMonthFormatted}`, 14, 16);
     (doc as any).autoTable({
         head: [['Employee Name', 'Date', 'Time In', 'Time Out', 'Status']],
@@ -130,13 +132,18 @@ export default function AttendancePage() {
             r.timeOut, 
             r.status
         ]),
-        startY: 20
+        startY: 20,
+        didDrawPage: function (data) {
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+        },
     });
-    doc.save(`detailed_attendance_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
-  };
 
-  const handleExportSummaryPDF = () => {
-    const doc = new jsPDF();
+    // Add a new page for the summary
+    doc.addPage();
+
+    // Add Summary Records
     doc.text(`Monthly Attendance Summary - ${selectedMonthFormatted}`, 14, 16);
     (doc as any).autoTable({
         head: [['Employee Name', 'Working Days', 'Present', 'Absent', 'Leave']],
@@ -147,24 +154,30 @@ export default function AttendancePage() {
             summary.absent,
             summary.leave
         ]),
-        startY: 20
+        startY: 20,
+        didDrawPage: function (data) {
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(40);
+        },
     });
-    doc.save(`summary_attendance_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
-  };
+
+    doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+};
 
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Attendance</h1>
           <p className="text-muted-foreground mt-2">
             Viewing records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2 w-full md:w-auto">
             <Select onValueChange={handleMonthChange} defaultValue={selectedDate.getMonth().toString()}>
-                <SelectTrigger className="w-[180px]">
+                <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Month" />
                 </SelectTrigger>
                 <SelectContent>
@@ -174,7 +187,7 @@ export default function AttendancePage() {
                 </SelectContent>
             </Select>
             <Select onValueChange={handleYearChange} defaultValue={selectedDate.getFullYear().toString()}>
-                <SelectTrigger className="w-[120px]">
+                <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Year" />
                 </SelectTrigger>
                 <SelectContent>
@@ -183,19 +196,17 @@ export default function AttendancePage() {
                     ))}
                 </SelectContent>
             </Select>
+             <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full">
+                <Download className="mr-2 h-4 w-4" /> Export PDF
+            </Button>
         </div>
       </div>
       
       <div className="grid gap-6">
         <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                    <CardTitle>Detailed Records</CardTitle>
-                    <CardDescription>All attendance entries for the selected period.</CardDescription>
-                </div>
-                <Button variant="outline" size="sm" onClick={handleExportDetailedPDF}>
-                    <Download className="mr-2 h-4 w-4" /> Export PDF
-                </Button>
+            <CardHeader>
+                <CardTitle>Detailed Records</CardTitle>
+                <CardDescription>All attendance entries for the selected period.</CardDescription>
             </CardHeader>
             <CardContent>
             <Table>
@@ -233,14 +244,9 @@ export default function AttendancePage() {
             </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-                <CardTitle>Monthly Summary</CardTitle>
-                <CardDescription>Total attendance summary for the selected period.</CardDescription>
-            </div>
-             <Button variant="outline" size="sm" onClick={handleExportSummaryPDF}>
-                <Download className="mr-2 h-4 w-4" /> Export PDF
-            </Button>
+          <CardHeader>
+            <CardTitle>Monthly Summary</CardTitle>
+            <CardDescription>Total attendance summary for the selected period.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
