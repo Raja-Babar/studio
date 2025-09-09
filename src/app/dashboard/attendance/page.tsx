@@ -15,7 +15,8 @@ type AttendanceRecord = {
     employeeId: string;
     name: string;
     date: string;
-    time: string;
+    timeIn: string;
+    timeOut: string;
     status: string;
 };
 
@@ -110,7 +111,8 @@ export default function AttendancePage() {
                     <TableRow>
                         <TableHead>Employee Name</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead>Time</TableHead>
+                        <TableHead>Time In</TableHead>
+                        <TableHead>Time Out</TableHead>
                         <TableHead>Status</TableHead>
                     </TableRow>
                     </TableHeader>
@@ -120,7 +122,8 @@ export default function AttendancePage() {
                             <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
                             <TableCell className="font-medium">{record.name}</TableCell>
                             <TableCell>{record.date}</TableCell>
-                            <TableCell>{record.time}</TableCell>
+                            <TableCell>{record.timeIn}</TableCell>
+                            <TableCell>{record.timeOut}</TableCell>
                             <TableCell>
                                 <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
                                 {record.status}
@@ -130,7 +133,7 @@ export default function AttendancePage() {
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={4} className="text-center">No attendance records for this day.</TableCell>
+                            <TableCell colSpan={5} className="text-center">No attendance records for this day.</TableCell>
                         </TableRow>
                     )}
                     </TableBody>
