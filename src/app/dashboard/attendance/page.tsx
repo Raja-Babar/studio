@@ -5,8 +5,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { attendanceRecords } from '@/lib/placeholder-data';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useEffect, useState } from 'react';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
+type AttendanceRecord = {
+    employeeId: string;
+    name: string;
+    date: string;
+    status: string;
+};
 
 const getStatusVariant = (status: AttendanceStatus) => {
   switch (status) {
@@ -21,12 +28,10 @@ const getStatusVariant = (status: AttendanceStatus) => {
   }
 };
 
-const getChartData = () => {
-    const today = new Date().toISOString().slice(0, 10); // Get today's date in YYYY-MM-DD format
-    const todaysRecords = attendanceRecords.filter(r => r.date === '2024-07-28'); // Using fixed date from mock data
-
-    const counts = todaysRecords.reduce((acc, record) => {
-        acc[record.status] = (acc[record.status] || 0) + 1;
+const getChartData = (records: AttendanceRecord[]) => {
+    const counts = records.reduce((acc, record) => {
+        const status = record.status as AttendanceStatus;
+        acc[status] = (acc[status] || 0) + 1;
         return acc;
     }, {} as Record<AttendanceStatus, number>);
 
@@ -39,8 +44,22 @@ const getChartData = () => {
 
 
 export default function AttendancePage() {
-  const chartData = getChartData();
-  const latestRecords = attendanceRecords.filter(r => r.date === '2024-07-28');
+  const [todaysRecords, setTodaysRecords] = useState<AttendanceRecord[]>([]);
+
+  useEffect(() => {
+    const today = new Date();
+    const timezoneOffset = today.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(today.valueOf() - timezoneOffset)).toISOString().slice(0, 10);
+    setTodaysRecords(attendanceRecords.filter(r => r.date === localISOTime));
+  }, []);
+
+  const chartData = getChartData(todaysRecords);
+  const todayFormatted = new Date().toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
 
   return (
     <div className="space-y-6">
@@ -52,7 +71,7 @@ export default function AttendancePage() {
       <Card>
         <CardHeader>
             <CardTitle>Today's Summary</CardTitle>
-            <CardDescription>A quick overview of attendance for 28th July, 2024.</CardDescription>
+            <CardDescription>A quick overview of attendance for {todayFormatted}.</CardDescription>
         </CardHeader>
         <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -77,7 +96,7 @@ export default function AttendancePage() {
       <Card>
         <CardHeader>
           <CardTitle>Detailed Records</CardTitle>
-          <CardDescription>All attendance entries for 28th July, 2024.</CardDescription>
+          <CardDescription>All attendance entries for {todayFormatted}.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
@@ -89,17 +108,23 @@ export default function AttendancePage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {latestRecords.map((record, index) => (
-                <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
-                  <TableCell className="font-medium">{record.name}</TableCell>
-                  <TableCell>{record.date}</TableCell>
-                  <TableCell>
-                    <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
-                      {record.status}
-                    </Badge>
-                  </TableCell>
+              {todaysRecords.length > 0 ? (
+                todaysRecords.map((record, index) => (
+                    <TableRow key={`${record.employeeId}-${record.date}-${index}`}>
+                    <TableCell className="font-medium">{record.name}</TableCell>
+                    <TableCell>{record.date}</TableCell>
+                    <TableCell>
+                        <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
+                        {record.status}
+                        </Badge>
+                    </TableCell>
+                    </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={3} className="text-center">No attendance records for today.</TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
