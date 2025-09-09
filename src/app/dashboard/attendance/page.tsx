@@ -210,9 +210,22 @@ export default function AttendancePage() {
                     })
                 ) : (
                     <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground">
-                            No attendance records for this month.
-                        </TableCell>
+                       {isEmployee && user && (
+                         <>
+                          <TableCell className="font-medium">{user.name}</TableCell>
+                          <TableCell>{new Date(selectedDate).toLocaleDateString()}</TableCell>
+                          <TableCell>--:--</TableCell>
+                          <TableCell>--:--</TableCell>
+                          <TableCell>
+                            <Badge variant="outline">Not Marked</Badge>
+                          </TableCell>
+                         </>
+                       )}
+                       {!isEmployee && (
+                          <TableCell colSpan={5} className="text-center text-muted-foreground">
+                              No attendance records for this month.
+                          </TableCell>
+                       )}
                     </TableRow>
                 )}
                 </TableBody>
