@@ -49,8 +49,8 @@ export default function UserManagementPage() {
     const doc = new jsPDF();
     doc.text('Panhwar Portal Users Report', 14, 16);
     (doc as any).autoTable({
-        head: [['Name', 'Email', 'Role']],
-        body: allUsers.map(u => [u.name, u.email, u.role]),
+        head: [['Name', 'Role', 'Email']],
+        body: allUsers.map(u => [u.name, u.role, u.email]),
         startY: 20
     });
     doc.save('panhwar_portal_users.pdf');
@@ -162,8 +162,8 @@ export default function UserManagementPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
                 <TableHead>Role</TableHead>
+                <TableHead>Email</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -171,12 +171,12 @@ export default function UserManagementPage() {
               {allUsers.map((u) => (
                 <TableRow key={u.email}>
                   <TableCell className="font-medium">{u.name}</TableCell>
-                  <TableCell>{u.email}</TableCell>
                   <TableCell>
                     <Badge variant={u.role === 'Admin' ? 'destructive' : 'secondary'}>
                       {u.role}
                     </Badge>
                   </TableCell>
+                  <TableCell>{u.email}</TableCell>
                   <TableCell className="text-right space-x-2">
                       <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)}>
                         <Edit className="h-4 w-4" />
