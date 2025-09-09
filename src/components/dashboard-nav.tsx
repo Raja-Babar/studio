@@ -98,22 +98,22 @@ export function DashboardNav() {
   }
 
   return (
-    <SidebarContent className="p-0">
-        <SidebarMenu className="p-2">
+    <SidebarContent className="p-2">
+        <SidebarMenu>
             {renderNavItems(mainNavItems)}
         </SidebarMenu>
 
-        <SidebarGroup>
-            <SidebarGroupLabel className="flex items-center gap-2">
+        <SidebarGroup className="p-0 pt-2">
+            <SidebarGroupLabel className="flex items-center gap-2 px-2">
                 <Building2 />
                 <span>Administration</span>
             </SidebarGroupLabel>
-            <SidebarMenu>
+            <SidebarMenu className="pt-2">
                  {renderNavItems(administrationNavItems)}
             </SidebarMenu>
         </SidebarGroup>
 
-        <SidebarMenu className="p-2">
+        <SidebarMenu className="pt-2">
             {renderNavItems(otherNavItems)}
         </SidebarMenu>
 
