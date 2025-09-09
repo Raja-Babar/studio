@@ -91,12 +91,12 @@ function AdminDashboard() {
 
             if (stat.href) {
                 return (
-                    <Link href={stat.href} key={stat.title} className="flex">
+                    <Link href={stat.href} key={stat.title}>
                        {cardContent}
                     </Link>
                 )
             }
-            return <div key={stat.title} className="flex">{cardContent}</div>;
+            return <div key={stat.title}>{cardContent}</div>;
         })}
       </div>
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
