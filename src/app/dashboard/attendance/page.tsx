@@ -178,6 +178,7 @@ export default function AttendancePage() {
                 <TableBody>
                 {displayedRecords.length > 0 ? (
                     displayedRecords.map((record) => {
+                      if (!user) return null;
                       const canClockIn = isEmployee && isToday(new Date(record.date  + 'T00:00:00')) && record.timeIn === '--:--';
                       const canClockOut = isEmployee && isToday(new Date(record.date + 'T00:00:00')) && record.timeIn !== '--:--' && record.timeOut === '--:--';
 
