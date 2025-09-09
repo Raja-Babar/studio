@@ -1,0 +1,55 @@
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar';
+import { DashboardNav } from '@/components/dashboard-nav';
+import { UserNav } from '@/components/user-nav';
+import { BookCopy } from 'lucide-react';
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace('/login');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading || !user) {
+    return (
+        <div className="flex h-screen w-screen items-center justify-center bg-background">
+            <div className="flex items-center space-x-2">
+                <BookCopy className="h-8 w-8 animate-pulse text-primary" />
+                <p className="text-lg text-muted-foreground">Loading Portal...</p>
+            </div>
+        </div>
+    );
+  }
+
+  return (
+    <SidebarProvider>
+      <Sidebar>
+        <div className="flex h-full flex-col">
+          <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
+            <BookCopy className="h-7 w-7 text-primary" />
+            <span className="text-lg font-semibold">Panhwar Portal</span>
+          </div>
+          <DashboardNav />
+        </div>
+      </Sidebar>
+      <SidebarInset className="flex flex-col">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-end gap-4 border-b bg-background px-4 sm:px-6">
+          <UserNav />
+        </header>
+        <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+}
