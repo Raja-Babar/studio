@@ -1,4 +1,3 @@
-
 // src/app/dashboard/attendance/page.tsx
 'use client';
 
@@ -12,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useToast } from '@/hooks/use-toast';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 
@@ -29,19 +29,20 @@ const getStatusVariant = (status: AttendanceStatus) => {
 };
 
 export default function AttendancePage() {
-  const { user, attendanceRecords } = useAuth();
+  const { user, attendanceRecords, markAttendance } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const { toast } = useToast();
 
   const isEmployee = user?.role === 'Employee';
 
   const userAttendanceRecords = useMemo(() => {
     const records = attendanceRecords;
-    if (isEmployee) {
+    if (isEmployee && user) {
       return records.filter(r => r.name === user.name);
     }
     return records;
-  }, [isEmployee, user?.name, attendanceRecords]);
-  
+  }, [isEmployee, user, attendanceRecords]);
+
   const monthlyRecords = useMemo(() => {
     const month = selectedDate.getMonth();
     const year = selectedDate.getFullYear();
@@ -63,7 +64,7 @@ export default function AttendancePage() {
   const handleMonthChange = (month: string) => {
     const newDate = new Date(selectedDate);
     newDate.setMonth(parseInt(month, 10));
-    newDate.setDate(1); 
+    newDate.setDate(1);
     setSelectedDate(newDate);
   };
 
@@ -79,15 +80,15 @@ export default function AttendancePage() {
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
-    
+
     doc.text(`Daily Attendance - ${selectedMonthFormatted}`, 14, 16);
     (doc as any).autoTable({
         head: [['Employee Name', 'Date', 'Time In', 'Time Out', 'Status']],
         body: displayedRecords.map(r => [
-            r.name, 
-            new Date(r.date + 'T00:00:00').toLocaleDateString(), 
-            r.timeIn, 
-            r.timeOut, 
+            r.name,
+            new Date(r.date + 'T00:00:00').toLocaleDateString(),
+            r.timeIn,
+            r.timeOut,
             r.status
         ]),
         startY: 20,
@@ -98,8 +99,29 @@ export default function AttendancePage() {
     });
 
     doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
-};
+  };
 
+  const handleClockIn = () => {
+    if(user) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        markAttendance(user.id, todayStr, 'timeIn');
+        toast({
+            title: 'Clocked In',
+            description: 'Your arrival time has been recorded.'
+        });
+    }
+  }
+
+  const handleClockOut = () => {
+    if(user) {
+        const todayStr = new Date().toISOString().split('T')[0];
+        markAttendance(user.id, todayStr, 'timeOut');
+        toast({
+            title: 'Clocked Out',
+            description: 'Your departure time has been recorded.'
+        });
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -136,7 +158,7 @@ export default function AttendancePage() {
             </Button>
         </div>
       </div>
-      
+
       <div className="grid gap-6">
         <Card>
             <CardHeader>
@@ -156,22 +178,36 @@ export default function AttendancePage() {
                 </TableHeader>
                 <TableBody>
                 {displayedRecords.length > 0 ? (
-                    displayedRecords.map((record) => (
-                    <TableRow key={`${record.employeeId}-${record.date}`}>
-                        <TableCell className="font-medium">{record.name}</TableCell>
-                        <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
-                        <TableCell>{record.timeIn}</TableCell>
-                        <TableCell>{record.timeOut}</TableCell>
-                        <TableCell>
-                            <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
-                            {record.status}
-                            </Badge>
-                        </TableCell>
-                    </TableRow>
-                    ))
+                    displayedRecords.map((record) => {
+                      const isToday = record.date === new Date().toISOString().split('T')[0];
+                      const canClockIn = isToday && isEmployee && record.timeIn === '--:--';
+                      const canClockOut = isToday && isEmployee && record.timeIn !== '--:--' && record.timeOut === '--:--';
+
+                      return (
+                        <TableRow key={`${record.employeeId}-${record.date}`}>
+                            <TableCell className="font-medium">{record.name}</TableCell>
+                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
+                            <TableCell>
+                              {canClockIn ? (
+                                <Button size="sm" onClick={handleClockIn}>Clock In</Button>
+                              ) : record.timeIn}
+                            </TableCell>
+                            <TableCell>
+                              {canClockOut ? (
+                                <Button size="sm" onClick={handleClockOut}>Clock Out</Button>
+                              ) : record.timeOut}
+                            </TableCell>
+                            <TableCell>
+                                <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
+                                {record.status}
+                                </Badge>
+                            </TableCell>
+                        </TableRow>
+                      );
+                    })
                 ) : (
                     <TableRow>
-                       {isEmployee && user && (
+                       {isEmployee && user ? (
                          <>
                           <TableCell className="font-medium">{user.name}</TableCell>
                           <TableCell>{new Date(selectedDate).toLocaleDateString()}</TableCell>
@@ -181,8 +217,7 @@ export default function AttendancePage() {
                             <Badge variant="outline">Not Marked</Badge>
                           </TableCell>
                          </>
-                       )}
-                       {!isEmployee && (
+                       ) : (
                           <TableCell colSpan={5} className="text-center text-muted-foreground">
                               No attendance records for this month.
                           </TableCell>
