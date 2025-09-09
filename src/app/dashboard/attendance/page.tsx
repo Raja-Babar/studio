@@ -14,7 +14,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 
-type AttendanceStatus = 'Present' | 'Absent' | 'Leave';
+type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 
 const getStatusVariant = (status: AttendanceStatus) => {
   switch (status) {
@@ -120,7 +120,7 @@ export default function AttendancePage() {
     return date.getDate() === today.getDate() &&
            date.getMonth() === today.getMonth() &&
            date.getFullYear() === today.getFullYear();
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -210,7 +210,7 @@ export default function AttendancePage() {
                 ) : (
                     <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground">
-                          No attendance records for this month.
+                            No attendance records for this month.
                         </TableCell>
                     </TableRow>
                 )}
@@ -222,4 +222,3 @@ export default function AttendancePage() {
     </div>
   );
 }
-
