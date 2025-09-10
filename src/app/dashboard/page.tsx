@@ -29,21 +29,6 @@ export default function DashboardPage() {
   );
 }
 
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case 'Generated':
-      return 'default';
-    case 'Approved':
-      return 'secondary';
-    case 'In Review':
-      return 'outline';
-    case 'Draft':
-        return 'destructive'
-    default:
-      return 'outline';
-  }
-};
-
 const getTaskStatusVariant = (status: string) => {
     switch (status) {
         case 'Scanning':
@@ -66,14 +51,6 @@ function AdminDashboard() {
     { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
     { title: 'Scanning Progress', value: '75%', icon: BarChart, subtext: "+2.1% from last month" },
   ];
-
-  const reportStages = [
-    { name: 'Q2 Financial Summary', stage: 'Generated', nextAction: 'N/A' },
-    { name: 'Employee Attendance Analysis', stage: 'Approved', nextAction: 'Generation Pending' },
-    { name: 'Scanning Project Progress', stage: 'In Review', nextAction: '2024-08-10' },
-    { name: 'Annual User Activity Report', stage: 'Draft', nextAction: '2024-08-05' },
-  ];
-
 
   return (
     <div>
@@ -102,39 +79,6 @@ function AdminDashboard() {
             }
             return <div key={stat.title}>{cardContent}</div>;
         })}
-      </div>
-       <div className="grid grid-cols-1 gap-6 mt-6">
-       <Link href="/dashboard/employee-reports">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Report Status</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Report Name</TableHead>
-                                <TableHead>Stage</TableHead>
-                                <TableHead>Next Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {reportStages.map((report) => (
-                                <TableRow key={report.name}>
-                                    <TableCell className="font-medium">{report.name}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={getStatusVariant(report.stage)}>
-                                            {report.stage}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>{report.nextAction}</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
-        </Link>
       </div>
     </div>
   );
