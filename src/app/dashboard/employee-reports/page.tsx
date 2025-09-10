@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -258,49 +258,51 @@ export default function EmployeeReportsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow>
-                <TableCell className="font-medium">{user?.name}</TableCell>
-                <TableCell>
-                  <Select value={newReportStage} onValueChange={setNewReportStage}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Stage" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {reportStages.map(stage => (
-                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                  <Select value={newReportType} onValueChange={setNewReportType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {reportTypes.map(type => (
-                        <SelectItem key={type} value={type}>{type}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </TableCell>
-                <TableCell>
-                    <Input
-                        type="number"
-                        placeholder="e.g., 100"
-                        value={newReportQuantity}
-                        onChange={(e) => setNewReportQuantity(e.target.value)}
-                    />
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {new Date().toLocaleDateString()}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" onClick={handleAddReport}>
-                    <FilePlus className="mr-2 h-4 w-4" /> Submit
-                  </Button>
-                </TableCell>
-              </TableRow>
+              {user?.role === 'Employee' && (
+                <TableRow>
+                  <TableCell className="font-medium">{user?.name}</TableCell>
+                  <TableCell>
+                    <Select value={newReportStage} onValueChange={setNewReportStage}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Stage" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {reportStages.map(stage => (
+                          <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Select value={newReportType} onValueChange={setNewReportType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {reportTypes.map(type => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>
+                      <Input
+                          type="number"
+                          placeholder="e.g., 100"
+                          value={newReportQuantity}
+                          onChange={(e) => setNewReportQuantity(e.target.value)}
+                      />
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {new Date().toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button size="sm" onClick={handleAddReport}>
+                      <FilePlus className="mr-2 h-4 w-4" /> Submit
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              )}
               {monthlyReports.length > 0 ? (
                 monthlyReports.map((report, index) => (
                     <TableRow key={`${report.employeeId}-${report.submittedDate}-${index}`}>
@@ -348,5 +350,3 @@ export default function EmployeeReportsPage() {
     </div>
   );
 }
-
-    
