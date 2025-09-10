@@ -223,6 +223,20 @@ function EmployeeDashboard() {
           </div>
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Report</CardTitle>
+          <p className="text-sm text-muted-foreground">Start a new report submission.</p>
+        </CardHeader>
+        <CardContent>
+            <Link href="/dashboard/employee-reports">
+                <Button className="w-full">
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    Create New Report
+                </Button>
+            </Link>
+        </CardContent>
+      </Card>
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>My Tasks</CardTitle>
@@ -259,21 +273,6 @@ function EmployeeDashboard() {
           </Table>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Create Report</CardTitle>
-          <p className="text-sm text-muted-foreground">Start a new report submission.</p>
-        </CardHeader>
-        <CardContent>
-            <Link href="/dashboard/employee-reports">
-                <Button className="w-full">
-                    <FilePlus className="mr-2 h-4 w-4" />
-                    Create New Report
-                </Button>
-            </Link>
-        </CardContent>
-      </Card>
     </div>
   );
 }
-
