@@ -41,7 +41,6 @@ const allEmployeeReports = [
     submittedDate: '2024-07-29',
     stage: 'Completed',
     booksScanned: 0,
-    pagesScanned: 0,
   },
   {
     employeeId: 'EMP001',
@@ -50,7 +49,6 @@ const allEmployeeReports = [
     submittedDate: '2024-07-28',
     stage: 'Uploading',
     booksScanned: 0,
-    pagesScanned: 0,
   },
   {
     employeeId: 'EMP003',
@@ -59,7 +57,6 @@ const allEmployeeReports = [
     submittedDate: '2024-07-27',
     stage: 'Scanning',
     booksScanned: 15,
-    pagesScanned: 4500,
   },
   {
     employeeId: 'EMP004',
@@ -68,7 +65,6 @@ const allEmployeeReports = [
     submittedDate: '2024-07-26',
     stage: 'PDF-QC',
     booksScanned: 0,
-    pagesScanned: 0,
   },
   {
     employeeId: 'EMP101',
@@ -77,7 +73,6 @@ const allEmployeeReports = [
     submittedDate: '2024-07-25',
     stage: 'Scanning',
     booksScanned: 5,
-    pagesScanned: 1500,
   },
   {
     employeeId: 'EMP101',
@@ -86,7 +81,6 @@ const allEmployeeReports = [
     submittedDate: '2024-06-15',
     stage: 'Completed',
     booksScanned: 10,
-    pagesScanned: 3000,
   }
 ];
 
@@ -143,14 +137,13 @@ export default function EmployeeReportsPage() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
-    const head = [['Employee Name', 'Report Title', 'Date Submitted', 'Stage', 'Books Scanned', 'Pages Scanned']];
+    const head = [['Employee Name', 'Report Title', 'Date Submitted', 'Stage', 'Books Scanned']];
     const body = monthlyReports.map(r => [
         r.employeeName,
         r.reportTitle,
         new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
         r.stage,
-        r.booksScanned.toString(),
-        r.pagesScanned.toString()
+        r.booksScanned.toString()
     ]);
     (doc as any).autoTable({
         head: head,
@@ -211,7 +204,6 @@ export default function EmployeeReportsPage() {
                 <TableHead>Report Title</TableHead>
                 <TableHead>Report Stage</TableHead>
                 <TableHead>Books Scanned</TableHead>
-                <TableHead>Pages Scanned</TableHead>
                 <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -228,7 +220,6 @@ export default function EmployeeReportsPage() {
                       <Badge variant="outline">{report.stage}</Badge>
                     </TableCell>
                     <TableCell>{report.booksScanned}</TableCell>
-                    <TableCell>{report.pagesScanned}</TableCell>
                     <TableCell className="hidden md:table-cell">
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
@@ -255,7 +246,7 @@ export default function EmployeeReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
