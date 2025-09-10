@@ -2,7 +2,7 @@
 // src/app/dashboard/scanning/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Search } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -34,6 +34,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
 
 type ScanningRecord = {
   book_id: string;
@@ -80,10 +81,17 @@ const statusOptions = [
 
 export default function ScanningPage() {
   const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>(initialScanningRecords);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   const [editedStatus, setEditedStatus] = useState('');
   const { toast } = useToast();
+
+  const filteredRecords = useMemo(() => {
+    return scanningRecords.filter(record =>
+      record.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [scanningRecords, searchTerm]);
 
   const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
@@ -119,10 +127,24 @@ export default function ScanningPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Scanning Progress</CardTitle>
-                <CardDescription>
-                    A real-time overview of the book digitization pipeline.
-                </CardDescription>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex-1">
+                    <CardTitle>Scanning Progress</CardTitle>
+                    <CardDescription>
+                        A real-time overview of the book digitization pipeline.
+                    </CardDescription>
+                </div>
+                <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search books..."
+                        className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
                  <Table>
@@ -142,7 +164,7 @@ export default function ScanningPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {scanningRecords.map((record) => (
+                        {filteredRecords.map((record) => (
                             <TableRow key={record.book_id}>
                                 <TableCell className="hidden sm:table-cell font-medium">{record.book_id}</TableCell>
                                 <TableCell className="font-medium">{record.title}</TableCell>
