@@ -2,6 +2,7 @@
 // src/app/dashboard/scanning/page.tsx
 'use client';
 
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -28,6 +29,10 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 type ScanningRecord = {
   book_id: string;
@@ -38,12 +43,12 @@ type ScanningRecord = {
   updated_at: string;
 };
 
-const scanningProgressRecords: ScanningRecord[] = JSON.parse(scanningProgressRecordsJSON);
+const initialScanningRecords: ScanningRecord[] = JSON.parse(scanningProgressRecordsJSON);
 
 const getStatusVariant = (status: string) => {
   switch (status.toLowerCase()) {
     case 'completed':
-      return 'default'; // Using default for completed, often green-ish
+      return 'default';
     case 'uploading':
       return 'secondary';
     case 'scanning':
@@ -51,7 +56,7 @@ const getStatusVariant = (status: string) => {
     case 'pdf-qc':
       return 'default';
     case 'scanning-qc':
-      return 'destructive'; // Destructive for stages that need attention
+      return 'destructive';
     case 'page cleaning+cropping':
        return 'outline';
     default:
@@ -59,12 +64,47 @@ const getStatusVariant = (status: string) => {
   }
 };
 
+const statusOptions = [
+    "Scanning",
+    "Scanning Q-C",
+    "Page Cleaning+Cropping",
+    "PDF Q-C",
+    "Uploading",
+    "Completed"
+];
+
 
 export default function ScanningPage() {
+  const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>(initialScanningRecords);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
+  const [editedStatus, setEditedStatus] = useState('');
+  const { toast } = useToast();
+
   const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   }
+
+  const handleEditClick = (record: ScanningRecord) => {
+    setSelectedRecord(record);
+    setEditedStatus(record.status);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateStatus = () => {
+    if (selectedRecord) {
+      const updatedRecords = scanningRecords.map(record => 
+        record.book_id === selectedRecord.book_id
+        ? { ...record, status: editedStatus, updated_at: new Date().toISOString() }
+        : record
+      );
+      setScanningRecords(updatedRecords);
+      toast({ title: 'Status Updated', description: `Status for "${selectedRecord.title}" has been updated.` });
+      setIsEditDialogOpen(false);
+      setSelectedRecord(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -98,7 +138,7 @@ export default function ScanningPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {scanningProgressRecords.map((record) => (
+                        {scanningRecords.map((record) => (
                             <TableRow key={record.book_id}>
                                 <TableCell className="hidden sm:table-cell font-medium">{record.book_id}</TableCell>
                                 <TableCell className="font-medium">{record.title}</TableCell>
@@ -123,10 +163,10 @@ export default function ScanningPage() {
                                         </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end">
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                                        <DropdownMenuItem>Update Status</DropdownMenuItem>
+                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                            <DropdownMenuItem onClick={() => handleEditClick(record)}>Edit</DropdownMenuItem>
+                                            <DropdownMenuItem>View Details</DropdownMenuItem>
+                                            <DropdownMenuItem>Update Status</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
@@ -136,7 +176,38 @@ export default function ScanningPage() {
                 </Table>
             </CardContent>
         </Card>
-
+        
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>Edit Book Status</DialogTitle>
+                    <DialogDescription>
+                        Update the scanning status for <span className="font-semibold">{selectedRecord?.title}</span>.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="status" className="text-right">
+                            Status
+                        </Label>
+                        <Select onValueChange={setEditedStatus} defaultValue={editedStatus}>
+                            <SelectTrigger className="col-span-3">
+                                <SelectValue placeholder="Select a status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {statusOptions.map(option => (
+                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                    <Button type="submit" onClick={handleUpdateStatus}>Save changes</Button>
+                </DialogFooter>
+            </DialogContent>
+      </Dialog>
     </div>
   );
 }
