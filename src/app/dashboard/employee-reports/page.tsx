@@ -452,7 +452,7 @@ export default function EmployeeReportsPage() {
                                     <Badge className={cn(getStageBadgeClass(report.stage))}>{report.stage}</Badge>
                                 </TableCell>
                                 <TableCell>{report.type}</TableCell>
-                                <TableCell>{report.quantity}</TableCell>
+                                <TableCell className="font-semibold text-primary">{report.quantity}</TableCell>
                                 <TableCell className="text-right">
                                     {user?.role === 'Admin' && (
                                     <DropdownMenu>
