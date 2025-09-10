@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 type ScanningRecord = {
@@ -48,6 +49,16 @@ const getStatusClasses = (status: string) => {
       return 'text-foreground border-foreground/50';
   }
 };
+
+const statusOptions = [
+    "Pending",
+    "Scanning",
+    "Scanning-QC",
+    "Page Cleaning+Cropping",
+    "PDF-QC",
+    "Uploading",
+    "Completed"
+];
 
 
 export default function DashboardPage() {
@@ -96,6 +107,7 @@ function AdminDashboard() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   const [editedTitle, setEditedTitle] = useState('');
+  const [editedStatus, setEditedStatus] = useState('');
 
   const recentScanningActivity = useMemo(() => {
     return scanningRecords
@@ -113,19 +125,20 @@ function AdminDashboard() {
   const handleEditClick = (record: ScanningRecord) => {
     setSelectedRecord(record);
     setEditedTitle(record.title);
+    setEditedStatus(record.status);
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateTitle = () => {
+  const handleUpdateRecord = () => {
     if (selectedRecord && editedTitle) {
       setScanningRecords(prevRecords =>
         prevRecords.map(rec =>
-          rec.book_id === selectedRecord.book_id ? { ...rec, title: editedTitle } : rec
+          rec.book_id === selectedRecord.book_id ? { ...rec, title: editedTitle, status: editedStatus, updated_at: new Date().toISOString() } : rec
         )
       );
       toast({
-        title: 'Title Updated',
-        description: 'The book title has been successfully updated.',
+        title: 'Record Updated',
+        description: 'The book record has been successfully updated.',
       });
       setIsEditDialogOpen(false);
       setSelectedRecord(null);
@@ -221,9 +234,9 @@ function AdminDashboard() {
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Edit Book Title</DialogTitle>
+            <DialogTitle>Edit Book Record</DialogTitle>
             <DialogDescription>
-              Make changes to the book title here. Click save when you're done.
+              Make changes to the book record here. Click save when you're done.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -236,10 +249,23 @@ function AdminDashboard() {
                 className="col-span-3"
               />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">Status</Label>
+               <Select onValueChange={(value) => setEditedStatus(value)} defaultValue={editedStatus}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  {statusOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <DialogFooter>
             <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-            <Button type="submit" onClick={handleUpdateTitle}>Save changes</Button>
+            <Button type="submit" onClick={handleUpdateRecord}>Save changes</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
