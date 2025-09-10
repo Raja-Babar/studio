@@ -38,8 +38,7 @@ type AuthContextType = {
   updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
-  markAttendance: (employeeId: string) => Promise<void>;
-  updateAttendance: (employeeId: string, times: { timeIn?: string; timeOut?: string }) => void;
+  updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -252,65 +251,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }, 500);
     });
   };
+  
+  const updateAttendance = (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => {
+    const today = new Date().toISOString().split('T')[0];
+    const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
 
-  const markAttendance = async (employeeId: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        const today = new Date().toISOString().split('T')[0];
-        const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-        
-        let recordFound = false;
-        
-        const updatedAttendance = attendanceRecords.map(record => {
-            if (record.employeeId === employeeId && record.date === today) {
-                recordFound = true;
-                if (record.status === 'Present') {
-                    reject(new Error('Attendance already marked for today.'));
-                    return record;
-                }
-                return { ...record, timeIn: currentTime, status: 'Present' as const };
-            }
-            return record;
-        });
+    let recordExists = false;
+    let updatedAttendance = attendanceRecords.map(record => {
+      if (record.employeeId === employeeId && record.date === today) {
+        recordExists = true;
+        let newTimeIn = record.timeIn;
+        let newTimeOut = record.timeOut;
 
-        if (!recordFound) {
-            const employee = Object.values(mockUsers).find(u => u.id === employeeId);
-            if (employee) {
-                updatedAttendance.push({
-                    employeeId: employee.id,
-                    name: employee.name,
-                    date: today,
-                    timeIn: currentTime,
-                    timeOut: '--:--',
-                    status: 'Present',
-                });
-            } else {
-                reject(new Error('Employee not found.'));
-                return;
-            }
+        if (actions.clockIn) {
+          newTimeIn = currentTime;
+        }
+        if (actions.clockOut) {
+          newTimeOut = currentTime;
         }
         
-        setAttendanceRecords(updatedAttendance);
-        syncAttendanceToStorage(updatedAttendance);
-        resolve();
-    });
-  };
-  
-    const updateAttendance = (employeeId: string, times: { timeIn?: string; timeOut?: string }) => {
-    const today = new Date().toISOString().split('T')[0];
-    const updatedAttendance = attendanceRecords.map(record => {
-      if (record.employeeId === employeeId && record.date === today) {
-        const newTimeIn = times.timeIn ? new Date(`1970-01-01T${times.timeIn}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : record.timeIn;
-        const newTimeOut = times.timeOut ? new Date(`1970-01-01T${times.timeOut}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : record.timeOut;
-        
-        return {
-          ...record,
-          timeIn: newTimeIn,
-          timeOut: newTimeOut,
-          status: 'Present' as const,
-        };
+        return { ...record, timeIn: newTimeIn, timeOut: newTimeOut, status: 'Present' as const };
       }
       return record;
     });
+
+    if (!recordExists && actions.clockIn) {
+      const employee = Object.values(mockUsers).find(u => u.id === employeeId);
+      if (employee) {
+        updatedAttendance.push({
+          employeeId: employeeId,
+          name: employee.name,
+          date: today,
+          timeIn: currentTime,
+          timeOut: '--:--',
+          status: 'Present',
+        });
+      }
+    }
+
     setAttendanceRecords(updatedAttendance);
     syncAttendanceToStorage(updatedAttendance);
   };
@@ -365,7 +343,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, markAttendance, updateAttendance };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance };
 
   if (isLoading) {
     return (
