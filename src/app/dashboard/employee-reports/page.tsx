@@ -49,7 +49,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -95,74 +95,101 @@ export default function EmployeeReportsPage() {
         });
     }, [selectedDate, employeeReports]);
 
-    const summary = useMemo(() => {
-      const byStage: { [key: string]: number } = {};
-  
-      monthlyReports.forEach(report => {
-        // Summary by Stage
-        if (!byStage[report.stage]) {
-          byStage[report.stage] = 0;
-        }
-        byStage[report.stage] += report.quantity;
-      });
-  
-      return { byStage };
+    const reportsByEmployee = useMemo(() => {
+        const grouped: { [key: string]: { employeeName: string, reports: EmployeeReport[], summary: { byStage: { [key: string]: number } } } } = {};
+
+        monthlyReports.forEach(report => {
+            if (!grouped[report.employeeId]) {
+                grouped[report.employeeId] = {
+                    employeeName: report.employeeName,
+                    reports: [],
+                    summary: {
+                        byStage: {},
+                    },
+                };
+            }
+            grouped[report.employeeId].reports.push(report);
+        });
+
+        Object.values(grouped).forEach(employeeData => {
+            const byStage: { [key: string]: number } = {};
+            employeeData.reports.forEach(report => {
+                if (!byStage[report.stage]) {
+                    byStage[report.stage] = 0;
+                }
+                byStage[report.stage] += report.quantity;
+            });
+            employeeData.summary.byStage = byStage;
+        });
+
+        return Object.values(grouped);
     }, [monthlyReports]);
+
 
     const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
     });
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
-    let finalY = 20;
+    const handleExportPDF = () => {
+      const doc = new jsPDF();
+      let finalY = 20;
+  
+      doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
+      finalY = 22;
+      doc.setFontSize(10);
+      doc.text(`A summary of all scanning project reports for ${selectedMonthFormatted}.`, 14, finalY);
+      finalY += 8;
 
-    doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
-    finalY = 22;
-    doc.setFontSize(10);
-    doc.text(`A summary of all scanning project reports for ${selectedMonthFormatted}.`, 14, finalY);
-    finalY += 8;
-
-    // Submitted Reports Table
-    (doc as any).autoTable({
-        head: [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity']],
-        body: monthlyReports.map(r => [
-            r.employeeName,
-            new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
-            r.stage,
-            r.type,
-            r.quantity.toString(),
-        ]),
-        startY: finalY,
-        didDrawPage: function (data: any) {
-            finalY = data.cursor.y;
+      reportsByEmployee.forEach(({ employeeName, reports, summary }, index) => {
+        if (index > 0) {
+          finalY += 10;
         }
-    });
 
-    finalY = (doc as any).lastAutoTable.finalY + 10;
-
-    if (monthlyReports.length > 0) {
         doc.setFontSize(12);
-        doc.text('Monthly Summary', 14, finalY);
+        doc.text(`Employee: ${employeeName}`, 14, finalY);
         finalY += 5;
 
-        // Summary by Stage Table
-        doc.text('Summary by Stage', 14, finalY);
-        (doc as any).autoTable({
-            head: [['Stage', 'Quantity']],
-            body: Object.entries(summary.byStage).map(([stage, quantity]) => [stage, quantity.toLocaleString()]),
-            startY: finalY + 2,
-            margin: { left: 14 },
-            tableWidth: 'auto',
-            didDrawPage: (data: any) => {
+        // Submitted Reports Table
+        autoTable(doc, {
+            head: [['Date Submitted', 'Stage', 'Type', 'Quantity']],
+            body: reports.map(r => [
+                new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
+                r.stage,
+                r.type,
+                r.quantity.toString(),
+            ]),
+            startY: finalY,
+            didDrawPage: function (data: any) {
                 finalY = data.cursor.y;
             }
         });
-    }
 
-    doc.save(`scanning_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
-  };
+        finalY = (doc as any).lastAutoTable.finalY + 10;
+  
+        if (reports.length > 0) {
+            doc.setFontSize(12);
+            doc.text('Monthly Summary', 14, finalY);
+            finalY += 5;
+    
+            // Summary by Stage Table
+            doc.text('Summary by Stage', 14, finalY);
+            autoTable(doc, {
+                head: [['Stage', 'Quantity']],
+                body: Object.entries(summary.byStage).map(([stage, quantity]) => [stage, quantity.toLocaleString()]),
+                startY: finalY + 2,
+                margin: { left: 14 },
+                tableWidth: 'auto',
+                didDrawPage: (data: any) => {
+                    finalY = data.cursor.y;
+                }
+            });
+            finalY = (doc as any).lastAutoTable.finalY;
+        }
+      });
+  
+      doc.save(`scanning_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+    };
 
   const handleAddReport = () => {
     if (!newReportStage || !newReportType || !newReportQuantity) {
@@ -288,170 +315,192 @@ export default function EmployeeReportsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Submitted Reports</CardTitle>
-          <CardDescription>
-            A list of all reports related to the scanning project for the selected period.
-          </CardDescription>
+            <CardTitle>Submit a New Report</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Employee Name</TableHead>
-                <TableHead>Report Stage</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Quantity</TableHead>
-                <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
-                <TableHead>
-                    <span className="sr-only">Actions</span>
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {user?.role === 'Employee' && (
-                <TableRow>
-                  <TableCell className="font-medium">{user?.name}</TableCell>
-                  <TableCell>
-                    <Select value={newReportStage} onValueChange={setNewReportStage}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Stage" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {reportStages.map(stage => (
-                          <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <Select value={newReportType} onValueChange={setNewReportType}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {reportTypes.map(type => (
-                          <SelectItem key={type} value={type}>{type}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                      <Input
-                          type="number"
-                          placeholder="e.g., 100"
-                          value={newReportQuantity}
-                          onChange={(e) => setNewReportQuantity(e.target.value)}
-                      />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {new Date().toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button size="sm" onClick={handleAddReport}>
-                      <FilePlus className="mr-2 h-4 w-4" /> Submit
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              )}
-              {monthlyReports.length > 0 ? (
-                monthlyReports.map((report) => (
-                    <TableRow key={report.id}>
-                    <TableCell className="font-medium">{report.employeeName}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{report.stage}</Badge>
-                    </TableCell>
-                    <TableCell>{report.type}</TableCell>
-                    <TableCell>{report.quantity}</TableCell>
-                    <TableCell className="hidden md:table-cell">
-                        {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                        {user?.role === 'Admin' && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button
-                                aria-haspopup="true"
-                                size="icon"
-                                variant="ghost"
-                            >
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Toggle menu</span>
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleEditClick(report)}>
-                                <Edit className="mr-2 h-4 w-4" /> Edit
-                            </DropdownMenuItem>
-                            <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                                        <span className="text-destructive">Delete</span>
-                                    </DropdownMenuItem>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                        <AlertDialogTitle>Delete Report</AlertDialogTitle>
-                                        <AlertDialogDescription>
-                                            Are you sure you want to delete this report? This action cannot be undone.
-                                        </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                        <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
-                                    </AlertDialogFooter>
-                                </AlertDialogContent>
-                            </AlertDialog>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        )}
-                    </TableCell>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Employee Name</TableHead>
+                        <TableHead>Report Stage</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
+                        <TableHead>
+                            <span className="sr-only">Actions</span>
+                        </TableHead>
                     </TableRow>
-                ))
-              ) : (
-                user?.role !== 'Employee' && (
-                <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground pt-8">
-                        No scanning project reports found for this month.
-                    </TableCell>
-                </TableRow>
-                )
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                        <TableCell className="font-medium">{user?.name}</TableCell>
+                        <TableCell>
+                            <Select value={newReportStage} onValueChange={setNewReportStage}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Stage" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {reportStages.map(stage => (
+                                    <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </TableCell>
+                        <TableCell>
+                            <Select value={newReportType} onValueChange={setNewReportType}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {reportTypes.map(type => (
+                                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </TableCell>
+                        <TableCell>
+                            <Input
+                                type="number"
+                                placeholder="e.g., 100"
+                                value={newReportQuantity}
+                                onChange={(e) => setNewReportQuantity(e.target.value)}
+                            />
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                            {new Date().toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="text-right">
+                            <Button size="sm" onClick={handleAddReport}>
+                            <FilePlus className="mr-2 h-4 w-4" /> Submit
+                            </Button>
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
         </CardContent>
       </Card>
 
-      {monthlyReports.length > 0 && (
+      {reportsByEmployee.length > 0 ? (
+        reportsByEmployee.map(({ employeeName, reports: employeeReports, summary }) => (
+            <div key={employeeName} className="space-y-6">
+                <Card>
+                    <CardHeader>
+                    <CardTitle>Submitted Reports: {employeeName}</CardTitle>
+                    <CardDescription>
+                        A list of all reports for {employeeName} for the selected period.
+                    </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Date Submitted</TableHead>
+                            <TableHead>Report Stage</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Quantity</TableHead>
+                            {user?.role === 'Admin' && (
+                            <TableHead>
+                                <span className="sr-only">Actions</span>
+                            </TableHead>
+                            )}
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                        {employeeReports.map((report) => (
+                            <TableRow key={report.id}>
+                            <TableCell className="hidden md:table-cell">
+                                {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
+                            </TableCell>
+                            <TableCell>
+                                <Badge variant="outline">{report.stage}</Badge>
+                            </TableCell>
+                            <TableCell>{report.type}</TableCell>
+                            <TableCell>{report.quantity}</TableCell>
+                            <TableCell className="text-right">
+                                {user?.role === 'Admin' && (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                    <Button
+                                        aria-haspopup="true"
+                                        size="icon"
+                                        variant="ghost"
+                                    >
+                                        <MoreHorizontal className="h-4 w-4" />
+                                        <span className="sr-only">Toggle menu</span>
+                                    </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                    <DropdownMenuItem onClick={() => handleEditClick(report)}>
+                                        <Edit className="mr-2 h-4 w-4" /> Edit
+                                    </DropdownMenuItem>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                                <span className="text-destructive">Delete</span>
+                                            </DropdownMenuItem>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Delete Report</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Are you sure you want to delete this report? This action cannot be undone.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                )}
+                            </TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Monthly Summary: {employeeName}</CardTitle>
+                        <CardDescription>
+                        A summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div>
+                            <h3 className="font-medium mb-2">Summary by Stage</h3>
+                            <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Stage</TableHead>
+                                <TableHead className="text-right">Quantity</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(summary.byStage).map(([stage, quantity]) => (
+                                <TableRow key={stage}>
+                                    <TableCell>{stage}</TableCell>
+                                    <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        ))
+      ) : (
         <Card>
-          <CardHeader>
-            <CardTitle>Monthly Summary</CardTitle>
-            <CardDescription>
-              A summary of all scanning project reports for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-              <div>
-                <h3 className="font-medium mb-2">Summary by Stage</h3>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Stage</TableHead>
-                      <TableHead className="text-right">Quantity</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {Object.entries(summary.byStage).map(([stage, quantity]) => (
-                      <TableRow key={stage}>
-                        <TableCell>{stage}</TableCell>
-                        <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-          </CardContent>
+            <CardContent className="text-center text-muted-foreground pt-8">
+                No scanning project reports found for this month.
+            </CardContent>
         </Card>
       )}
       
