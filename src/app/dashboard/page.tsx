@@ -195,15 +195,16 @@ function EmployeeDashboard() {
           <p className="text-sm text-muted-foreground">Clock in and out for today.</p>
         </CardHeader>
         <CardContent className="flex flex-col items-start gap-4">
+          <div className="w-full space-y-4">
             <div className="flex w-full gap-4">
-                 <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn}>
-                    <Clock className="mr-2 h-4 w-4" />
-                    Clock In
-                </Button>
-                <Button onClick={handleClockOut} className="w-full" variant="outline" disabled={!hasClockedIn || hasClockedOut}>
-                    <Clock className="mr-2 h-4 w-4" />
-                    Clock Out
-                </Button>
+              <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn}>
+                  <Clock className="mr-2 h-4 w-4" />
+                  Clock In
+              </Button>
+              <Button onClick={handleClockOut} className="w-full" variant="outline" disabled={!hasClockedIn || hasClockedOut}>
+                  <Clock className="mr-2 h-4 w-4" />
+                  Clock Out
+              </Button>
             </div>
             <Table>
                 <TableHeader>
@@ -219,6 +220,7 @@ function EmployeeDashboard() {
                     </TableRow>
                 </TableBody>
             </Table>
+          </div>
         </CardContent>
       </Card>
       <Card className="lg:col-span-2">
