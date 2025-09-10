@@ -49,7 +49,7 @@ const getStatusVariant = (status: string) => {
   switch (status.toLowerCase()) {
     case 'completed':
       return 'default';
-    case 'uploading':
+    case 'uploaded':
       return 'secondary';
     case 'scanning':
       return 'outline';
@@ -66,10 +66,10 @@ const getStatusVariant = (status: string) => {
 
 const statusOptions = [
     "Scanning",
-    "Scanning Q-C",
+    "Scanning-QC",
     "Page Cleaning+Cropping",
-    "PDF Q-C",
-    "Uploading",
+    "PDF-QC",
+    "Uploaded",
     "Completed"
 ];
 
