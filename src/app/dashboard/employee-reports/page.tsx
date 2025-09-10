@@ -97,18 +97,27 @@ export default function EmployeeReportsPage() {
 
     const summary = useMemo(() => {
       const byStage: { [key: string]: number } = {};
-      const byType: { [key: string]: number } = {};
+      const byType: { [key: string]: { total: number; byStage: { [key: string]: number } } } = {};
   
       monthlyReports.forEach(report => {
+        // Summary by Stage
         if (!byStage[report.stage]) {
           byStage[report.stage] = 0;
         }
         byStage[report.stage] += report.quantity;
   
+        // Summary by Type
         if (!byType[report.type]) {
-          byType[report.type] = 0;
+          byType[report.type] = { total: 0, byStage: {} };
         }
-        byType[report.type] += report.quantity;
+        byType[report.type].total += report.quantity;
+
+        if(report.type === 'Books') {
+            if(!byType[report.type].byStage[report.stage]) {
+                byType[report.type].byStage[report.stage] = 0;
+            }
+            byType[report.type].byStage[report.stage] += report.quantity;
+        }
       });
   
       return { byStage, byType };
@@ -428,21 +437,38 @@ export default function EmployeeReportsPage() {
               <div>
                 <h3 className="font-medium mb-2">Summary by Type</h3>
                  <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Type</TableHead>
-                      <TableHead className="text-right">Quantity</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {Object.entries(summary.byType).map(([type, quantity]) => (
-                      <TableRow key={type}>
-                        <TableCell>{type}</TableCell>
-                        <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Stage</TableHead>
+                        <TableHead className="text-right">Quantity</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {Object.entries(summary.byType).map(([type, data]) => {
+                        if (type === 'Books' && Object.keys(data.byStage).length > 0) {
+                            return Object.entries(data.byStage).map(([stage, quantity], index) => (
+                            <TableRow key={`${type}-${stage}`}>
+                                {index === 0 && (
+                                <TableCell rowSpan={Object.keys(data.byStage).length} className="font-medium align-top">
+                                    {type}
+                                </TableCell>
+                                )}
+                                <TableCell>{stage}</TableCell>
+                                <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                            </TableRow>
+                            ));
+                        }
+                        return (
+                            <TableRow key={type}>
+                            <TableCell className="font-medium">{type}</TableCell>
+                             <TableCell>N/A</TableCell>
+                            <TableCell className="text-right">{data.total.toLocaleString()}</TableCell>
+                            </TableRow>
+                        );
+                        })}
+                    </TableBody>
+                    </Table>
               </div>
           </CardContent>
         </Card>
