@@ -23,6 +23,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 
 const allEmployeeReports = [
   {
@@ -30,24 +31,28 @@ const allEmployeeReports = [
     employeeName: 'Employee User',
     reportTitle: 'Weekly Sales Summary',
     submittedDate: '2024-07-29',
+    stage: 'Completed'
   },
   {
     employeeId: 'EMP001',
     employeeName: 'Ali Khan',
     reportTitle: 'I.T Department Monthly Update',
     submittedDate: '2024-07-28',
+    stage: 'Uploading'
   },
   {
     employeeId: 'EMP003',
     employeeName: 'Fatima Ali',
     reportTitle: 'Scanning Project Progress',
     submittedDate: '2024-07-27',
+    stage: 'Scanning'
   },
   {
     employeeId: 'EMP004',
     employeeName: 'Zainab Omar',
     reportTitle: 'Library Acquisition Proposal',
     submittedDate: '2024-07-26',
+    stage: 'PDF-QC'
   },
 ];
 
@@ -60,9 +65,9 @@ export default function EmployeeReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Employee Reports</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Scanning Reports</h1>
         <p className="text-muted-foreground mt-2">
-          View reports submitted by employees.
+          View reports submitted by employees for the scanning project.
         </p>
       </div>
 
@@ -78,7 +83,7 @@ export default function EmployeeReportsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Employee Name</TableHead>
-                <TableHead>Report Title</TableHead>
+                <TableHead>Report Stage</TableHead>
                 <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -90,7 +95,9 @@ export default function EmployeeReportsPage() {
                 employeeReports.map((report) => (
                     <TableRow key={report.employeeId + report.submittedDate}>
                     <TableCell className="font-medium">{report.employeeName}</TableCell>
-                    <TableCell>{report.reportTitle}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline">{report.stage}</Badge>
+                    </TableCell>
                     <TableCell className="hidden md:table-cell">
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
