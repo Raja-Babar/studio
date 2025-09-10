@@ -11,11 +11,12 @@ export const pettyCashRecords = JSON.stringify(
 
 export const scanningProgressRecords = JSON.stringify(
   [
-    { "book_id": "BK001", "title": "History of Sindh", "status": "Uploaded", "scanner": "Ali", "qc_by": "Fatima", "updated_at": "2024-07-29T10:00:00Z" },
+    { "book_id": "BK001", "title": "History of Sindh", "status": "Uploading", "scanner": "Ali", "qc_by": "Fatima", "updated_at": "2024-07-29T10:00:00Z" },
     { "book_id": "BK002", "title": "Sindh Through Centuries", "status": "PDF-QC", "scanner": "Ahmed", "qc_by": "Fatima", "updated_at": "2024-07-29T11:30:00Z" },
     { "book_id": "BK003", "title": "Panhwar Contributions", "status": "Scanning", "scanner": "Bilal", "qc_by": null, "updated_at": "2024-07-29T09:15:00Z" },
     { "book_id": "BK004", "title": "Indus Valley", "status": "Completed", "scanner": "Ali", "qc_by": "Zainab", "updated_at": "2024-07-28T16:45:00Z" },
-    { "book_id": "BK005", "title": "Modern Agriculture", "status": "Scanning-QC", "scanner": "Ahmed", "qc_by": null, "updated_at": "2024-07-29T14:20:00Z" }
+    { "book_id": "BK005", "title": "Modern Agriculture", "status": "Scanning-QC", "scanner": "Ahmed", "qc_by": null, "updated_at": "2024-07-29T14:20:00Z" },
+    { "book_id": "BK006", "title": "Ancient Civilizations", "status": "Pending", "scanner": null, "qc_by": null, "updated_at": "2024-07-30T09:00:00Z" }
   ], null, 2
 );
 

@@ -50,7 +50,7 @@ const getStatusClasses = (status: string) => {
   switch (status.toLowerCase()) {
     case 'completed':
       return 'bg-primary text-primary-foreground hover:bg-primary/80';
-    case 'uploaded':
+    case 'uploading':
       return 'bg-[hsl(var(--chart-2))] text-black hover:bg-[hsl(var(--chart-2))]';
     case 'scanning':
       return 'text-foreground border-foreground/50';
@@ -60,17 +60,20 @@ const getStatusClasses = (status: string) => {
       return 'bg-destructive text-destructive-foreground hover:bg-destructive/80';
     case 'page cleaning+cropping':
        return 'text-foreground border-foreground/50';
+    case 'pending':
+        return 'bg-yellow-500 text-black hover:bg-yellow-500/80';
     default:
       return 'text-foreground border-foreground/50';
   }
 };
 
 const statusOptions = [
+    "Pending",
     "Scanning",
     "Scanning-QC",
     "Page Cleaning+Cropping",
     "PDF-QC",
-    "Uploaded",
+    "Uploading",
     "Completed"
 ];
 
