@@ -11,6 +11,39 @@ import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useState, useMemo } from 'react';
+import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
+import { cn } from '@/lib/utils';
+
+type ScanningRecord = {
+  book_id: string;
+  title: string;
+  status: string;
+  scanner: string | null;
+  qc_by: string | null;
+  updated_at: string;
+};
+
+const getStatusClasses = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return 'bg-primary text-primary-foreground hover:bg-primary/80';
+    case 'uploading':
+      return 'bg-[hsl(var(--chart-2))] text-black hover:bg-[hsl(var(--chart-2))]';
+    case 'scanning':
+      return 'text-foreground border-foreground/50';
+    case 'pdf-qc':
+      return 'bg-primary/80 text-primary-foreground hover:bg-primary/70';
+    case 'scanning-qc':
+      return 'bg-destructive text-destructive-foreground hover:bg-destructive/80';
+    case 'page cleaning+cropping':
+       return 'text-foreground border-foreground/50';
+    case 'pending':
+        return 'bg-yellow-500 text-black hover:bg-yellow-500/80';
+    default:
+      return 'text-foreground border-foreground/50';
+  }
+};
+
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -44,17 +77,23 @@ const getTaskStatusVariant = (status: string) => {
 function AdminDashboard() {
   const { getUsers } = useAuth();
   const totalEmployees = getUsers().length;
+  const scanningRecords: ScanningRecord[] = useMemo(() => JSON.parse(scanningProgressRecordsJSON), []);
+  const recentScanningActivity = useMemo(() => {
+    return scanningRecords
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
+      .slice(0, 5);
+  }, [scanningRecords]);
 
   const stats = [
     { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management', subtext: "+5.1% from last month" },
     { title: 'Projects Ongoing', value: '5', icon: Briefcase, subtext: "+1 from last month" },
     { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
-    { title: 'Scanning Progress', value: '75%', icon: BarChart, subtext: "+2.1% from last month" },
+    { title: 'Scanning Progress', value: '75%', icon: BarChart, href: '/dashboard/scanning', subtext: "+2.1% from last month" },
   ];
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Admin Overview</h2>
+    <div className="space-y-6">
+      <h2 className="text-2xl font-semibold">Admin Overview</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
             const cardContent = (
@@ -80,6 +119,44 @@ function AdminDashboard() {
             return <div key={stat.title}>{cardContent}</div>;
         })}
       </div>
+
+       <Card>
+        <CardHeader>
+          <CardTitle>Digitization Status</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Book Title</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell">Scanner</TableHead>
+                <TableHead className="hidden md:table-cell">Last Updated</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentScanningActivity.length > 0 ? (
+                recentScanningActivity.map((record) => (
+                  <TableRow key={record.book_id}>
+                    <TableCell className="font-medium">{record.title}</TableCell>
+                    <TableCell>
+                      <Badge className={cn(getStatusClasses(record.status))}>{record.status}</Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">{record.scanner || 'N/A'}</TableCell>
+                     <TableCell className="hidden md:table-cell">{new Date(record.updated_at).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    No recent scanning activity.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
     </div>
   );
 }
