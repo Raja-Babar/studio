@@ -29,7 +29,6 @@ export const employeeReports = [
     stage: 'Completed',
     type: 'Pages',
     quantity: 250,
-    pdfFileName: 'sindh_history_pages.pdf',
   },
   {
     id: 'REP-002',
@@ -39,7 +38,6 @@ export const employeeReports = [
     stage: 'PDF Uploading',
     type: 'Pages',
     quantity: 180,
-    pdfFileName: 'panhwar_contributions_p1.pdf',
   },
   {
     id: 'REP-003',
@@ -49,7 +47,6 @@ export const employeeReports = [
     stage: 'Scanning',
     type: 'Books',
     quantity: 5,
-    pdfFileName: 'indus_valley_vol1.pdf',
   },
   {
     id: 'REP-004',
@@ -59,7 +56,6 @@ export const employeeReports = [
     stage: 'PDF Q-C',
     type: 'Pages',
     quantity: 300,
-    pdfFileName: 'modern_agriculture.pdf',
   },
   {
     id: 'REP-005',
@@ -69,7 +65,6 @@ export const employeeReports = [
     stage: 'Scanning Q-C',
     type: 'Books',
     quantity: 2,
-    pdfFileName: '',
   },
   {
     id: 'REP-006',
@@ -79,7 +74,6 @@ export const employeeReports = [
     stage: 'PDF Pages',
     type: 'Books',
     quantity: 1,
-    pdfFileName: 'ancient_civ_notes.pdf',
   }
 ];
 

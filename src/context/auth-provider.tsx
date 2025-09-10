@@ -34,7 +34,6 @@ export type EmployeeReport = {
     stage: string;
     type: string;
     quantity: number;
-    pdfFileName?: string;
 };
 
 type AuthContextType = {
@@ -263,7 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const maxId = Object.values(mockUsers)
-            .map(u => u.id ? parseInt(u.id.replace('EMP', ''), 10) : 0)
+            .map(u => parseInt(u.id.replace('EMP', ''), 10))
             .filter(n => !isNaN(n))
             .reduce((max, current) => Math.max(max, current), 0);
         const newIdNumber = maxId + 1;
