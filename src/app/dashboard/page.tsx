@@ -103,7 +103,7 @@ function AdminDashboard() {
             return <div key={stat.title}>{cardContent}</div>;
         })}
       </div>
-       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+       <div className="grid grid-cols-1 gap-6 mt-6">
         <Card>
             <CardHeader>
                 <CardTitle>Report Status</CardTitle>
@@ -131,14 +131,6 @@ function AdminDashboard() {
                         ))}
                     </TableBody>
                 </Table>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Recent Activities</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">No recent activities to display.</p>
             </CardContent>
         </Card>
       </div>
