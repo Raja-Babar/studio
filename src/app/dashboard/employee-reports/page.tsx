@@ -63,6 +63,25 @@ import type { EmployeeReport } from '@/context/auth-provider';
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
 const reportTypes = ["Pages", "Books"];
 
+const getStageBadgeClass = (stage: string) => {
+    switch (stage.toLowerCase()) {
+        case 'completed':
+            return 'bg-green-600 text-white';
+        case 'scanning':
+            return 'bg-blue-500 text-white';
+        case 'scanning q-c':
+            return 'bg-yellow-500 text-black';
+        case 'pdf pages':
+            return 'bg-purple-500 text-white';
+        case 'pdf q-c':
+            return 'bg-orange-500 text-white';
+        case 'pdf uploading':
+            return 'bg-teal-500 text-white';
+        default:
+            return 'bg-gray-500 text-white';
+    }
+};
+
 
 export default function EmployeeReportsPage() {
     const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport } = useAuth();
@@ -430,7 +449,7 @@ export default function EmployeeReportsPage() {
                                     {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="outline">{report.stage}</Badge>
+                                    <Badge className={cn(getStageBadgeClass(report.stage))}>{report.stage}</Badge>
                                 </TableCell>
                                 <TableCell>{report.type}</TableCell>
                                 <TableCell>{report.quantity}</TableCell>
