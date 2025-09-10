@@ -81,15 +81,24 @@ export default function AttendancePage() {
     const doc = new jsPDF();
 
     doc.text(`Daily Attendance - ${selectedMonthFormatted}`, 14, 16);
-    (doc as any).autoTable({
-        head: [['Employee Name', 'Date', 'Time In', 'Time Out', 'Status']],
-        body: displayedRecords.map(r => [
-            r.name,
+    const head = isEmployee ? [['Date', 'Time In', 'Time Out', 'Status']] : [['Employee Name', 'Date', 'Time In', 'Time Out', 'Status']];
+    const body = displayedRecords.map(r => {
+        const row = [
             new Date(r.date + 'T00:00:00').toLocaleDateString(),
             r.timeIn,
             r.timeOut,
             r.status
-        ]),
+        ];
+        if (!isEmployee) {
+            row.unshift(r.name);
+        }
+        return row;
+    });
+
+
+    (doc as any).autoTable({
+        head: head,
+        body: body,
         startY: 20,
         didDrawPage: function (data) {
             doc.setFontSize(20);
@@ -146,7 +155,7 @@ export default function AttendancePage() {
             <Table>
                 <TableHeader>
                 <TableRow>
-                    <TableHead>Employee Name</TableHead>
+                    {!isEmployee && <TableHead>Employee Name</TableHead>}
                     <TableHead>Date</TableHead>
                     <TableHead>Time In</TableHead>
                     <TableHead>Time Out</TableHead>
@@ -157,7 +166,7 @@ export default function AttendancePage() {
                 {displayedRecords.length > 0 ? (
                     displayedRecords.map((record) => (
                         <TableRow key={`${record.employeeId}-${record.date}`}>
-                            <TableCell className="font-medium">{record.name}</TableCell>
+                            {!isEmployee && <TableCell className="font-medium">{record.name}</TableCell>}
                             <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
                             <TableCell>{record.timeIn}</TableCell>
                             <TableCell>{record.timeOut}</TableCell>
@@ -172,7 +181,6 @@ export default function AttendancePage() {
                     <TableRow>
                        {isEmployee && user ? (
                          <>
-                          <TableCell className="font-medium">{user.name}</TableCell>
                           <TableCell>{new Date(selectedDate).toLocaleDateString()}</TableCell>
                           <TableCell>--:--</TableCell>
                           <TableCell>--:--</TableCell>
