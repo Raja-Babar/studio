@@ -59,6 +59,8 @@ type AuthContextType = {
   addEmployeeReport: (report: Omit<EmployeeReport, 'id'> & { id?: string }) => void;
   updateEmployeeReport: (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => void;
   deleteEmployeeReport: (reportId: string) => void;
+  requiredIp: string;
+  setRequiredIp: (ip: string) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -86,6 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [mockUsers, setMockUsers] = useState<{ [email: string]: StoredUser }>({});
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [employeeReports, setEmployeeReports] = useState<EmployeeReport[]>([]);
+  const [requiredIp, setRequiredIpState] = useState('');
 
 
   const router = useRouter();
@@ -119,6 +122,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Failed to save employee reports to localStorage", error);
     }
   }, []);
+
+  const setRequiredIp = (ip: string) => {
+    localStorage.setItem('requiredIp', ip);
+    setRequiredIpState(ip);
+  };
   
   const logout = useCallback(() => {
     setUser(null);
@@ -179,6 +187,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setEmployeeReports(storedReports);
 
+      const storedIp = localStorage.getItem('requiredIp');
+      if (storedIp) {
+        setRequiredIpState(storedIp);
+      }
 
       try {
         const storedUser = localStorage.getItem('user');
@@ -468,7 +480,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, approveUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, approveUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, requiredIp, setRequiredIp };
 
   if (isLoading) {
     return (

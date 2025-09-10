@@ -37,6 +37,8 @@ type AuthContextType = {
   addEmployeeReport: (report: Omit<EmployeeReport, 'id'> & { id?: string }) => void;
   updateEmployeeReport: (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => void;
   deleteEmployeeReport: (reportId: string) => void;
+  requiredIp: string;
+  setRequiredIp: (ip: string) => void;
 };
 
 export const useAuth = (): AuthContextType => {
@@ -46,5 +48,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
-    

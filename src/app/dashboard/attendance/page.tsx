@@ -5,11 +5,11 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search } from 'lucide-react';
+import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search, Globe } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -41,7 +41,7 @@ const getStatusVariant = (status: AttendanceStatus) => {
 };
 
 export default function AttendancePage() {
-  const { user, attendanceRecords, updateAttendanceRecord, deleteAttendanceRecord, getUsers } = useAuth();
+  const { user, attendanceRecords, updateAttendanceRecord, deleteAttendanceRecord, getUsers, requiredIp, setRequiredIp, updateAttendance } = useAuth();
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [searchTerm, setSearchTerm] = useState('');
@@ -51,9 +51,40 @@ export default function AttendancePage() {
   const [editedTimeIn, setEditedTimeIn] = useState('');
   const [editedTimeOut, setEditedTimeOut] = useState('');
   const [editedStatus, setEditedStatus] = useState<AttendanceStatus>('Not Marked');
-
+  
+  const [currentIp, setCurrentIp] = useState<string | null>(null);
+  const [ipError, setIpError] = useState<string | null>(null);
+  const [ipInput, setIpInput] = useState(requiredIp);
 
   const isEmployee = user?.role === 'Employee';
+
+  useEffect(() => {
+    setIpInput(requiredIp);
+  }, [requiredIp]);
+
+  useEffect(() => {
+    if (isEmployee) {
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => setCurrentIp(data.ip))
+        .catch(() => setIpError('Could not fetch IP address. Please check your network connection.'));
+    }
+  }, [isEmployee]);
+
+  const canClockIn = useMemo(() => {
+    if (!isEmployee) return false;
+    if (ipError) return false;
+    if (!requiredIp || !currentIp) return true; // Allow if no restriction or IP not fetched yet
+    return currentIp === requiredIp;
+  }, [isEmployee, requiredIp, currentIp, ipError]);
+
+  const todaysRecord = useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return attendanceRecords.find(r => r.employeeId === user?.id && r.date === today);
+  }, [attendanceRecords, user]);
+
+  const hasClockedIn = todaysRecord?.timeIn && todaysRecord.timeIn !== '--:--';
+  const hasClockedOut = todaysRecord?.timeOut && todaysRecord.timeOut !== '--:--';
 
   const userAttendanceRecords = useMemo(() => {
     const allUsers = getUsers();
@@ -119,37 +150,59 @@ export default function AttendancePage() {
     doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
   };
   
-    const handleEditClick = (record: AttendanceRecord) => {
-        setSelectedRecord(record);
-        setEditedTimeIn(record.timeIn);
-        setEditedTimeOut(record.timeOut);
-        setEditedStatus(record.status as AttendanceStatus);
-        setIsEditDialogOpen(true);
-    };
+  const handleEditClick = (record: AttendanceRecord) => {
+      setSelectedRecord(record);
+      setEditedTimeIn(record.timeIn);
+      setEditedTimeOut(record.timeOut);
+      setEditedStatus(record.status as AttendanceStatus);
+      setIsEditDialogOpen(true);
+  };
 
-    const handleUpdateRecord = () => {
-        if (selectedRecord) {
-            updateAttendanceRecord(selectedRecord.employeeId, selectedRecord.date, {
-                timeIn: editedTimeIn,
-                timeOut: editedTimeOut,
-                status: editedStatus,
-            });
-            toast({
-                title: 'Record Updated',
-                description: 'The attendance record has been successfully updated.',
-            });
-            setIsEditDialogOpen(false);
-            setSelectedRecord(null);
-        }
-    };
+  const handleUpdateRecord = () => {
+      if (selectedRecord) {
+          updateAttendanceRecord(selectedRecord.employeeId, selectedRecord.date, {
+              timeIn: editedTimeIn,
+              timeOut: editedTimeOut,
+              status: editedStatus,
+          });
+          toast({
+              title: 'Record Updated',
+              description: 'The attendance record has been successfully updated.',
+          });
+          setIsEditDialogOpen(false);
+          setSelectedRecord(null);
+      }
+  };
 
-    const handleDeleteRecord = (employeeId: string, date: string) => {
-        deleteAttendanceRecord(employeeId, date);
-        toast({
-            title: 'Record Deleted',
-            description: 'The attendance record has been successfully deleted.',
-        });
-    };
+  const handleDeleteRecord = (employeeId: string, date: string) => {
+      deleteAttendanceRecord(employeeId, date);
+      toast({
+          title: 'Record Deleted',
+          description: 'The attendance record has been successfully deleted.',
+      });
+  };
+
+  const handleClockIn = () => {
+    if (user && canClockIn) {
+      updateAttendance(user.id, { clockIn: true });
+      toast({ title: 'Clocked In', description: 'Your arrival time has been recorded.' });
+    } else {
+      toast({ variant: 'destructive', title: 'Clock-In Failed', description: `Your IP (${currentIp}) does not match the required IP (${requiredIp}).` });
+    }
+  };
+
+  const handleClockOut = () => {
+    if (user) {
+      updateAttendance(user.id, { clockOut: true });
+      toast({ title: 'Clocked Out', description: 'Your departure time has been recorded.' });
+    }
+  };
+
+  const handleSetIp = () => {
+    setRequiredIp(ipInput);
+    toast({ title: 'IP Address Set', description: `Attendance is now restricted to ${ipInput || 'any IP'}.` });
+  };
+
 
   return (
     <div className="space-y-6">
@@ -200,6 +253,27 @@ export default function AttendancePage() {
             </Button>
         </div>
       </div>
+
+        {!isEmployee && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Attendance IP Restriction</CardTitle>
+                    <CardDescription>Set a specific IP address from which employees can clock in. Leave blank to allow clock-in from any IP.</CardDescription>
+                </CardHeader>
+                <CardContent className="flex items-center gap-2">
+                    <div className="relative flex-grow">
+                        <Globe className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                            placeholder="Enter required IP address..." 
+                            className="pl-8"
+                            value={ipInput}
+                            onChange={(e) => setIpInput(e.target.value)}
+                        />
+                    </div>
+                    <Button onClick={handleSetIp}>Set IP</Button>
+                </CardContent>
+            </Card>
+        )}
 
       <div className="grid gap-6">
         <Card>

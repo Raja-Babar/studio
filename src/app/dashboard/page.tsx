@@ -6,11 +6,11 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock, ArrowRight, FilePlus, Edit, MoreHorizontal } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -102,7 +102,19 @@ function AdminDashboard() {
   const { getUsers } = useAuth();
   const { toast } = useToast();
   const totalEmployees = getUsers().length;
-  const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>(() => JSON.parse(scanningProgressRecordsJSON));
+  const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>(() => {
+    try {
+        const storedRecords = localStorage.getItem('scanningProgressRecords');
+        return storedRecords ? JSON.parse(storedRecords) : JSON.parse(scanningProgressRecordsJSON);
+    } catch (e) {
+        return JSON.parse(scanningProgressRecordsJSON);
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('scanningProgressRecords', JSON.stringify(scanningRecords));
+  }, [scanningRecords]);
+
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
@@ -275,10 +287,26 @@ function AdminDashboard() {
 }
 
 function EmployeeDashboard() {
-  const { user, attendanceRecords, updateAttendance, employeeReports } = useAuth();
+  const { user, attendanceRecords, updateAttendance, employeeReports, requiredIp } = useAuth();
   const { toast } = useToast();
   const today = new Date().toISOString().split('T')[0];
   const todaysRecord = attendanceRecords.find(r => r.employeeId === user?.id && r.date === today);
+
+  const [currentIp, setCurrentIp] = useState<string | null>(null);
+  const [ipError, setIpError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(response => response.json())
+      .then(data => setCurrentIp(data.ip))
+      .catch(() => setIpError('Could not fetch IP address.'));
+  }, []);
+
+  const canClockIn = useMemo(() => {
+    if (ipError) return false;
+    if (!requiredIp || !currentIp) return true; // Allow if no restriction or IP not fetched yet
+    return currentIp === requiredIp;
+  }, [requiredIp, currentIp, ipError]);
 
   const timeIn = todaysRecord?.timeIn || '--:--';
   const timeOut = todaysRecord?.timeOut || '--:--';
@@ -296,11 +324,19 @@ function EmployeeDashboard() {
 
   const handleClockIn = () => {
     if (user) {
-      updateAttendance(user.id, { clockIn: true });
-      toast({
-        title: "Clocked In",
-        description: "Your arrival time has been recorded.",
-      });
+      if (canClockIn) {
+        updateAttendance(user.id, { clockIn: true });
+        toast({
+          title: "Clocked In",
+          description: "Your arrival time has been recorded.",
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Clock-In Failed",
+          description: `Your IP (${currentIp}) does not match the required IP.`,
+        });
+      }
     }
   };
   
@@ -326,7 +362,7 @@ function EmployeeDashboard() {
           <CardContent className="flex flex-col items-start gap-4">
             <div className="w-full space-y-4">
               <div className="flex w-full gap-4">
-                <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn}>
+                <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn || !canClockIn}>
                     <Clock className="mr-2 h-4 w-4" />
                     Clock In
                 </Button>
@@ -335,6 +371,14 @@ function EmployeeDashboard() {
                     Clock Out
                 </Button>
               </div>
+               {!canClockIn && currentIp && requiredIp && (
+                <p className="text-xs text-destructive text-center">
+                  Clock-in disabled. Your IP ({currentIp}) does not match required IP ({requiredIp}).
+                </p>
+              )}
+               {ipError && (
+                <p className="text-xs text-destructive text-center">{ipError}</p>
+              )}
               <Table>
                   <TableHeader>
                       <TableRow>
