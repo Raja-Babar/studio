@@ -34,66 +34,13 @@ import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 
-
-const allEmployeeReports = [
-  {
-    employeeId: 'EMP101',
-    employeeName: 'Employee User',
-    submittedDate: '2024-07-29',
-    stage: 'Completed',
-    type: 'Pages',
-    quantity: 250,
-  },
-  {
-    employeeId: 'EMP001',
-    employeeName: 'Ali Khan',
-    submittedDate: '2024-07-28',
-    stage: 'PDF Uploading',
-    type: 'Pages',
-    quantity: 180,
-  },
-  {
-    employeeId: 'EMP003',
-    employeeName: 'Fatima Ali',
-    submittedDate: '2024-07-27',
-    stage: 'Scanning',
-    type: 'Books',
-    quantity: 5,
-  },
-  {
-    employeeId: 'EMP004',
-    employeeName: 'Zainab Omar',
-    submittedDate: '2024-07-26',
-    stage: 'PDF Q-C',
-    type: 'Pages',
-    quantity: 300,
-  },
-  {
-    employeeId: 'EMP101',
-    employeeName: 'Employee User',
-    submittedDate: '2024-07-25',
-    stage: 'Scanning Q-C',
-    type: 'Books',
-    quantity: 2,
-  },
-  {
-    employeeId: 'EMP101',
-    employeeName: 'Employee User',
-    submittedDate: '2024-06-15',
-    stage: 'PDF Pages',
-    type: 'Books',
-    quantity: 1,
-  }
-];
-
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
 const reportTypes = ["Pages", "Books"];
 
 
 export default function EmployeeReportsPage() {
-    const { user } = useAuth();
+    const { user, employeeReports: reports, addEmployeeReport } = useAuth();
     const { toast } = useToast();
-    const [reports, setReports] = useState(allEmployeeReports);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [newReportStage, setNewReportStage] = useState('');
     const [newReportType, setNewReportType] = useState('');
@@ -180,15 +127,15 @@ export default function EmployeeReportsPage() {
 
 
     if (user) {
-      const newReport = {
+      addEmployeeReport({
         employeeId: user.id,
         employeeName: user.name,
         submittedDate: new Date().toISOString().split('T')[0],
         stage: newReportStage,
         type: newReportType,
         quantity: quantity,
-      };
-      setReports(prev => [newReport, ...prev]);
+      });
+
       toast({
         title: 'Report Submitted',
         description: 'Your new report has been added.',

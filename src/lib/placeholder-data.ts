@@ -20,6 +20,57 @@ export const scanningProgressRecords = JSON.stringify(
   ], null, 2
 );
 
+export const employeeReports = [
+  {
+    employeeId: 'EMP101',
+    employeeName: 'Employee User',
+    submittedDate: '2024-07-29',
+    stage: 'Completed',
+    type: 'Pages',
+    quantity: 250,
+  },
+  {
+    employeeId: 'EMP001',
+    employeeName: 'Ali Khan',
+    submittedDate: '2024-07-28',
+    stage: 'PDF Uploading',
+    type: 'Pages',
+    quantity: 180,
+  },
+  {
+    employeeId: 'EMP003',
+    employeeName: 'Fatima Ali',
+    submittedDate: '2024-07-27',
+    stage: 'Scanning',
+    type: 'Books',
+    quantity: 5,
+  },
+  {
+    employeeId: 'EMP004',
+    employeeName: 'Zainab Omar',
+    submittedDate: '2024-07-26',
+    stage: 'PDF Q-C',
+    type: 'Pages',
+    quantity: 300,
+  },
+  {
+    employeeId: 'EMP101',
+    employeeName: 'Employee User',
+    submittedDate: '2024-07-25',
+    stage: 'Scanning Q-C',
+    type: 'Books',
+    quantity: 2,
+  },
+  {
+    employeeId: 'EMP101',
+    employeeName: 'Employee User',
+    submittedDate: '2024-06-15',
+    stage: 'PDF Pages',
+    type: 'Books',
+    quantity: 1,
+  }
+];
+
 // Corresponds to the default users in auth-provider.tsx
 export const attendanceRecords = [
   // Admin User records for today

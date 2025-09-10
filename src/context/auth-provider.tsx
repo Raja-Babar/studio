@@ -5,7 +5,7 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { attendanceRecords as defaultAttendanceRecords } from '@/lib/placeholder-data';
+import { attendanceRecords as defaultAttendanceRecords, employeeReports as defaultEmployeeReports } from '@/lib/placeholder-data';
 
 type UserRole = 'Admin' | 'Employee';
 type User = {
@@ -26,6 +26,15 @@ type AttendanceRecord = {
   status: 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 };
 
+type EmployeeReport = {
+    employeeId: string;
+    employeeName: string;
+    submittedDate: string;
+    stage: string;
+    type: string;
+    quantity: number;
+};
+
 type AuthContextType = {
   user: User | null;
   login: (email: string, pass: string) => Promise<void>;
@@ -39,6 +48,8 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
+  employeeReports: EmployeeReport[];
+  addEmployeeReport: (report: EmployeeReport) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,6 +75,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const [mockUsers, setMockUsers] = useState<{ [email: string]: StoredUser }>({});
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  const [employeeReports, setEmployeeReports] = useState<EmployeeReport[]>([]);
 
 
   const router = useRouter();
@@ -83,6 +95,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('attendance', JSON.stringify(records));
     } catch (error) {
       console.error("Failed to save attendance to localStorage", error);
+    }
+  }, []);
+  
+  const syncReportsToStorage = useCallback((records: EmployeeReport[]) => {
+    try {
+      localStorage.setItem('employeeReports', JSON.stringify(records));
+    } catch (error) {
+      console.error("Failed to save employee reports to localStorage", error);
     }
   }, []);
   
@@ -129,6 +149,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setAttendanceRecords(storedAttendance);
 
+      let storedReports: EmployeeReport[] = [];
+      try {
+        const reportsFromStorage = localStorage.getItem('employeeReports');
+        if (reportsFromStorage) {
+          storedReports = JSON.parse(reportsFromStorage);
+        } else {
+          storedReports = defaultEmployeeReports;
+          syncReportsToStorage(storedReports);
+        }
+      } catch (error) {
+        console.error("Failed to parse reports from localStorage, resetting to default.", error);
+        storedReports = defaultEmployeeReports;
+        syncReportsToStorage(storedReports);
+      }
+      setEmployeeReports(storedReports);
+
 
       try {
         const storedUser = localStorage.getItem('user');
@@ -152,7 +188,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initAuth();
-  }, [syncUsersToStorage, syncAttendanceToStorage]);
+  }, [syncUsersToStorage, syncAttendanceToStorage, syncReportsToStorage]);
 
   useEffect(() => {
     let activityTimer: NodeJS.Timeout;
@@ -293,6 +329,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     syncAttendanceToStorage(updatedAttendance);
   };
 
+  const addEmployeeReport = (report: EmployeeReport) => {
+    const updatedReports = [report, ...employeeReports];
+    setEmployeeReports(updatedReports);
+    syncReportsToStorage(updatedReports);
+  };
+
   const getUsers = (): Omit<StoredUser, 'passwordHash'>[] => {
     return Object.values(mockUsers).map(({ passwordHash, ...user }) => user);
   };
@@ -318,6 +360,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     syncUsersToStorage(defaultUsers);
     setAttendanceRecords(defaultAttendanceRecords);
     syncAttendanceToStorage(defaultAttendanceRecords);
+    setEmployeeReports(defaultEmployeeReports);
+    syncReportsToStorage(defaultEmployeeReports);
   };
 
   const updateUser = async (email: string, data: Partial<Omit<User, 'email' | 'id'>>): Promise<void> => {
@@ -343,7 +387,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance, employeeReports, addEmployeeReport };
 
   if (isLoading) {
     return (

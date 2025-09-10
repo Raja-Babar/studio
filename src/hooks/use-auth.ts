@@ -22,6 +22,15 @@ type AttendanceRecord = {
   status: 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 };
 
+type EmployeeReport = {
+    employeeId: string;
+    employeeName: string;
+    submittedDate: string;
+    stage: string;
+    type: string;
+    quantity: number;
+};
+
 type AuthContextType = {
   user: User | null;
   login: (email: string, pass: string) => Promise<void>;
@@ -35,6 +44,8 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
+  employeeReports: EmployeeReport[];
+  addEmployeeReport: (report: EmployeeReport) => void;
 };
 
 export const useAuth = (): AuthContextType => {
