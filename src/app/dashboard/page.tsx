@@ -6,13 +6,18 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock, ArrowRight, FilePlus } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, ArrowRight, FilePlus, Edit, MoreHorizontal } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useState, useMemo } from 'react';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+
 
 type ScanningRecord = {
   book_id: string;
@@ -84,8 +89,14 @@ const getStageBadgeClass = (stage: string) => {
 
 function AdminDashboard() {
   const { getUsers } = useAuth();
+  const { toast } = useToast();
   const totalEmployees = getUsers().length;
-  const scanningRecords: ScanningRecord[] = useMemo(() => JSON.parse(scanningProgressRecordsJSON), []);
+  const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>(() => JSON.parse(scanningProgressRecordsJSON));
+  
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
+  const [editedTitle, setEditedTitle] = useState('');
+
   const recentScanningActivity = useMemo(() => {
     return scanningRecords
       .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
@@ -98,6 +109,29 @@ function AdminDashboard() {
     { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
     { title: 'Digitization Progress', value: '75%', icon: BarChart, href: '/dashboard/scanning', subtext: "+2.1% from last month" },
   ];
+
+  const handleEditClick = (record: ScanningRecord) => {
+    setSelectedRecord(record);
+    setEditedTitle(record.title);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateTitle = () => {
+    if (selectedRecord && editedTitle) {
+      setScanningRecords(prevRecords =>
+        prevRecords.map(rec =>
+          rec.book_id === selectedRecord.book_id ? { ...rec, title: editedTitle } : rec
+        )
+      );
+      toast({
+        title: 'Title Updated',
+        description: 'The book title has been successfully updated.',
+      });
+      setIsEditDialogOpen(false);
+      setSelectedRecord(null);
+    }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -140,6 +174,9 @@ function AdminDashboard() {
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell">Scanner</TableHead>
                 <TableHead className="hidden md:table-cell">Last Updated</TableHead>
+                 <TableHead>
+                    <span className="sr-only">Actions</span>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -152,11 +189,26 @@ function AdminDashboard() {
                     </TableCell>
                     <TableCell className="hidden md:table-cell">{record.scanner || 'N/A'}</TableCell>
                      <TableCell className="hidden md:table-cell">{new Date(record.updated_at).toLocaleDateString()}</TableCell>
+                    <TableCell className="text-right">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button aria-haspopup="true" size="icon" variant="ghost">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleEditClick(record)}>
+                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
                     No recent scanning activity.
                   </TableCell>
                 </TableRow>
@@ -165,6 +217,33 @@ function AdminDashboard() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Book Title</DialogTitle>
+            <DialogDescription>
+              Make changes to the book title here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="title" className="text-right">Title</Label>
+              <Input
+                id="title"
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" onClick={handleUpdateTitle}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
