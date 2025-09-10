@@ -24,7 +24,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-const employeeReports = [
+const allEmployeeReports = [
   {
     employeeId: 'EMP101',
     employeeName: 'Employee User',
@@ -51,6 +51,11 @@ const employeeReports = [
   },
 ];
 
+const employeeReports = allEmployeeReports.filter(report => 
+    report.reportTitle.toLowerCase().includes('scanning')
+);
+
+
 export default function EmployeeReportsPage() {
   return (
     <div className="space-y-6">
@@ -65,7 +70,7 @@ export default function EmployeeReportsPage() {
         <CardHeader>
           <CardTitle>Submitted Reports</CardTitle>
           <CardDescription>
-            A list of all reports submitted by employees.
+            A list of all reports related to the scanning project.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -81,34 +86,42 @@ export default function EmployeeReportsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employeeReports.map((report) => (
-                <TableRow key={report.employeeId + report.submittedDate}>
-                  <TableCell className="font-medium">{report.employeeName}</TableCell>
-                  <TableCell>{report.reportTitle}</TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                        <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                        >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                        </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>View Report</DropdownMenuItem>
-                        <DropdownMenuItem>Download</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+              {employeeReports.length > 0 ? (
+                employeeReports.map((report) => (
+                    <TableRow key={report.employeeId + report.submittedDate}>
+                    <TableCell className="font-medium">{report.employeeName}</TableCell>
+                    <TableCell>{report.reportTitle}</TableCell>
+                    <TableCell className="hidden md:table-cell">
+                        {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button
+                                aria-haspopup="true"
+                                size="icon"
+                                variant="ghost"
+                            >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>View Report</DropdownMenuItem>
+                            <DropdownMenuItem>Download</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </TableCell>
+                    </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                        No scanning project reports found.
+                    </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
