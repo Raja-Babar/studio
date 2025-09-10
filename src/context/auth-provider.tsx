@@ -95,6 +95,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const syncUsersToStorage = useCallback((users: { [email: string]: StoredUser }) => {
     try {
       localStorage.setItem('users', JSON.stringify(users));
+      // Force a re-render in other components that use `getUsers`
+      setMockUsers(users);
     } catch (error) {
       console.error("Failed to save users to localStorage", error);
     }
@@ -103,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const syncAttendanceToStorage = useCallback((records: AttendanceRecord[]) => {
     try {
       localStorage.setItem('attendance', JSON.stringify(records));
+      setAttendanceRecords(records);
     } catch (error) {
       console.error("Failed to save attendance to localStorage", error);
     }
@@ -111,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const syncReportsToStorage = useCallback((records: EmployeeReport[]) => {
     try {
       localStorage.setItem('employeeReports', JSON.stringify(records));
+      setEmployeeReports(records);
     } catch (error) {
       console.error("Failed to save employee reports to localStorage", error);
     }
@@ -240,7 +244,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const passwordHash = await simpleHash(pass);
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const foundUser = mockUsers[email];
+        const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
+        const foundUser = usersFromStorage[email];
         if (foundUser && foundUser.passwordHash === passwordHash) {
           if (foundUser.status === 'Pending') {
             setIsLoading(false);
@@ -265,15 +270,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(true);
     return new Promise((resolve, reject) => {
       setTimeout(async () => {
-        if (mockUsers[email]) {
+        const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
+        if (usersFromStorage[email]) {
           setIsLoading(false);
           reject(new Error('An account with this email already exists.'));
           return;
         }
 
-        const maxId = Object.values(mockUsers)
-            .filter(u => u && u.id)
-            .map(u => parseInt(u.id.replace('EMP', ''), 10))
+        const maxId = Object.values(usersFromStorage)
+            .filter((u: any) => u && u.id)
+            .map((u: any) => parseInt(u.id.replace('EMP', ''), 10))
             .filter(n => !isNaN(n))
             .reduce((max, current) => Math.max(max, current), 0);
         const newIdNumber = maxId + 1;
@@ -284,8 +290,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const passwordHash = await simpleHash(pass);
 
         const newUser: StoredUser = { id, name, email, role, passwordHash, status };
-        const updatedUsers = { ...mockUsers, [email]: newUser };
-        setMockUsers(updatedUsers);
+        const updatedUsers = { ...usersFromStorage, [email]: newUser };
+        
         syncUsersToStorage(updatedUsers);
 
         const today = new Date().toISOString().split('T')[0];
@@ -297,8 +303,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           timeOut: '--:--',
           status: 'Not Marked',
         };
-        const updatedAttendance = [...attendanceRecords, newAttendanceRecord];
-        setAttendanceRecords(updatedAttendance);
+        const attendanceFromStorage = JSON.parse(localStorage.getItem('attendance') || '[]');
+        const updatedAttendance = [...attendanceFromStorage, newAttendanceRecord];
         syncAttendanceToStorage(updatedAttendance);
 
         setIsLoading(false);
@@ -310,9 +316,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateAttendance = (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => {
     const today = new Date().toISOString().split('T')[0];
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+    
+    const attendanceFromStorage = JSON.parse(localStorage.getItem('attendance') || '[]');
+    const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
 
     let recordExists = false;
-    let updatedAttendance = attendanceRecords.map(record => {
+    let updatedAttendance = attendanceFromStorage.map((record: AttendanceRecord) => {
       if (record.employeeId === employeeId && record.date === today) {
         recordExists = true;
         let newTimeIn = record.timeIn;
@@ -331,11 +340,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (!recordExists && actions.clockIn) {
-      const employee = Object.values(mockUsers).find(u => u.id === employeeId);
+      const employee = Object.values(usersFromStorage).find((u: any) => u.id === employeeId);
       if (employee) {
         updatedAttendance.push({
           employeeId: employeeId,
-          name: employee.name,
+          name: (employee as User).name,
           date: today,
           timeIn: currentTime,
           timeOut: '--:--',
@@ -344,51 +353,54 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    setAttendanceRecords(updatedAttendance);
     syncAttendanceToStorage(updatedAttendance);
   };
   
     const updateAttendanceRecord = (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => {
-        const updatedRecords = attendanceRecords.map(record =>
+        const attendanceFromStorage = JSON.parse(localStorage.getItem('attendance') || '[]');
+        const updatedRecords = attendanceFromStorage.map((record: AttendanceRecord) =>
             record.employeeId === employeeId && record.date === date ? { ...record, ...data } : record
         );
-        setAttendanceRecords(updatedRecords);
         syncAttendanceToStorage(updatedRecords);
     };
 
     const deleteAttendanceRecord = (employeeId: string, date: string) => {
-        const updatedRecords = attendanceRecords.filter(record => !(record.employeeId === employeeId && record.date === date));
-        setAttendanceRecords(updatedRecords);
+        const attendanceFromStorage = JSON.parse(localStorage.getItem('attendance') || '[]');
+        const updatedRecords = attendanceFromStorage.filter((record: AttendanceRecord) => !(record.employeeId === employeeId && record.date === date));
         syncAttendanceToStorage(updatedRecords);
     };
 
 
     const addEmployeeReport = (report: Omit<EmployeeReport, 'id'> & { id?: string }) => {
+        const reportsFromStorage = JSON.parse(localStorage.getItem('employeeReports') || '[]');
         const newReport: EmployeeReport = {
             ...report,
             id: report.id || `REP-${Date.now()}`,
         };
-        const updatedReports = [newReport, ...employeeReports];
-        setEmployeeReports(updatedReports);
+        const updatedReports = [newReport, ...reportsFromStorage];
         syncReportsToStorage(updatedReports);
     };
 
     const updateEmployeeReport = (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => {
-        const updatedReports = employeeReports.map(report =>
+        const reportsFromStorage = JSON.parse(localStorage.getItem('employeeReports') || '[]');
+        const updatedReports = reportsFromStorage.map((report: EmployeeReport) =>
             report.id === reportId ? { ...report, ...data } : report
         );
-        setEmployeeReports(updatedReports);
         syncReportsToStorage(updatedReports);
     };
 
     const deleteEmployeeReport = (reportId: string) => {
-        const updatedReports = employeeReports.filter(report => report.id !== reportId);
-        setEmployeeReports(updatedReports);
+        const reportsFromStorage = JSON.parse(localStorage.getItem('employeeReports') || '[]');
+        const updatedReports = reportsFromStorage.filter((report: EmployeeReport) => report.id !== reportId);
         syncReportsToStorage(updatedReports);
     };
 
   const getUsers = (): Omit<StoredUser, 'passwordHash'>[] => {
-    return Object.values(mockUsers).map(({ passwordHash, ...user }) => user);
+    const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
+    return Object.values(usersFromStorage).map((u: any) => {
+      const { passwordHash, ...user } = u;
+      return user;
+    });
   };
   
   const importUsers = async (users: any[]): Promise<void> => {
@@ -402,27 +414,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               delete newUsers[u.email].password;
           }
       }
-      setMockUsers(newUsers);
       syncUsersToStorage(newUsers);
   };
 
   const resetUsers = async (): Promise<void> => {
     const defaultUsers = await getDefaultUsers();
-    setMockUsers(defaultUsers);
     syncUsersToStorage(defaultUsers);
-    setAttendanceRecords(defaultAttendanceRecords);
     syncAttendanceToStorage(defaultAttendanceRecords);
-    setEmployeeReports(defaultEmployeeReports);
     syncReportsToStorage(defaultEmployeeReports);
   };
 
   const updateUser = async (email: string, data: Partial<Omit<User, 'email' | 'id'>>): Promise<void> => {
-    if (mockUsers[email]) {
+    const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
+    if (usersFromStorage[email]) {
       const updatedUsers = {
-        ...mockUsers,
-        [email]: { ...mockUsers[email], ...data }
+        ...usersFromStorage,
+        [email]: { ...usersFromStorage[email], ...data }
       };
-      setMockUsers(updatedUsers);
       syncUsersToStorage(updatedUsers);
       if (user?.email === email) {
         const { passwordHash: _, ...userToStore } = updatedUsers[email];
@@ -433,31 +441,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteUser = async (email: string): Promise<void> => {
-    const updatedUsers = { ...mockUsers };
-    const userToDelete = updatedUsers[email];
+    const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
+    const userToDelete = usersFromStorage[email];
     if (userToDelete) {
-        delete updatedUsers[email];
-        setMockUsers(updatedUsers);
-        syncUsersToStorage(updatedUsers);
+        delete usersFromStorage[email];
+        syncUsersToStorage(usersFromStorage);
 
         // Also remove related attendance and report records
         const employeeIdToDelete = userToDelete.id;
-        const updatedAttendance = attendanceRecords.filter(rec => rec.employeeId !== employeeIdToDelete);
-        setAttendanceRecords(updatedAttendance);
+        const attendanceFromStorage = JSON.parse(localStorage.getItem('attendance') || '[]');
+        const updatedAttendance = attendanceFromStorage.filter((rec: AttendanceRecord) => rec.employeeId !== employeeIdToDelete);
         syncAttendanceToStorage(updatedAttendance);
 
-        const updatedReports = employeeReports.filter(rep => rep.employeeId !== employeeIdToDelete);
-        setEmployeeReports(updatedReports);
+        const reportsFromStorage = JSON.parse(localStorage.getItem('employeeReports') || '[]');
+        const updatedReports = reportsFromStorage.filter((rep: EmployeeReport) => rep.employeeId !== employeeIdToDelete);
         syncReportsToStorage(updatedReports);
     }
   };
 
   const approveUser = async (email: string): Promise<void> => {
-    if (mockUsers[email]) {
-        const updatedUsers = { ...mockUsers };
-        updatedUsers[email].status = 'Approved';
-        setMockUsers(updatedUsers);
-        syncUsersToStorage(updatedUsers);
+    const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
+    if (usersFromStorage[email]) {
+        usersFromStorage[email].status = 'Approved';
+        syncUsersToStorage(usersFromStorage);
     }
   };
   

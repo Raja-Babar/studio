@@ -2,14 +2,14 @@
 // src/app/dashboard/user-management/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Download, Trash2, Edit, CheckCircle, XCircle } from 'lucide-react';
+import { Download, Trash2, Edit, CheckCircle, XCircle, Search } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -34,26 +34,34 @@ export default function UserManagementPage() {
   const { user, getUsers, deleteUser, updateUser, approveUser } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editedName, setEditedName] = useState('');
   const [editedRole, setEditedRole] = useState<UserRole>('Employee');
 
+  const allUsers = useMemo(() => {
+    return getUsers();
+  }, [getUsers]);
+
+  const filteredUsers = useMemo(() => {
+    if (!searchTerm) return allUsers;
+    return allUsers.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [allUsers, searchTerm]);
+
+
   useEffect(() => {
     if (user?.role !== 'Admin') {
       router.replace('/dashboard');
-    } else {
-      setAllUsers(getUsers());
     }
-  }, [user, router, getUsers]);
+  }, [user, router]);
   
   const handleExport = () => {
     const doc = new jsPDF();
     doc.text('Panhwar Portal Users Report', 14, 16);
     (doc as any).autoTable({
         head: [['ID', 'Employee Name', 'Role', 'Email', 'Status']],
-        body: allUsers.map(u => [u.id, u.name, u.role, u.email, u.status]),
+        body: filteredUsers.map(u => [u.id, u.name, u.role, u.email, u.status]),
         startY: 20
     });
     doc.save('panhwar_portal_users.pdf');
@@ -66,7 +74,6 @@ export default function UserManagementPage() {
       return;
     }
     await deleteUser(email);
-    setAllUsers(getUsers());
     toast({ title: 'User Deleted', description: 'The user has been successfully deleted.' });
   };
   
@@ -76,7 +83,6 @@ export default function UserManagementPage() {
       return;
     }
     await deleteUser(email);
-    setAllUsers(getUsers());
     toast({ title: 'User Rejected', description: 'The user registration has been rejected and deleted.' });
   };
 
@@ -95,7 +101,6 @@ export default function UserManagementPage() {
           return;
       }
       await updateUser(selectedUser.email, { name: editedName, role: editedRole });
-      setAllUsers(getUsers());
       toast({ title: 'User Updated', description: 'User information has been updated.' });
       setIsEditDialogOpen(false);
       setSelectedUser(null);
@@ -104,7 +109,6 @@ export default function UserManagementPage() {
   
   const handleApprove = async (email: string) => {
     await approveUser(email);
-    setAllUsers(getUsers());
     toast({ title: 'User Approved', description: 'The user has been approved and can now log in.' });
   };
 
@@ -139,7 +143,17 @@ export default function UserManagementPage() {
                 <CardTitle>All Users</CardTitle>
                 <CardDescription>A list of all registered users in the system.</CardDescription>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
+                 <div className="relative w-full">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Search users..."
+                        className="w-full rounded-lg bg-background pl-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
                 <Button variant="outline" size="sm" onClick={handleExport} className="w-full md:w-auto">
                     <Download className="mr-2 h-4 w-4" /> Export PDF
                 </Button>
@@ -158,7 +172,7 @@ export default function UserManagementPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {allUsers.map((u) => (
+              {filteredUsers.map((u) => (
                 <TableRow key={u.email}>
                   <TableCell>{u.id}</TableCell>
                   <TableCell className="font-medium">{u.name}</TableCell>
