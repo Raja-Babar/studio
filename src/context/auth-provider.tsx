@@ -279,7 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const newIdNumber = maxId + 1;
         const id = `EMP${newIdNumber.toString().padStart(3, '0')}`;
         
-        const status: UserStatus = role === 'Admin' ? 'Pending' : 'Approved';
+        const status: UserStatus = 'Pending';
 
         const passwordHash = await simpleHash(pass);
 
@@ -468,5 +468,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-    
