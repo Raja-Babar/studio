@@ -129,7 +129,7 @@ export default function ScanningPage() {
             <CardHeader>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex-1">
-                    <CardTitle>Scanning Progress</CardTitle>
+                    <CardTitle>Digitization Progress</CardTitle>
                     <CardDescription>
                         A real-time overview of the book digitization pipeline.
                     </CardDescription>
