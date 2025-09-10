@@ -111,7 +111,7 @@ export default function ReportingPage() {
                                         {report.status}
                                     </Badge>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="text-right">
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                         <Button
