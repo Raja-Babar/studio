@@ -1,4 +1,6 @@
 
+'use client';
+
 import {
   Card,
   CardContent,
@@ -24,6 +26,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/hooks/use-auth';
 
 const allEmployeeReports = [
   {
@@ -62,14 +65,33 @@ const allEmployeeReports = [
     booksScanned: 0,
     pagesScanned: 0,
   },
+  {
+    employeeId: 'EMP101',
+    employeeName: 'Employee User',
+    reportTitle: 'Scanning Project Quarterly Review',
+    submittedDate: '2024-07-25',
+    stage: 'Scanning',
+    booksScanned: 5,
+    pagesScanned: 1500,
+  }
 ];
-
-const employeeReports = allEmployeeReports.filter(report => 
-    report.reportTitle.toLowerCase().includes('scanning')
-);
 
 
 export default function EmployeeReportsPage() {
+    const { user } = useAuth();
+
+    const employeeReports = allEmployeeReports.filter(report => {
+        const isScanningReport = report.reportTitle.toLowerCase().includes('scanning');
+        
+        if (!isScanningReport) return false;
+
+        if (user?.role === 'Employee') {
+            return report.employeeId === user.id;
+        }
+        
+        return true;
+    });
+
   return (
     <div className="space-y-6">
       <div>
