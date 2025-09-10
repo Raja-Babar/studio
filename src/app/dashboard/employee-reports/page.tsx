@@ -130,20 +130,77 @@ export default function EmployeeReportsPage() {
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
+    const autoTable = (doc as any).autoTable;
+    let finalY = 20;
+
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
-    const head = [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity']];
-    const body = monthlyReports.map(r => [
-        r.employeeName,
-        new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
-        r.stage,
-        r.type,
-        r.quantity.toString(),
-    ]);
-    (doc as any).autoTable({
-        head: head,
-        body: body,
-        startY: 20,
+
+    // Submitted Reports Table
+    autoTable({
+        head: [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity']],
+        body: monthlyReports.map(r => [
+            r.employeeName,
+            new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
+            r.stage,
+            r.type,
+            r.quantity.toString(),
+        ]),
+        startY: finalY,
+        didDrawPage: (data: any) => {
+            finalY = data.cursor.y;
+        }
     });
+
+    finalY = autoTable.previous.finalY + 10;
+
+    if (monthlyReports.length > 0) {
+        doc.text('Monthly Summary', 14, finalY);
+        finalY += 5;
+
+        // Summary by Stage Table
+        doc.text('Summary by Stage', 14, finalY);
+        autoTable({
+            head: [['Stage', 'Quantity']],
+            body: Object.entries(summary.byStage).map(([stage, quantity]) => [stage, quantity.toLocaleString()]),
+            startY: finalY + 2,
+            margin: { left: 14 },
+            tableWidth: 'auto',
+            didDrawPage: (data: any) => {
+                finalY = data.cursor.y;
+            }
+        });
+        const byStageFinalY = autoTable.previous.finalY;
+
+
+        // Summary by Type Table
+        doc.text('Summary by Type', 105, finalY);
+        const byTypeBody = Object.entries(summary.byType).flatMap(([type, data]) => {
+            if (type === 'Books' && Object.keys(data.byStage).length > 0) {
+                return Object.entries(data.byStage).map(([stage, quantity], index) => 
+                    index === 0
+                    ? [{ content: type, rowSpan: Object.keys(data.byStage).length, styles: { valign: 'middle'} }, stage, quantity.toLocaleString()]
+                    : [stage, quantity.toLocaleString()]
+                );
+            }
+            return [[type, 'N/A', data.total.toLocaleString()]];
+        });
+
+        autoTable({
+            head: [['Type', 'Stage', 'Quantity']],
+            body: byTypeBody,
+            startY: finalY + 2,
+            margin: { left: 105 },
+            tableWidth: 'auto',
+            didDrawPage: (data: any) => {
+                finalY = data.cursor.y;
+            }
+        });
+        const byTypeFinalY = autoTable.previous.finalY;
+
+        finalY = Math.max(byStageFinalY, byTypeFinalY) + 10;
+    }
+
+
     doc.save(`scanning_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
   };
 
@@ -530,3 +587,4 @@ export default function EmployeeReportsPage() {
   );
 
     
+
