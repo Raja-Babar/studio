@@ -137,13 +137,11 @@ export default function EmployeeReportsPage() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
-    const head = [['Employee Name', 'Report Title', 'Date Submitted', 'Stage', 'Books Scanned']];
+    const head = [['Employee Name', 'Date Submitted', 'Stage']];
     const body = monthlyReports.map(r => [
         r.employeeName,
-        r.reportTitle,
         new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
         r.stage,
-        r.booksScanned.toString()
     ]);
     (doc as any).autoTable({
         head: head,
@@ -201,9 +199,7 @@ export default function EmployeeReportsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Employee Name</TableHead>
-                <TableHead>Report Title</TableHead>
                 <TableHead>Report Stage</TableHead>
-                <TableHead>Books Scanned</TableHead>
                 <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -215,11 +211,9 @@ export default function EmployeeReportsPage() {
                 monthlyReports.map((report) => (
                     <TableRow key={report.employeeId + report.submittedDate}>
                     <TableCell className="font-medium">{user?.role === 'Employee' ? user.name : report.employeeName}</TableCell>
-                    <TableCell>{report.reportTitle}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{report.stage}</Badge>
                     </TableCell>
-                    <TableCell>{report.booksScanned}</TableCell>
                     <TableCell className="hidden md:table-cell">
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
@@ -246,7 +240,7 @@ export default function EmployeeReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <TableCell colSpan={4} className="text-center text-muted-foreground">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
