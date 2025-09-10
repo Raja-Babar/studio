@@ -119,6 +119,10 @@ export default function EmployeeReportsPage() {
     let finalY = 20;
 
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
+    finalY = 22;
+    doc.setFontSize(10);
+    doc.text(`A summary of all scanning project reports for ${selectedMonthFormatted}.`, 14, finalY);
+    finalY += 8;
 
     // Submitted Reports Table
     (doc as any).autoTable({
@@ -139,6 +143,7 @@ export default function EmployeeReportsPage() {
     finalY = (doc as any).lastAutoTable.finalY + 10;
 
     if (monthlyReports.length > 0) {
+        doc.setFontSize(12);
         doc.text('Monthly Summary', 14, finalY);
         finalY += 5;
 
