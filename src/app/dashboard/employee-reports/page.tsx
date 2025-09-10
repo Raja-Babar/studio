@@ -222,7 +222,7 @@ export default function EmployeeReportsPage() {
               {monthlyReports.length > 0 ? (
                 monthlyReports.map((report) => (
                     <TableRow key={report.employeeId + report.submittedDate}>
-                    <TableCell className="font-medium">{report.employeeName}</TableCell>
+                    <TableCell className="font-medium">{user?.role === 'Employee' ? user.name : report.employeeName}</TableCell>
                     <TableCell>{report.reportTitle}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{report.stage}</Badge>
