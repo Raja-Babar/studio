@@ -33,6 +33,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 type ScanningRecord = {
   book_id: string;
@@ -45,22 +46,22 @@ type ScanningRecord = {
 
 const initialScanningRecords: ScanningRecord[] = JSON.parse(scanningProgressRecordsJSON);
 
-const getStatusVariant = (status: string) => {
+const getStatusClasses = (status: string) => {
   switch (status.toLowerCase()) {
     case 'completed':
-      return 'default';
+      return 'bg-primary text-primary-foreground hover:bg-primary/80';
     case 'uploaded':
-      return 'secondary';
+      return 'bg-[hsl(var(--chart-2))] text-black hover:bg-[hsl(var(--chart-2))]';
     case 'scanning':
-      return 'outline';
+      return 'text-foreground border-foreground/50';
     case 'pdf-qc':
-      return 'default';
+      return 'bg-primary/80 text-primary-foreground hover:bg-primary/70';
     case 'scanning-qc':
-      return 'destructive';
+      return 'bg-destructive text-destructive-foreground hover:bg-destructive/80';
     case 'page cleaning+cropping':
-       return 'outline';
+       return 'text-foreground border-foreground/50';
     default:
-      return 'outline';
+      return 'text-foreground border-foreground/50';
   }
 };
 
@@ -143,7 +144,7 @@ export default function ScanningPage() {
                                 <TableCell className="hidden sm:table-cell font-medium">{record.book_id}</TableCell>
                                 <TableCell className="font-medium">{record.title}</TableCell>
                                 <TableCell>
-                                     <Badge variant={getStatusVariant(record.status)}>
+                                     <Badge className={cn(getStatusClasses(record.status))}>
                                         {record.status}
                                     </Badge>
                                 </TableCell>
