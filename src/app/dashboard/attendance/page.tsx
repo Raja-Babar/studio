@@ -123,7 +123,7 @@ export default function AttendancePage() {
             <Select onValueChange={handleYearChange} defaultValue={selectedDate.getFullYear().toString()}>
                 <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select Year" />
-                </Trigger>
+                </SelectTrigger>
                 <SelectContent>
                     {years.map(year => (
                         <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
