@@ -23,6 +23,7 @@ type AttendanceRecord = {
 };
 
 type EmployeeReport = {
+    id: string;
     employeeId: string;
     employeeName: string;
     submittedDate: string;
@@ -45,7 +46,9 @@ type AuthContextType = {
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
   employeeReports: EmployeeReport[];
-  addEmployeeReport: (report: EmployeeReport) => void;
+  addEmployeeReport: (report: Omit<EmployeeReport, 'id'> & { id?: string }) => void;
+  updateEmployeeReport: (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => void;
+  deleteEmployeeReport: (reportId: string) => void;
 };
 
 export const useAuth = (): AuthContextType => {

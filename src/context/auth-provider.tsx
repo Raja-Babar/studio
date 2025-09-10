@@ -27,6 +27,7 @@ type AttendanceRecord = {
 };
 
 type EmployeeReport = {
+    id: string;
     employeeId: string;
     employeeName: string;
     submittedDate: string;
@@ -49,7 +50,9 @@ type AuthContextType = {
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
   employeeReports: EmployeeReport[];
-  addEmployeeReport: (report: EmployeeReport) => void;
+  addEmployeeReport: (report: Omit<EmployeeReport, 'id'> & { id?: string }) => void;
+  updateEmployeeReport: (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => void;
+  deleteEmployeeReport: (reportId: string) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -329,11 +332,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     syncAttendanceToStorage(updatedAttendance);
   };
 
-  const addEmployeeReport = (report: EmployeeReport) => {
-    const updatedReports = [report, ...employeeReports];
-    setEmployeeReports(updatedReports);
-    syncReportsToStorage(updatedReports);
-  };
+    const addEmployeeReport = (report: Omit<EmployeeReport, 'id'> & { id?: string }) => {
+        const newReport: EmployeeReport = {
+            ...report,
+            id: report.id || `REP-${Date.now()}`,
+        };
+        const updatedReports = [newReport, ...employeeReports];
+        setEmployeeReports(updatedReports);
+        syncReportsToStorage(updatedReports);
+    };
+
+    const updateEmployeeReport = (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => {
+        const updatedReports = employeeReports.map(report =>
+            report.id === reportId ? { ...report, ...data } : report
+        );
+        setEmployeeReports(updatedReports);
+        syncReportsToStorage(updatedReports);
+    };
+
+    const deleteEmployeeReport = (reportId: string) => {
+        const updatedReports = employeeReports.filter(report => report.id !== reportId);
+        setEmployeeReports(updatedReports);
+        syncReportsToStorage(updatedReports);
+    };
 
   const getUsers = (): Omit<StoredUser, 'passwordHash'>[] => {
     return Object.values(mockUsers).map(({ passwordHash, ...user }) => user);
@@ -387,7 +408,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance, employeeReports, addEmployeeReport };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport };
 
   if (isLoading) {
     return (

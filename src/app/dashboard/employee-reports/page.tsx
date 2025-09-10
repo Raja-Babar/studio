@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Download, FilePlus } from 'lucide-react';
+import { MoreHorizontal, Download, FilePlus, Edit, Trash2 } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,6 +25,25 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from '@/components/ui/alert-dialog';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+  } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import { useState, useMemo, useEffect } from 'react';
@@ -33,18 +52,25 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
 const reportTypes = ["Pages", "Books"];
 
 
 export default function EmployeeReportsPage() {
-    const { user, employeeReports: reports, addEmployeeReport } = useAuth();
+    const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport } = useAuth();
     const { toast } = useToast();
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [newReportStage, setNewReportStage] = useState('');
     const [newReportType, setNewReportType] = useState('');
     const [newReportQuantity, setNewReportQuantity] = useState('');
+
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [selectedReport, setSelectedReport] = useState<any>(null);
+    const [editedStage, setEditedStage] = useState('');
+    const [editedType, setEditedType] = useState('');
+    const [editedQuantity, setEditedQuantity] = useState('');
 
 
     const employeeReports = useMemo(() => {
@@ -128,6 +154,7 @@ export default function EmployeeReportsPage() {
 
     if (user) {
       addEmployeeReport({
+        id: `REP-${Date.now()}`,
         employeeId: user.id,
         employeeName: user.name,
         submittedDate: new Date().toISOString().split('T')[0],
@@ -145,6 +172,47 @@ export default function EmployeeReportsPage() {
       setNewReportQuantity('');
     }
   };
+  
+    const handleEditClick = (report: any) => {
+        setSelectedReport(report);
+        setEditedStage(report.stage);
+        setEditedType(report.type);
+        setEditedQuantity(report.quantity.toString());
+        setIsEditDialogOpen(true);
+    };
+
+    const handleUpdateReport = () => {
+        if (selectedReport) {
+            const quantity = parseInt(editedQuantity, 10);
+            if (isNaN(quantity) || quantity <= 0) {
+                toast({
+                    variant: 'destructive',
+                    title: 'Update Failed',
+                    description: 'Please enter a valid quantity.',
+                });
+                return;
+            }
+            updateEmployeeReport(selectedReport.id, {
+                stage: editedStage,
+                type: editedType,
+                quantity: quantity,
+            });
+            toast({
+                title: 'Report Updated',
+                description: 'The report has been successfully updated.',
+            });
+            setIsEditDialogOpen(false);
+            setSelectedReport(null);
+        }
+    };
+
+    const handleDeleteReport = (reportId: string) => {
+        deleteEmployeeReport(reportId);
+        toast({
+            title: 'Report Deleted',
+            description: 'The report has been successfully deleted.',
+        });
+    };
 
 
   return (
@@ -251,8 +319,8 @@ export default function EmployeeReportsPage() {
                 </TableRow>
               )}
               {monthlyReports.length > 0 ? (
-                monthlyReports.map((report, index) => (
-                    <TableRow key={`${report.employeeId}-${report.submittedDate}-${index}`}>
+                monthlyReports.map((report) => (
+                    <TableRow key={report.id}>
                     <TableCell className="font-medium">{report.employeeName}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{report.stage}</Badge>
@@ -263,6 +331,7 @@ export default function EmployeeReportsPage() {
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
+                        {user?.role === 'Admin' && (
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                             <Button
@@ -276,10 +345,32 @@ export default function EmployeeReportsPage() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem>View Report</DropdownMenuItem>
-                            <DropdownMenuItem>Download</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleEditClick(report)}>
+                                <Edit className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                        <span className="text-destructive">Delete</span>
+                                    </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Report</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Are you sure you want to delete this report? This action cannot be undone.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                             </DropdownMenuContent>
                         </DropdownMenu>
+                        )}
                     </TableCell>
                     </TableRow>
                 ))
@@ -296,6 +387,59 @@ export default function EmployeeReportsPage() {
           </Table>
         </CardContent>
       </Card>
+      
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Report</DialogTitle>
+            <DialogDescription>
+              Make changes to the report here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="stage" className="text-right">Stage</Label>
+              <Select onValueChange={setEditedStage} defaultValue={editedStage}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select Stage" />
+                </SelectTrigger>
+                <SelectContent>
+                  {reportStages.map(stage => (
+                    <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="type" className="text-right">Type</Label>
+              <Select onValueChange={setEditedType} defaultValue={editedType}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {reportTypes.map(type => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="quantity" className="text-right">Quantity</Label>
+                <Input
+                    id="quantity"
+                    type="number"
+                    value={editedQuantity}
+                    onChange={(e) => setEditedQuantity(e.target.value)}
+                    className="col-span-3"
+                />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" onClick={handleUpdateReport}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

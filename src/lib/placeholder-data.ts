@@ -22,6 +22,7 @@ export const scanningProgressRecords = JSON.stringify(
 
 export const employeeReports = [
   {
+    id: 'REP-001',
     employeeId: 'EMP101',
     employeeName: 'Employee User',
     submittedDate: '2024-07-29',
@@ -30,6 +31,7 @@ export const employeeReports = [
     quantity: 250,
   },
   {
+    id: 'REP-002',
     employeeId: 'EMP001',
     employeeName: 'Ali Khan',
     submittedDate: '2024-07-28',
@@ -38,6 +40,7 @@ export const employeeReports = [
     quantity: 180,
   },
   {
+    id: 'REP-003',
     employeeId: 'EMP003',
     employeeName: 'Fatima Ali',
     submittedDate: '2024-07-27',
@@ -46,6 +49,7 @@ export const employeeReports = [
     quantity: 5,
   },
   {
+    id: 'REP-004',
     employeeId: 'EMP004',
     employeeName: 'Zainab Omar',
     submittedDate: '2024-07-26',
@@ -54,6 +58,7 @@ export const employeeReports = [
     quantity: 300,
   },
   {
+    id: 'REP-005',
     employeeId: 'EMP101',
     employeeName: 'Employee User',
     submittedDate: '2024-07-25',
@@ -62,6 +67,7 @@ export const employeeReports = [
     quantity: 2,
   },
   {
+    id: 'REP-006',
     employeeId: 'EMP101',
     employeeName: 'Employee User',
     submittedDate: '2024-06-15',
