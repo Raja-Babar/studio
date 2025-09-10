@@ -384,119 +384,110 @@ export default function EmployeeReportsPage() {
 
       {reportsByEmployee.length > 0 ? (
         reportsByEmployee.map(({ employeeName, reports: employeeReports, summary }) => (
-            <div key={employeeName} className="space-y-6">
-                <Card>
-                    <CardHeader>
-                    <CardTitle>Submitted Reports: {employeeName}</CardTitle>
+            <Card key={employeeName}>
+                <CardHeader>
+                    <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
                     <CardDescription>
-                        A list of all reports for {employeeName} for the selected period.
+                        Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
                     </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                    <Table>
-                        <TableHeader>
-                        <TableRow>
-                            <TableHead>Date Submitted</TableHead>
-                            <TableHead>Report Stage</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Quantity</TableHead>
-                            {user?.role === 'Admin' && (
-                            <TableHead>
-                                <span className="sr-only">Actions</span>
-                            </TableHead>
-                            )}
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                        {employeeReports.map((report) => (
-                            <TableRow key={report.id}>
-                            <TableCell className="hidden md:table-cell">
-                                {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
-                            </TableCell>
-                            <TableCell>
-                                <Badge variant="outline">{report.stage}</Badge>
-                            </TableCell>
-                            <TableCell>{report.type}</TableCell>
-                            <TableCell>{report.quantity}</TableCell>
-                            <TableCell className="text-right">
-                                {user?.role === 'Admin' && (
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                    <Button
-                                        aria-haspopup="true"
-                                        size="icon"
-                                        variant="ghost"
-                                    >
-                                        <MoreHorizontal className="h-4 w-4" />
-                                        <span className="sr-only">Toggle menu</span>
-                                    </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                    <DropdownMenuItem onClick={() => handleEditClick(report)}>
-                                        <Edit className="mr-2 h-4 w-4" /> Edit
-                                    </DropdownMenuItem>
-                                    <AlertDialog>
-                                        <AlertDialogTrigger asChild>
-                                            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                                                <span className="text-destructive">Delete</span>
-                                            </DropdownMenuItem>
-                                        </AlertDialogTrigger>
-                                        <AlertDialogContent>
-                                            <AlertDialogHeader>
-                                                <AlertDialogTitle>Delete Report</AlertDialogTitle>
-                                                <AlertDialogDescription>
-                                                    Are you sure you want to delete this report? This action cannot be undone.
-                                                </AlertDialogDescription>
-                                            </AlertDialogHeader>
-                                            <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
-                                            </AlertDialogFooter>
-                                        </AlertDialogContent>
-                                    </AlertDialog>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                )}
-                            </TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                    </Table>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Monthly Summary: {employeeName}</CardTitle>
-                        <CardDescription>
-                        A summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div>
-                            <h3 className="font-medium mb-2">Summary by Stage</h3>
-                            <Table>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div>
+                        <h3 className="text-base font-semibold mb-2">Submitted Reports</h3>
+                        <Table>
                             <TableHeader>
-                                <TableRow>
-                                <TableHead>Stage</TableHead>
-                                <TableHead className="text-right">Quantity</TableHead>
-                                </TableRow>
+                            <TableRow>
+                                <TableHead>Date Submitted</TableHead>
+                                <TableHead>Report Stage</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead>Quantity</TableHead>
+                                {user?.role === 'Admin' && (
+                                <TableHead>
+                                    <span className="sr-only">Actions</span>
+                                </TableHead>
+                                )}
+                            </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {Object.entries(summary.byStage).map(([stage, quantity]) => (
-                                <TableRow key={stage}>
-                                    <TableCell>{stage}</TableCell>
-                                    <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                            {employeeReports.map((report) => (
+                                <TableRow key={report.id}>
+                                <TableCell className="hidden md:table-cell">
+                                    {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="outline">{report.stage}</Badge>
+                                </TableCell>
+                                <TableCell>{report.type}</TableCell>
+                                <TableCell>{report.quantity}</TableCell>
+                                <TableCell className="text-right">
+                                    {user?.role === 'Admin' && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                        <Button
+                                            aria-haspopup="true"
+                                            size="icon"
+                                            variant="ghost"
+                                        >
+                                            <MoreHorizontal className="h-4 w-4" />
+                                            <span className="sr-only">Toggle menu</span>
+                                        </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                        <DropdownMenuItem onClick={() => handleEditClick(report)}>
+                                            <Edit className="mr-2 h-4 w-4" /> Edit
+                                        </DropdownMenuItem>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                    <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                                    <span className="text-destructive">Delete</span>
+                                                </DropdownMenuItem>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete Report</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Are you sure you want to delete this report? This action cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                    )}
+                                </TableCell>
                                 </TableRow>
-                                ))}
+                            ))}
                             </TableBody>
-                            </Table>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
+                        </Table>
+                    </div>
+
+                    <div>
+                        <h3 className="text-base font-semibold mb-2">Monthly Summary by Stage</h3>
+                        <Table>
+                        <TableHeader>
+                            <TableRow>
+                            <TableHead>Stage</TableHead>
+                            <TableHead className="text-right">Quantity</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {Object.entries(summary.byStage).map(([stage, quantity]) => (
+                            <TableRow key={stage}>
+                                <TableCell>{stage}</TableCell>
+                                <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                            </TableRow>
+                            ))}
+                        </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
         ))
       ) : (
         <Card>
