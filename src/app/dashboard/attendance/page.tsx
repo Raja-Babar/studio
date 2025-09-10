@@ -37,7 +37,7 @@ export default function AttendancePage() {
   const userAttendanceRecords = useMemo(() => {
     const records = attendanceRecords;
     if (isEmployee && user) {
-      return records.filter(r => r.name === user.name);
+      return records.filter(r => r.employeeId === user.id);
     }
     return records;
   }, [isEmployee, user, attendanceRecords]);
