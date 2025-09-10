@@ -135,10 +135,10 @@ export default function EmployeeReportsPage() {
       const doc = new jsPDF();
       let finalY = 20;
   
-      doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
+      doc.text(`Digitization Report - ${selectedMonthFormatted}`, 14, 16);
       finalY = 22;
       doc.setFontSize(10);
-      doc.text(`A summary of all scanning project reports for ${selectedMonthFormatted}.`, 14, finalY);
+      doc.text(`A summary of all digitization reports for ${selectedMonthFormatted}.`, 14, finalY);
       finalY += 8;
 
       reportsByEmployee.forEach(({ employeeName, reports, summary }, index) => {
@@ -188,7 +188,7 @@ export default function EmployeeReportsPage() {
         }
       });
   
-      doc.save(`scanning_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+      doc.save(`digitization_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
     };
 
   const handleAddReport = () => {
@@ -279,7 +279,7 @@ export default function EmployeeReportsPage() {
     <div className="space-y-6">
       <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
         <div>
-            <h1 className="text-3xl font-bold tracking-tight">Scanning Reports</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Digitization Report</h1>
             <p className="text-muted-foreground mt-2">
               Viewing reports for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>
             </p>
@@ -492,7 +492,7 @@ export default function EmployeeReportsPage() {
       ) : (
         <Card>
             <CardContent className="text-center text-muted-foreground pt-8">
-                No scanning project reports found for this month.
+                No digitization reports found for this month.
             </CardContent>
         </Card>
       )}
