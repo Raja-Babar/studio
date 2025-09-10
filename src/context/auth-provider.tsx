@@ -39,7 +39,7 @@ type EmployeeReport = {
 type AuthContextType = {
   user: User | null;
   login: (email: string, pass: string) => Promise<void>;
-  signup: (id: string, name: string, email: string, pass: string, role: UserRole) => Promise<void>;
+  signup: (name: string, email: string, pass: string, role: UserRole) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
@@ -249,7 +249,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const signup = async (id: string, name: string, email: string, pass: string, role: UserRole): Promise<void> => {
+  const signup = async (name: string, email: string, pass: string, role: UserRole): Promise<void> => {
     setIsLoading(true);
     return new Promise((resolve, reject) => {
       setTimeout(async () => {
@@ -259,11 +259,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        if (Object.values(mockUsers).some(u => u.id === id)) {
-          setIsLoading(false);
-          reject(new Error('An account with this Employee ID already exists.'));
-          return;
-        }
+        const maxId = Object.values(mockUsers)
+            .map(u => parseInt(u.id.replace('EMP', ''), 10))
+            .filter(n => !isNaN(n))
+            .reduce((max, current) => Math.max(max, current), 0);
+        const newIdNumber = maxId + 1;
+        const id = `EMP${newIdNumber.toString().padStart(3, '0')}`;
 
         const passwordHash = await simpleHash(pass);
 

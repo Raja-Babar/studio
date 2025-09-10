@@ -25,9 +25,6 @@ import { BookCopy } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
-  id: z.string().min(1, {
-    message: 'Employee ID is required.',
-  }),
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters.',
   }),
@@ -49,7 +46,6 @@ export default function SignupPage() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: '',
       name: '',
       email: '',
       password: '',
@@ -60,7 +56,7 @@ export default function SignupPage() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await signup(values.id, values.name, values.email, values.password, values.role);
+      await signup(values.name, values.email, values.password, values.role);
       toast({
         title: 'Signup Successful',
         description: 'You can now log in with your credentials.',
@@ -92,19 +88,6 @@ export default function SignupPage() {
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Employee ID</FormLabel>
-                      <FormControl>
-                        <Input placeholder="EMP001" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <FormField
                   control={form.control}
                   name="name"
