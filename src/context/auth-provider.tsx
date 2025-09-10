@@ -262,6 +262,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const maxId = Object.values(mockUsers)
+            .filter(u => u && u.id)
             .map(u => parseInt(u.id.replace('EMP', ''), 10))
             .filter(n => !isNaN(n))
             .reduce((max, current) => Math.max(max, current), 0);
@@ -446,5 +447,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-    
