@@ -30,7 +30,6 @@ import { useAuth } from '@/hooks/use-auth';
 
 const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard/library', icon: BookCopy, label: 'Library' },
   { href: '/dashboard/scanning', icon: ScanLine, label: 'I.T & Scanning' },
 ];
 
