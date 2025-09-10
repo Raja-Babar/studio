@@ -146,12 +146,12 @@ export default function EmployeeReportsPage() {
             r.quantity.toString(),
         ]),
         startY: finalY,
-        didDrawPage: (data: any) => {
+        didDrawPage: function (data: any) {
             finalY = data.cursor.y;
         }
     });
 
-    finalY = autoTable.previous.finalY + 10;
+    finalY = (doc as any).lastAutoTable.finalY + 10;
 
     if (monthlyReports.length > 0) {
         doc.text('Monthly Summary', 14, finalY);
@@ -169,7 +169,7 @@ export default function EmployeeReportsPage() {
                 finalY = data.cursor.y;
             }
         });
-        const byStageFinalY = autoTable.previous.finalY;
+        const byStageFinalY = (doc as any).lastAutoTable.finalY;
 
 
         // Summary by Type Table
@@ -195,7 +195,7 @@ export default function EmployeeReportsPage() {
                 finalY = data.cursor.y;
             }
         });
-        const byTypeFinalY = autoTable.previous.finalY;
+        const byTypeFinalY = (doc as any).lastAutoTable.finalY;
 
         finalY = Math.max(byStageFinalY, byTypeFinalY) + 10;
     }
@@ -587,4 +587,5 @@ export default function EmployeeReportsPage() {
   );
 
     
+
 
