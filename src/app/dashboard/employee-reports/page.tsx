@@ -37,50 +37,44 @@ const allEmployeeReports = [
   {
     employeeId: 'EMP101',
     employeeName: 'Employee User',
-    reportTitle: 'Weekly Sales Summary',
     submittedDate: '2024-07-29',
     stage: 'Completed',
-    booksScanned: 0,
+    type: 'Pages',
   },
   {
     employeeId: 'EMP001',
     employeeName: 'Ali Khan',
-    reportTitle: 'I.T Department Monthly Update',
     submittedDate: '2024-07-28',
     stage: 'Uploading',
-    booksScanned: 0,
+    type: 'Pages',
   },
   {
     employeeId: 'EMP003',
     employeeName: 'Fatima Ali',
-    reportTitle: 'Scanning Project Progress',
     submittedDate: '2024-07-27',
     stage: 'Scanning',
-    booksScanned: 15,
+    type: 'Books',
   },
   {
     employeeId: 'EMP004',
     employeeName: 'Zainab Omar',
-    reportTitle: 'Library Acquisition Proposal',
     submittedDate: '2024-07-26',
     stage: 'PDF-QC',
-    booksScanned: 0,
+    type: 'Pages',
   },
   {
     employeeId: 'EMP101',
     employeeName: 'Employee User',
-    reportTitle: 'Scanning Project Quarterly Review',
     submittedDate: '2024-07-25',
     stage: 'Scanning',
-    booksScanned: 5,
+    type: 'Books',
   },
   {
     employeeId: 'EMP101',
     employeeName: 'Employee User',
-    reportTitle: 'Scanning Report June',
     submittedDate: '2024-06-15',
     stage: 'Completed',
-    booksScanned: 10,
+    type: 'Books',
   }
 ];
 
@@ -90,16 +84,10 @@ export default function EmployeeReportsPage() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
     const employeeReports = useMemo(() => {
-        return allEmployeeReports.filter(report => {
-            const isScanningReport = report.reportTitle.toLowerCase().includes('scanning');
-            if (!isScanningReport) return false;
-
-            if (user?.role === 'Employee') {
-                return report.employeeId === user.id;
-            }
-            
-            return true;
-        });
+        if (user?.role === 'Employee') {
+            return allEmployeeReports.filter(report => report.employeeId === user.id);
+        }
+        return allEmployeeReports;
     }, [user]);
 
     const monthlyReports = useMemo(() => {
@@ -137,11 +125,12 @@ export default function EmployeeReportsPage() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
-    const head = [['Employee Name', 'Date Submitted', 'Stage']];
+    const head = [['Employee Name', 'Date Submitted', 'Stage', 'Type']];
     const body = monthlyReports.map(r => [
         r.employeeName,
         new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
         r.stage,
+        r.type,
     ]);
     (doc as any).autoTable({
         head: head,
@@ -200,6 +189,7 @@ export default function EmployeeReportsPage() {
               <TableRow>
                 <TableHead>Employee Name</TableHead>
                 <TableHead>Report Stage</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -214,6 +204,7 @@ export default function EmployeeReportsPage() {
                     <TableCell>
                       <Badge variant="outline">{report.stage}</Badge>
                     </TableCell>
+                    <TableCell>{report.type}</TableCell>
                     <TableCell className="hidden md:table-cell">
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
@@ -240,7 +231,7 @@ export default function EmployeeReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
