@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Download, Trash2, Edit, CheckCircle } from 'lucide-react';
+import { Download, Trash2, Edit, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -69,6 +69,17 @@ export default function UserManagementPage() {
     setAllUsers(getUsers());
     toast({ title: 'User Deleted', description: 'The user has been successfully deleted.' });
   };
+  
+  const handleReject = async (email: string) => {
+    if (user?.email === email) {
+      toast({ variant: 'destructive', title: 'Action Forbidden', description: 'You cannot reject your own account.' });
+      return;
+    }
+    await deleteUser(email);
+    setAllUsers(getUsers());
+    toast({ title: 'User Rejected', description: 'The user registration has been rejected and deleted.' });
+  };
+
 
   const handleEditClick = (userToEdit: User) => {
     setSelectedUser(userToEdit);
@@ -163,33 +174,59 @@ export default function UserManagementPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-2">
-                      {user.email === 'supervisor@example.com' && u.status === 'Pending' && (
-                        <Button variant="outline" size="icon" onClick={() => handleApprove(u.email)}>
-                          <CheckCircle className="h-4 w-4 text-primary" />
-                        </Button>
+                      {user.email === 'supervisor@example.com' && u.status === 'Pending' ? (
+                        <>
+                          <Button variant="outline" size="sm" onClick={() => handleApprove(u.email)}>
+                            <CheckCircle className="mr-2 h-4 w-4 text-primary" />
+                            Approve
+                          </Button>
+                           <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                               <Button variant="destructive" size="sm">
+                                  <XCircle className="mr-2 h-4 w-4" />
+                                  Reject
+                               </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Reject User</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to reject the user <span className="font-semibold">{u.name}</span>? This will delete their registration permanently.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleReject(u.email)}>Reject</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)}>
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon" disabled={user.email === u.email}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Are you sure you want to delete the user <span className="font-semibold">{u.name}</span>? This action cannot be undone.
+                                </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(u.email)}>Delete</AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </>
                       )}
-                      <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                           <Button variant="ghost" size="icon" disabled={user.email === u.email}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader>
-                            <AlertDialogTitle>Delete User</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                Are you sure you want to delete the user <span className="font-semibold">{u.name}</span>? This action cannot be undone.
-                            </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(u.email)}>Delete</AlertDialogAction>
-                            </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))}
@@ -242,5 +279,3 @@ export default function UserManagementPage() {
     </div>
   );
 }
-
-    

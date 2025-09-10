@@ -433,9 +433,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteUser = async (email: string): Promise<void> => {
-    const { [email]: _, ...remainingUsers } = mockUsers;
-    setMockUsers(remainingUsers);
-    syncUsersToStorage(remainingUsers);
+    const updatedUsers = { ...mockUsers };
+    const userToDelete = updatedUsers[email];
+    if (userToDelete) {
+        delete updatedUsers[email];
+        setMockUsers(updatedUsers);
+        syncUsersToStorage(updatedUsers);
+
+        // Also remove related attendance and report records
+        const employeeIdToDelete = userToDelete.id;
+        const updatedAttendance = attendanceRecords.filter(rec => rec.employeeId !== employeeIdToDelete);
+        setAttendanceRecords(updatedAttendance);
+        syncAttendanceToStorage(updatedAttendance);
+
+        const updatedReports = employeeReports.filter(rep => rep.employeeId !== employeeIdToDelete);
+        setEmployeeReports(updatedReports);
+        syncReportsToStorage(updatedReports);
+    }
   };
 
   const approveUser = async (email: string): Promise<void> => {
