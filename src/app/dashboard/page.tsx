@@ -205,20 +205,40 @@ function EmployeeDashboard() {
             </div>
         </CardContent>
       </Card>
-      <Card>
-        <CardHeader className="flex items-center justify-between">
-            <div>
-                <CardTitle>My Reports</CardTitle>
-                <p className="text-muted-foreground">View and manage your assigned reports.</p>
-            </div>
-            <Link href="/dashboard/employee-reports">
-                <Button variant="outline" size="icon">
-                    <ArrowRight className="h-4 w-4" />
-                </Button>
-            </Link>
+       <Card>
+        <CardHeader>
+          <CardTitle>My Tasks</CardTitle>
+           <p className="text-muted-foreground">A list of your assigned reports and their current stages.</p>
         </CardHeader>
         <CardContent>
-           <p className="text-muted-foreground">You have {employeeTasks.length} reports pending action.</p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Report Title</TableHead>
+                <TableHead>Stage</TableHead>
+                <TableHead>Assigned</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {employeeTasks.length > 0 ? (
+                employeeTasks.map((task, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{task.title}</TableCell>
+                    <TableCell>
+                      <Badge variant={getTaskStatusVariant(task.stage)}>{task.stage}</Badge>
+                    </TableCell>
+                    <TableCell>{new Date(task.assignedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center text-muted-foreground">
+                    You have no assigned tasks.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
