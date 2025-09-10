@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Download } from 'lucide-react';
+import { MoreHorizontal, Download, FilePlus } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -31,6 +31,7 @@ import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useToast } from '@/hooks/use-toast';
 
 
 const allEmployeeReports = [
@@ -78,17 +79,25 @@ const allEmployeeReports = [
   }
 ];
 
+const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
+const reportTypes = ["Pages", "Books"];
+
 
 export default function EmployeeReportsPage() {
     const { user } = useAuth();
+    const { toast } = useToast();
+    const [reports, setReports] = useState(allEmployeeReports);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [newReportStage, setNewReportStage] = useState('');
+    const [newReportType, setNewReportType] = useState('');
+
 
     const employeeReports = useMemo(() => {
         if (user?.role === 'Employee') {
-            return allEmployeeReports.filter(report => report.employeeId === user.id);
+            return reports.filter(report => report.employeeId === user.id);
         }
-        return allEmployeeReports;
-    }, [user]);
+        return reports;
+    }, [user, reports]);
 
     const monthlyReports = useMemo(() => {
         const month = selectedDate.getMonth();
@@ -139,6 +148,35 @@ export default function EmployeeReportsPage() {
     });
     doc.save(`scanning_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
   };
+
+  const handleAddReport = () => {
+    if (!newReportStage || !newReportType) {
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: 'Please select a report stage and type.',
+      });
+      return;
+    }
+
+    if (user) {
+      const newReport = {
+        employeeId: user.id,
+        employeeName: user.name,
+        submittedDate: new Date().toISOString().split('T')[0],
+        stage: newReportStage,
+        type: newReportType,
+      };
+      setReports(prev => [newReport, ...prev]);
+      toast({
+        title: 'Report Submitted',
+        description: 'Your new report has been added.',
+      });
+      setNewReportStage('');
+      setNewReportType('');
+    }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -197,10 +235,45 @@ export default function EmployeeReportsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
+              <TableRow>
+                <TableCell className="font-medium">{user?.name}</TableCell>
+                <TableCell>
+                  <Select value={newReportStage} onValueChange={setNewReportStage}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Stage" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {reportStages.map(stage => (
+                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell>
+                  <Select value={newReportType} onValueChange={setNewReportType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {reportTypes.map(type => (
+                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {new Date().toLocaleDateString()}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button size="sm" onClick={handleAddReport}>
+                    <FilePlus className="mr-2 h-4 w-4" /> Submit
+                  </Button>
+                </TableCell>
+              </TableRow>
               {monthlyReports.length > 0 ? (
-                monthlyReports.map((report) => (
-                    <TableRow key={report.employeeId + report.submittedDate}>
-                    <TableCell className="font-medium">{user?.role === 'Employee' ? user.name : report.employeeName}</TableCell>
+                monthlyReports.map((report, index) => (
+                    <TableRow key={`${report.employeeId}-${report.submittedDate}-${index}`}>
+                    <TableCell className="font-medium">{report.employeeName}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{report.stage}</Badge>
                     </TableCell>
@@ -231,7 +304,7 @@ export default function EmployeeReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground pt-8">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
