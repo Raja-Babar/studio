@@ -205,6 +205,20 @@ function EmployeeDashboard() {
                     Clock Out
                 </Button>
             </div>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Time In</TableHead>
+                    <TableHead>Time Out</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    <TableRow>
+                    <TableCell>{timeIn}</TableCell>
+                    <TableCell>{timeOut}</TableCell>
+                    </TableRow>
+                </TableBody>
+            </Table>
         </CardContent>
       </Card>
       <Card className="lg:col-span-2">
@@ -260,3 +274,4 @@ function EmployeeDashboard() {
     </div>
   );
 }
+
