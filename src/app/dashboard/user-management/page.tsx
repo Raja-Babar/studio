@@ -174,7 +174,7 @@ export default function UserManagementPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right space-x-2">
-                      {user.email === 'supervisor@example.com' && u.status === 'Pending' ? (
+                      {user.role === 'Admin' && u.status === 'Pending' ? (
                         <>
                           <Button variant="outline" size="sm" onClick={() => handleApprove(u.email)}>
                             <CheckCircle className="mr-2 h-4 w-4 text-primary" />
