@@ -24,6 +24,7 @@ import {
   Users,
   FileText,
   Building2,
+  FileSignature,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -45,12 +46,14 @@ const otherNavItems = [
   { href: '/dashboard/publications', icon: BookOpen, label: 'Publications' },
   { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
   { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
+  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Employee Reports' },
 ];
 
 
 const employeeNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'My Attendance' },
+  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'My Reports' },
 ];
 
 export function DashboardNav() {
@@ -59,6 +62,20 @@ export function DashboardNav() {
 
   const isAdmin = user?.role === 'Admin';
 
+  const navItems = isAdmin 
+    ? [...mainNavItems, ...administrationNavItems, ...otherNavItems] 
+    : employeeNavItems;
+
+  const getFilteredNavItems = (items: typeof mainNavItems) => {
+    if (isAdmin) {
+      return items;
+    }
+    // For employees, filter which administration/other items they can see.
+    // Currently, they only see their reports.
+    const allowedEmployeeRoutes = ['/dashboard/employee-reports'];
+    return items.filter(item => allowedEmployeeRoutes.includes(item.href));
+  }
+  
   if (!isAdmin) {
     return (
         <SidebarContent className="p-2">
@@ -114,7 +131,7 @@ export function DashboardNav() {
         </SidebarGroup>
 
         <SidebarMenu className="pt-2">
-            {renderNavItems(otherNavItems)}
+            {renderNavItems(getFilteredNavItems(otherNavItems))}
         </SidebarMenu>
 
     </SidebarContent>
