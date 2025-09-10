@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock, ArrowRight } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, ArrowRight, FilePlus } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -186,7 +186,7 @@ function EmployeeDashboard() {
 
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       <Card>
         <CardHeader>
           <CardTitle>My Attendance</CardTitle>
@@ -205,7 +205,7 @@ function EmployeeDashboard() {
             </div>
         </CardContent>
       </Card>
-       <Card>
+      <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>My Tasks</CardTitle>
            <p className="text-muted-foreground">A list of your assigned reports and their current stages.</p>
@@ -239,6 +239,20 @@ function EmployeeDashboard() {
               )}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Create Report</CardTitle>
+          <p className="text-muted-foreground">Start a new report submission.</p>
+        </CardHeader>
+        <CardContent>
+            <Link href="/dashboard/employee-reports">
+                <Button className="w-full">
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    Create New Report
+                </Button>
+            </Link>
         </CardContent>
       </Card>
     </div>
