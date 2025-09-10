@@ -45,7 +45,7 @@ const allEmployeeReports = [
     employeeId: 'EMP001',
     employeeName: 'Ali Khan',
     submittedDate: '2024-07-28',
-    stage: 'Uploading',
+    stage: 'PDF Uploading',
     type: 'Pages',
   },
   {
@@ -59,21 +59,21 @@ const allEmployeeReports = [
     employeeId: 'EMP004',
     employeeName: 'Zainab Omar',
     submittedDate: '2024-07-26',
-    stage: 'PDF-QC',
+    stage: 'PDF Q-C',
     type: 'Pages',
   },
   {
     employeeId: 'EMP101',
     employeeName: 'Employee User',
     submittedDate: '2024-07-25',
-    stage: 'Scanning',
+    stage: 'Scanning Q-C',
     type: 'Books',
   },
   {
     employeeId: 'EMP101',
     employeeName: 'Employee User',
     submittedDate: '2024-06-15',
-    stage: 'Completed',
+    stage: 'PDF Pages',
     type: 'Books',
   }
 ];
