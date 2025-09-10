@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Download, FilePlus, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Download, FilePlus, Edit, Trash2, Calendar as CalendarIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -53,6 +53,11 @@ import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
 
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
 const reportTypes = ["Pages", "Books"];
@@ -225,8 +230,30 @@ export default function EmployeeReportsPage() {
             </p>
         </div>
          <div className="flex items-center gap-2 w-full md:w-auto">
-            <Select onValueChange={handleMonthChange} defaultValue={selectedDate.getMonth().toString()}>
-                <SelectTrigger className="w-full">
+            <Popover>
+                <PopoverTrigger asChild>
+                    <Button
+                    variant={"outline"}
+                    className={cn(
+                        "w-[200px] justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                    )}
+                    >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                    <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => date && setSelectedDate(date)}
+                    initialFocus
+                    />
+                </PopoverContent>
+            </Popover>
+            <Select onValueChange={handleMonthChange} value={selectedDate.getMonth().toString()}>
+                <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Select Month" />
                 </SelectTrigger>
                 <SelectContent>
@@ -235,8 +262,8 @@ export default function EmployeeReportsPage() {
                     ))}
                 </SelectContent>
             </Select>
-            <Select onValueChange={handleYearChange} defaultValue={selectedDate.getFullYear().toString()}>
-                <SelectTrigger className="w-full">
+            <Select onValueChange={handleYearChange} value={selectedDate.getFullYear().toString()}>
+                <SelectTrigger className="w-[120px]">
                     <SelectValue placeholder="Select Year" />
                 </SelectTrigger>
                 <SelectContent>
