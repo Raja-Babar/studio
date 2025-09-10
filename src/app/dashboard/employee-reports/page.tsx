@@ -32,6 +32,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 
 const allEmployeeReports = [
@@ -41,6 +42,7 @@ const allEmployeeReports = [
     submittedDate: '2024-07-29',
     stage: 'Completed',
     type: 'Pages',
+    quantity: 250,
   },
   {
     employeeId: 'EMP001',
@@ -48,6 +50,7 @@ const allEmployeeReports = [
     submittedDate: '2024-07-28',
     stage: 'PDF Uploading',
     type: 'Pages',
+    quantity: 180,
   },
   {
     employeeId: 'EMP003',
@@ -55,6 +58,7 @@ const allEmployeeReports = [
     submittedDate: '2024-07-27',
     stage: 'Scanning',
     type: 'Books',
+    quantity: 5,
   },
   {
     employeeId: 'EMP004',
@@ -62,6 +66,7 @@ const allEmployeeReports = [
     submittedDate: '2024-07-26',
     stage: 'PDF Q-C',
     type: 'Pages',
+    quantity: 300,
   },
   {
     employeeId: 'EMP101',
@@ -69,6 +74,7 @@ const allEmployeeReports = [
     submittedDate: '2024-07-25',
     stage: 'Scanning Q-C',
     type: 'Books',
+    quantity: 2,
   },
   {
     employeeId: 'EMP101',
@@ -76,6 +82,7 @@ const allEmployeeReports = [
     submittedDate: '2024-06-15',
     stage: 'PDF Pages',
     type: 'Books',
+    quantity: 1,
   }
 ];
 
@@ -90,6 +97,7 @@ export default function EmployeeReportsPage() {
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [newReportStage, setNewReportStage] = useState('');
     const [newReportType, setNewReportType] = useState('');
+    const [newReportQuantity, setNewReportQuantity] = useState('');
 
 
     const employeeReports = useMemo(() => {
@@ -134,12 +142,13 @@ export default function EmployeeReportsPage() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
-    const head = [['Employee Name', 'Date Submitted', 'Stage', 'Type']];
+    const head = [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity']];
     const body = monthlyReports.map(r => [
         r.employeeName,
         new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
         r.stage,
         r.type,
+        r.quantity.toString(),
     ]);
     (doc as any).autoTable({
         head: head,
@@ -150,14 +159,25 @@ export default function EmployeeReportsPage() {
   };
 
   const handleAddReport = () => {
-    if (!newReportStage || !newReportType) {
+    if (!newReportStage || !newReportType || !newReportQuantity) {
       toast({
         variant: 'destructive',
         title: 'Submission Failed',
-        description: 'Please select a report stage and type.',
+        description: 'Please select a stage, type, and enter a quantity.',
       });
       return;
     }
+    
+    const quantity = parseInt(newReportQuantity, 10);
+    if (isNaN(quantity) || quantity <= 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: 'Please enter a valid quantity.',
+      });
+      return;
+    }
+
 
     if (user) {
       const newReport = {
@@ -166,6 +186,7 @@ export default function EmployeeReportsPage() {
         submittedDate: new Date().toISOString().split('T')[0],
         stage: newReportStage,
         type: newReportType,
+        quantity: quantity,
       };
       setReports(prev => [newReport, ...prev]);
       toast({
@@ -174,6 +195,7 @@ export default function EmployeeReportsPage() {
       });
       setNewReportStage('');
       setNewReportType('');
+      setNewReportQuantity('');
     }
   };
 
@@ -228,6 +250,7 @@ export default function EmployeeReportsPage() {
                 <TableHead>Employee Name</TableHead>
                 <TableHead>Report Stage</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Quantity</TableHead>
                 <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -261,6 +284,14 @@ export default function EmployeeReportsPage() {
                     </SelectContent>
                   </Select>
                 </TableCell>
+                <TableCell>
+                    <Input
+                        type="number"
+                        placeholder="e.g., 100"
+                        value={newReportQuantity}
+                        onChange={(e) => setNewReportQuantity(e.target.value)}
+                    />
+                </TableCell>
                 <TableCell className="hidden md:table-cell">
                   {new Date().toLocaleDateString()}
                 </TableCell>
@@ -278,6 +309,7 @@ export default function EmployeeReportsPage() {
                       <Badge variant="outline">{report.stage}</Badge>
                     </TableCell>
                     <TableCell>{report.type}</TableCell>
+                    <TableCell>{report.quantity}</TableCell>
                     <TableCell className="hidden md:table-cell">
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
@@ -304,7 +336,7 @@ export default function EmployeeReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground pt-8">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground pt-8">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
@@ -316,3 +348,5 @@ export default function EmployeeReportsPage() {
     </div>
   );
 }
+
+    
