@@ -26,7 +26,7 @@ export type AttendanceRecord = {
   status: 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 };
 
-type EmployeeReport = {
+export type EmployeeReport = {
     id: string;
     employeeId: string;
     employeeName: string;
@@ -34,6 +34,7 @@ type EmployeeReport = {
     stage: string;
     type: string;
     quantity: number;
+    pdfFileName?: string;
 };
 
 type AuthContextType = {
@@ -446,3 +447,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+    

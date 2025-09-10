@@ -2,7 +2,7 @@
 'use client';
 
 import { useContext } from 'react';
-import { AuthContext, AttendanceRecord } from '@/context/auth-provider';
+import { AuthContext, AttendanceRecord, EmployeeReport } from '@/context/auth-provider';
 
 type UserRole = 'Admin' | 'Employee';
 type User = {
@@ -12,16 +12,6 @@ type User = {
   role: UserRole;
 };
 type StoredUser = User & { passwordHash: string };
-
-type EmployeeReport = {
-    id: string;
-    employeeId: string;
-    employeeName: string;
-    submittedDate: string;
-    stage: string;
-    type: string;
-    quantity: number;
-};
 
 type AuthContextType = {
   user: User | null;
@@ -51,3 +41,5 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
+    

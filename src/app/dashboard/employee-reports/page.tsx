@@ -57,6 +57,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import type { EmployeeReport } from '@/context/auth-provider';
 
 
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
@@ -70,12 +71,14 @@ export default function EmployeeReportsPage() {
     const [newReportStage, setNewReportStage] = useState('');
     const [newReportType, setNewReportType] = useState('');
     const [newReportQuantity, setNewReportQuantity] = useState('');
+    const [newPdfFileName, setNewPdfFileName] = useState('');
 
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [selectedReport, setSelectedReport] = useState<any>(null);
+    const [selectedReport, setSelectedReport] = useState<EmployeeReport | null>(null);
     const [editedStage, setEditedStage] = useState('');
     const [editedType, setEditedType] = useState('');
     const [editedQuantity, setEditedQuantity] = useState('');
+    const [editedPdfFileName, setEditedPdfFileName] = useState('');
 
 
     const employeeReports = useMemo(() => {
@@ -124,13 +127,14 @@ export default function EmployeeReportsPage() {
   const handleExportPDF = () => {
     const doc = new jsPDF();
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
-    const head = [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity']];
+    const head = [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity', 'PDF File Name']];
     const body = monthlyReports.map(r => [
         r.employeeName,
         new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
         r.stage,
         r.type,
         r.quantity.toString(),
+        r.pdfFileName || 'N/A'
     ]);
     (doc as any).autoTable({
         head: head,
@@ -170,6 +174,7 @@ export default function EmployeeReportsPage() {
         stage: newReportStage,
         type: newReportType,
         quantity: quantity,
+        pdfFileName: newPdfFileName,
       });
 
       toast({
@@ -179,14 +184,16 @@ export default function EmployeeReportsPage() {
       setNewReportStage('');
       setNewReportType('');
       setNewReportQuantity('');
+      setNewPdfFileName('');
     }
   };
   
-    const handleEditClick = (report: any) => {
+    const handleEditClick = (report: EmployeeReport) => {
         setSelectedReport(report);
         setEditedStage(report.stage);
         setEditedType(report.type);
         setEditedQuantity(report.quantity.toString());
+        setEditedPdfFileName(report.pdfFileName || '');
         setIsEditDialogOpen(true);
     };
 
@@ -205,6 +212,7 @@ export default function EmployeeReportsPage() {
                 stage: editedStage,
                 type: editedType,
                 quantity: quantity,
+                pdfFileName: editedPdfFileName
             });
             toast({
                 title: 'Report Updated',
@@ -277,6 +285,7 @@ export default function EmployeeReportsPage() {
                 <TableHead>Report Stage</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Quantity</TableHead>
+                <TableHead>PDF File Name</TableHead>
                 <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -319,6 +328,14 @@ export default function EmployeeReportsPage() {
                           onChange={(e) => setNewReportQuantity(e.target.value)}
                       />
                   </TableCell>
+                  <TableCell>
+                      <Input
+                          type="text"
+                          placeholder="e.g., report.pdf"
+                          value={newPdfFileName}
+                          onChange={(e) => setNewPdfFileName(e.target.value)}
+                      />
+                  </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {new Date().toLocaleDateString()}
                   </TableCell>
@@ -338,6 +355,7 @@ export default function EmployeeReportsPage() {
                     </TableCell>
                     <TableCell>{report.type}</TableCell>
                     <TableCell>{report.quantity}</TableCell>
+                    <TableCell>{report.pdfFileName || 'N/A'}</TableCell>
                     <TableCell className="hidden md:table-cell">
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
@@ -388,7 +406,7 @@ export default function EmployeeReportsPage() {
               ) : (
                 user?.role !== 'Employee' && (
                 <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground pt-8">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground pt-8">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
@@ -492,6 +510,16 @@ export default function EmployeeReportsPage() {
                     type="number"
                     value={editedQuantity}
                     onChange={(e) => setEditedQuantity(e.target.value)}
+                    className="col-span-3"
+                />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="pdfFileName" className="text-right">PDF File</Label>
+                <Input
+                    id="pdfFileName"
+                    type="text"
+                    value={editedPdfFileName}
+                    onChange={(e) => setEditedPdfFileName(e.target.value)}
                     className="col-span-3"
                 />
             </div>
