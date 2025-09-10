@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Download, FilePlus, Edit, Trash2, Calendar as CalendarIcon } from 'lucide-react';
+import { MoreHorizontal, Download, FilePlus, Edit, Trash2, Calendar as CalendarIcon, Search } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -68,6 +68,7 @@ export default function EmployeeReportsPage() {
     const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport } = useAuth();
     const { toast } = useToast();
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [searchTerm, setSearchTerm] = useState('');
     const [newReportStage, setNewReportStage] = useState('');
     const [newReportType, setNewReportType] = useState('');
     const [newReportQuantity, setNewReportQuantity] = useState('');
@@ -122,8 +123,10 @@ export default function EmployeeReportsPage() {
             employeeData.summary.byStage = byStage;
         });
 
-        return Object.values(grouped);
-    }, [monthlyReports]);
+        return Object.values(grouped).filter(employeeData =>
+            employeeData.employeeName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }, [monthlyReports, searchTerm]);
 
 
     const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
@@ -284,13 +287,25 @@ export default function EmployeeReportsPage() {
               Viewing reports for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>
             </p>
         </div>
-         <div className="flex items-center gap-2 w-full md:w-auto">
+         <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
+            {user?.role === 'Admin' && (
+                <div className="relative w-full">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                    type="search"
+                    placeholder="Search employees..."
+                    className="w-full rounded-lg bg-background pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            )}
             <Popover>
                 <PopoverTrigger asChild>
                     <Button
                     variant={"outline"}
                     className={cn(
-                        "w-[280px] justify-start text-left font-normal",
+                        "w-full sm:w-[280px] justify-start text-left font-normal",
                         !selectedDate && "text-muted-foreground"
                     )}
                     >
@@ -307,7 +322,7 @@ export default function EmployeeReportsPage() {
                     />
                 </PopoverContent>
             </Popover>
-            <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full">
+            <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" /> Export PDF
             </Button>
         </div>
