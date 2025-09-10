@@ -29,7 +29,7 @@ type AttendanceRecord = {
 type AuthContextType = {
   user: User | null;
   login: (email: string, pass: string) => Promise<void>;
-  signup: (name: string, email: string, pass: string, role: UserRole) => Promise<void>;
+  signup: (id: string, name: string, email: string, pass: string, role: UserRole) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
@@ -209,43 +209,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const signup = async (name: string, email: string, pass: string, role: UserRole): Promise<void> => {
+  const signup = async (id: string, name: string, email: string, pass: string, role: UserRole): Promise<void> => {
     setIsLoading(true);
     return new Promise((resolve, reject) => {
       setTimeout(async () => {
         if (mockUsers[email]) {
           setIsLoading(false);
           reject(new Error('An account with this email already exists.'));
-        } else {
-          const passwordHash = await simpleHash(pass);
-          
-          const existingIds = Object.values(mockUsers).map(u => parseInt(u.id.replace('EMP', ''), 10));
-          const maxId = Math.max(...existingIds, 0);
-          const newIdNumber = maxId + 1;
-          const newUserId = `EMP${newIdNumber.toString().padStart(3, '0')}`;
-
-          const newUser: StoredUser = { id: newUserId, name, email, role, passwordHash };
-          const updatedUsers = { ...mockUsers, [email]: newUser };
-          setMockUsers(updatedUsers);
-          syncUsersToStorage(updatedUsers);
-
-          // Also create a blank attendance record for the new user for today
-          const today = new Date().toISOString().split('T')[0];
-          const newAttendanceRecord: AttendanceRecord = {
-            employeeId: newUserId,
-            name: name,
-            date: today,
-            timeIn: '--:--',
-            timeOut: '--:--',
-            status: 'Not Marked',
-          };
-          const updatedAttendance = [...attendanceRecords, newAttendanceRecord];
-          setAttendanceRecords(updatedAttendance);
-          syncAttendanceToStorage(updatedAttendance);
-
-          setIsLoading(false);
-          resolve();
+          return;
         }
+
+        if (Object.values(mockUsers).some(u => u.id === id)) {
+          setIsLoading(false);
+          reject(new Error('An account with this Employee ID already exists.'));
+          return;
+        }
+
+        const passwordHash = await simpleHash(pass);
+
+        const newUser: StoredUser = { id, name, email, role, passwordHash };
+        const updatedUsers = { ...mockUsers, [email]: newUser };
+        setMockUsers(updatedUsers);
+        syncUsersToStorage(updatedUsers);
+
+        const today = new Date().toISOString().split('T')[0];
+        const newAttendanceRecord: AttendanceRecord = {
+          employeeId: id,
+          name: name,
+          date: today,
+          timeIn: '--:--',
+          timeOut: '--:--',
+          status: 'Not Marked',
+        };
+        const updatedAttendance = [...attendanceRecords, newAttendanceRecord];
+        setAttendanceRecords(updatedAttendance);
+        syncAttendanceToStorage(updatedAttendance);
+
+        setIsLoading(false);
+        resolve();
       }, 500);
     });
   };

@@ -25,7 +25,7 @@ type AttendanceRecord = {
 type AuthContextType = {
   user: User | null;
   login: (email: string, pass: string) => Promise<void>;
-  signup: (name: string, email: string, pass: string, role: UserRole) => Promise<void>;
+  signup: (id: string, name: string, email: string, pass: string, role: UserRole) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
