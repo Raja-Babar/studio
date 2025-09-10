@@ -10,6 +10,9 @@ import { BarChart, Briefcase, DollarSign, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function DashboardPage() {
   const { user, markAttendance } = useAuth();
@@ -154,15 +157,53 @@ function AdminDashboard() {
 }
 
 function EmployeeDashboard({ onMarkAttendance }: { onMarkAttendance: () => void }) {
+  const { user, attendanceRecords, updateAttendance } = useAuth();
+  const { toast } = useToast();
+  const today = new Date().toISOString().split('T')[0];
+  const todaysRecord = attendanceRecords.find(r => r.employeeId === user?.id && r.date === today);
+
+  const [timeIn, setTimeIn] = useState(todaysRecord?.timeIn !== '--:--' ? todaysRecord?.timeIn : '');
+  const [timeOut, setTimeOut] = useState(todaysRecord?.timeOut !== '--:--' ? todaysRecord?.timeOut : '');
+
+  const handleSaveAttendance = () => {
+    if (user) {
+      updateAttendance(user.id, { timeIn, timeOut });
+      toast({
+        title: "Attendance Updated",
+        description: "Your time in and time out has been saved.",
+      });
+    }
+  };
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>My Attendance</CardTitle>
+          <p className="text-muted-foreground">Enter your time in and out for today.</p>
         </CardHeader>
         <CardContent className="flex flex-col items-start gap-4">
-          <p className="text-muted-foreground">Mark your attendance for today.</p>
-          <Button onClick={onMarkAttendance}>Mark Present</Button>
+          <div className="flex w-full gap-4">
+            <div className="w-1/2 space-y-2">
+              <Label htmlFor="timeIn">Time In</Label>
+              <Input 
+                id="timeIn" 
+                type="time" 
+                value={timeIn} 
+                onChange={(e) => setTimeIn(e.target.value)} 
+              />
+            </div>
+            <div className="w-1/2 space-y-2">
+              <Label htmlFor="timeOut">Time Out</Label>
+              <Input 
+                id="timeOut" 
+                type="time" 
+                value={timeOut} 
+                onChange={(e) => setTimeOut(e.target.value)} 
+              />
+            </div>
+          </div>
+          <Button onClick={handleSaveAttendance} className="w-full">Save</Button>
         </CardContent>
       </Card>
       <Card>

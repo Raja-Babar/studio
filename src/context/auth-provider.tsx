@@ -39,6 +39,7 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   markAttendance: (employeeId: string) => Promise<void>;
+  updateAttendance: (employeeId: string, times: { timeIn?: string; timeOut?: string }) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -293,6 +294,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resolve();
     });
   };
+  
+    const updateAttendance = (employeeId: string, times: { timeIn?: string; timeOut?: string }) => {
+    const today = new Date().toISOString().split('T')[0];
+    const updatedAttendance = attendanceRecords.map(record => {
+      if (record.employeeId === employeeId && record.date === today) {
+        const newTimeIn = times.timeIn ? new Date(`1970-01-01T${times.timeIn}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : record.timeIn;
+        const newTimeOut = times.timeOut ? new Date(`1970-01-01T${times.timeOut}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : record.timeOut;
+        
+        return {
+          ...record,
+          timeIn: newTimeIn,
+          timeOut: newTimeOut,
+          status: 'Present' as const,
+        };
+      }
+      return record;
+    });
+    setAttendanceRecords(updatedAttendance);
+    syncAttendanceToStorage(updatedAttendance);
+  };
 
   const getUsers = (): Omit<StoredUser, 'passwordHash'>[] => {
     return Object.values(mockUsers).map(({ passwordHash, ...user }) => user);
@@ -344,7 +365,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, markAttendance };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, markAttendance, updateAttendance };
 
   if (isLoading) {
     return (

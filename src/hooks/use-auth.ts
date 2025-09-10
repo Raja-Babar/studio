@@ -35,6 +35,7 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   markAttendance: (employeeId: string) => Promise<void>;
+  updateAttendance: (employeeId: string, times: { timeIn?: string; timeOut?: string }) => void;
 };
 
 export const useAuth = (): AuthContextType => {
