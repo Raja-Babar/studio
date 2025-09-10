@@ -12,14 +12,25 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, markAttendance } = useAuth();
   const { toast } = useToast();
 
-  const handleMarkAttendance = () => {
-    toast({
-      title: 'Attendance Marked',
-      description: `Your attendance for today has been recorded.`,
-    });
+  const handleMarkAttendance = async () => {
+    if (user) {
+        try {
+            await markAttendance(user.id);
+            toast({
+                title: 'Attendance Marked',
+                description: `Your attendance for today has been recorded.`,
+            });
+        } catch(e: any) {
+             toast({
+                variant: 'destructive',
+                title: 'Attendance Error',
+                description: e.message,
+            });
+        }
+    }
   };
 
   if (!user) return null;

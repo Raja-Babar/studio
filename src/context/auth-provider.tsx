@@ -38,6 +38,7 @@ type AuthContextType = {
   updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
+  markAttendance: (employeeId: string) => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -251,6 +252,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const markAttendance = async (employeeId: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+        const today = new Date().toISOString().split('T')[0];
+        const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+        
+        let recordFound = false;
+        
+        const updatedAttendance = attendanceRecords.map(record => {
+            if (record.employeeId === employeeId && record.date === today) {
+                recordFound = true;
+                if (record.status === 'Present') {
+                    reject(new Error('Attendance already marked for today.'));
+                    return record;
+                }
+                return { ...record, timeIn: currentTime, status: 'Present' as const };
+            }
+            return record;
+        });
+
+        if (!recordFound) {
+            const employee = Object.values(mockUsers).find(u => u.id === employeeId);
+            if (employee) {
+                updatedAttendance.push({
+                    employeeId: employee.id,
+                    name: employee.name,
+                    date: today,
+                    timeIn: currentTime,
+                    timeOut: '--:--',
+                    status: 'Present',
+                });
+            } else {
+                reject(new Error('Employee not found.'));
+                return;
+            }
+        }
+        
+        setAttendanceRecords(updatedAttendance);
+        syncAttendanceToStorage(updatedAttendance);
+        resolve();
+    });
+  };
+
   const getUsers = (): Omit<StoredUser, 'passwordHash'>[] => {
     return Object.values(mockUsers).map(({ passwordHash, ...user }) => user);
   };
@@ -301,7 +344,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, markAttendance };
 
   if (isLoading) {
     return (
