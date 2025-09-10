@@ -35,6 +35,7 @@ type ScanningRecord = {
   status: string;
   scanner: string | null;
   qc_by: string | null;
+  updated_at: string;
 };
 
 const scanningProgressRecords: ScanningRecord[] = JSON.parse(scanningProgressRecordsJSON);
@@ -60,6 +61,11 @@ const getStatusVariant = (status: string) => {
 
 
 export default function ScanningPage() {
+  const formatDateTime = (isoString: string) => {
+    const date = new Date(isoString);
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  }
+
   return (
     <div className="space-y-6">
        <div>
@@ -85,6 +91,7 @@ export default function ScanningPage() {
                             <TableHead>Status</TableHead>
                             <TableHead className="hidden md:table-cell">Scanner</TableHead>
                             <TableHead className="hidden md:table-cell">QC By</TableHead>
+                            <TableHead className="hidden lg:table-cell">Last Updated</TableHead>
                             <TableHead>
                                 <span className="sr-only">Actions</span>
                             </TableHead>
@@ -102,6 +109,7 @@ export default function ScanningPage() {
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell">{record.scanner || 'N/A'}</TableCell>
                                 <TableCell className="hidden md:table-cell">{record.qc_by || 'N/A'}</TableCell>
+                                <TableCell className="hidden lg:table-cell">{formatDateTime(record.updated_at)}</TableCell>
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
