@@ -218,7 +218,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           reject(new Error('An account with this email already exists.'));
         } else {
           const passwordHash = await simpleHash(pass);
-          const newUserId = `EMP${Object.keys(mockUsers).length + 100}`;
+          
+          const existingIds = Object.values(mockUsers).map(u => parseInt(u.id.replace('EMP', ''), 10));
+          const maxId = Math.max(...existingIds, 0);
+          const newIdNumber = maxId + 1;
+          const newUserId = `EMP${newIdNumber.toString().padStart(3, '0')}`;
+
           const newUser: StoredUser = { id: newUserId, name, email, role, passwordHash };
           const updatedUsers = { ...mockUsers, [email]: newUser };
           setMockUsers(updatedUsers);
