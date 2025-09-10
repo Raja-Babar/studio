@@ -31,28 +31,36 @@ const allEmployeeReports = [
     employeeName: 'Employee User',
     reportTitle: 'Weekly Sales Summary',
     submittedDate: '2024-07-29',
-    stage: 'Completed'
+    stage: 'Completed',
+    booksScanned: 0,
+    pagesScanned: 0,
   },
   {
     employeeId: 'EMP001',
     employeeName: 'Ali Khan',
     reportTitle: 'I.T Department Monthly Update',
     submittedDate: '2024-07-28',
-    stage: 'Uploading'
+    stage: 'Uploading',
+    booksScanned: 0,
+    pagesScanned: 0,
   },
   {
     employeeId: 'EMP003',
     employeeName: 'Fatima Ali',
     reportTitle: 'Scanning Project Progress',
     submittedDate: '2024-07-27',
-    stage: 'Scanning'
+    stage: 'Scanning',
+    booksScanned: 15,
+    pagesScanned: 4500,
   },
   {
     employeeId: 'EMP004',
     employeeName: 'Zainab Omar',
     reportTitle: 'Library Acquisition Proposal',
     submittedDate: '2024-07-26',
-    stage: 'PDF-QC'
+    stage: 'PDF-QC',
+    booksScanned: 0,
+    pagesScanned: 0,
   },
 ];
 
@@ -84,6 +92,8 @@ export default function EmployeeReportsPage() {
               <TableRow>
                 <TableHead>Employee Name</TableHead>
                 <TableHead>Report Stage</TableHead>
+                <TableHead>Books Scanned</TableHead>
+                <TableHead>Pages Scanned</TableHead>
                 <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
                 <TableHead>
                     <span className="sr-only">Actions</span>
@@ -98,6 +108,8 @@ export default function EmployeeReportsPage() {
                     <TableCell>
                       <Badge variant="outline">{report.stage}</Badge>
                     </TableCell>
+                    <TableCell>{report.booksScanned}</TableCell>
+                    <TableCell>{report.pagesScanned}</TableCell>
                     <TableCell className="hidden md:table-cell">
                         {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                     </TableCell>
@@ -124,7 +136,7 @@ export default function EmployeeReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
                         No scanning project reports found.
                     </TableCell>
                 </TableRow>
