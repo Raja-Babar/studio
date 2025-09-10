@@ -41,7 +41,7 @@ const getStatusVariant = (status: AttendanceStatus) => {
 };
 
 export default function AttendancePage() {
-  const { user, attendanceRecords, updateAttendanceRecord, deleteAttendanceRecord } = useAuth();
+  const { user, attendanceRecords, updateAttendanceRecord, deleteAttendanceRecord, getUsers } = useAuth();
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   
@@ -55,12 +55,13 @@ export default function AttendancePage() {
   const isEmployee = user?.role === 'Employee';
 
   const userAttendanceRecords = useMemo(() => {
-    const records = attendanceRecords;
+    const supervisor = getUsers().find(u => u.email === 'supervisor@example.com');
+    const records = attendanceRecords.filter(r => r.employeeId !== supervisor?.id);
     if (isEmployee && user) {
       return records.filter(r => r.employeeId === user.id);
     }
     return records;
-  }, [isEmployee, user, attendanceRecords]);
+  }, [isEmployee, user, attendanceRecords, getUsers]);
 
   const monthlyRecords = useMemo(() => {
     const month = selectedDate.getMonth();
