@@ -10,7 +10,7 @@ import { BarChart, Briefcase, DollarSign, Users, Clock, ArrowRight, FilePlus } f
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -147,7 +147,7 @@ function AdminDashboard() {
 }
 
 function EmployeeDashboard() {
-  const { user, attendanceRecords, updateAttendance } = useAuth();
+  const { user, attendanceRecords, updateAttendance, employeeReports } = useAuth();
   const { toast } = useToast();
   const today = new Date().toISOString().split('T')[0];
   const todaysRecord = attendanceRecords.find(r => r.employeeId === user?.id && r.date === today);
@@ -157,6 +157,13 @@ function EmployeeDashboard() {
   
   const hasClockedIn = timeIn !== '--:--';
   const hasClockedOut = timeOut !== '--:--';
+
+  const userReports = useMemo(() => {
+    if (user?.role === 'Employee') {
+        return employeeReports.filter(report => report.employeeId === user.id).slice(0, 5); // Show latest 5
+    }
+    return [];
+  }, [user, employeeReports]);
 
 
   const handleClockIn = () => {
@@ -178,11 +185,6 @@ function EmployeeDashboard() {
       });
     }
   };
-  
-  const employeeTasks = [
-    { title: 'Scanning Project Quarterly Review', stage: 'Scanning', assignedDate: '2024-07-25' },
-    { title: 'Scanning Report June', stage: 'Completed', assignedDate: '2024-06-15' },
-  ];
 
 
   return (
@@ -220,14 +222,14 @@ function EmployeeDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employeeTasks.length > 0 ? (
-                employeeTasks.map((task, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{task.title}</TableCell>
+              {userReports.length > 0 ? (
+                userReports.map((task) => (
+                  <TableRow key={task.id}>
+                    <TableCell className="font-medium">{`${task.type} - ${task.quantity}`}</TableCell>
                     <TableCell>
                       <Badge variant={getTaskStatusVariant(task.stage)}>{task.stage}</Badge>
                     </TableCell>
-                    <TableCell>{new Date(task.assignedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
+                    <TableCell>{new Date(task.submittedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
                   </TableRow>
                 ))
               ) : (
