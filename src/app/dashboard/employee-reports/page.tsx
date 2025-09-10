@@ -27,6 +27,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
+import { useState, useMemo } from 'react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const allEmployeeReports = [
   {
@@ -73,39 +75,105 @@ const allEmployeeReports = [
     stage: 'Scanning',
     booksScanned: 5,
     pagesScanned: 1500,
+  },
+  {
+    employeeId: 'EMP101',
+    employeeName: 'Employee User',
+    reportTitle: 'Scanning Report June',
+    submittedDate: '2024-06-15',
+    stage: 'Completed',
+    booksScanned: 10,
+    pagesScanned: 3000,
   }
 ];
 
 
 export default function EmployeeReportsPage() {
     const { user } = useAuth();
+    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-    const employeeReports = allEmployeeReports.filter(report => {
-        const isScanningReport = report.reportTitle.toLowerCase().includes('scanning');
-        
-        if (!isScanningReport) return false;
+    const employeeReports = useMemo(() => {
+        return allEmployeeReports.filter(report => {
+            const isScanningReport = report.reportTitle.toLowerCase().includes('scanning');
+            if (!isScanningReport) return false;
 
-        if (user?.role === 'Employee') {
-            return report.employeeId === user.id;
-        }
-        
-        return true;
+            if (user?.role === 'Employee') {
+                return report.employeeId === user.id;
+            }
+            
+            return true;
+        });
+    }, [user]);
+
+    const monthlyReports = useMemo(() => {
+        const month = selectedDate.getMonth();
+        const year = selectedDate.getFullYear();
+        return employeeReports.filter(r => {
+            const reportDate = new Date(r.submittedDate + 'T00:00:00');
+            return reportDate.getMonth() === month && reportDate.getFullYear() === year;
+        });
+    }, [selectedDate, employeeReports]);
+
+    const handleMonthChange = (month: string) => {
+        const newDate = new Date(selectedDate);
+        newDate.setMonth(parseInt(month, 10));
+        newDate.setDate(1);
+        setSelectedDate(newDate);
+    };
+
+    const handleYearChange = (year: string) => {
+        const newDate = new Date(selectedDate);
+        newDate.setFullYear(parseInt(year, 10));
+        newDate.setDate(1);
+        setSelectedDate(newDate);
+    };
+
+    const years = Array.from(new Set(allEmployeeReports.map(r => new Date(r.submittedDate).getFullYear()))).sort((a,b) => b-a);
+    const months = Array.from({ length: 12 }, (_, i) => ({ value: i, name: new Date(0, i).toLocaleString('en-US', { month: 'long' }) }));
+
+    const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
     });
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Scanning Reports</h1>
-        <p className="text-muted-foreground mt-2">
-          View reports submitted by employees for the scanning project.
-        </p>
+      <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
+        <div>
+            <h1 className="text-3xl font-bold tracking-tight">Scanning Reports</h1>
+            <p className="text-muted-foreground mt-2">
+              Viewing reports for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>
+            </p>
+        </div>
+         <div className="flex items-center gap-2 w-full md:w-auto">
+            <Select onValueChange={handleMonthChange} defaultValue={selectedDate.getMonth().toString()}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Month" />
+                </SelectTrigger>
+                <SelectContent>
+                    {months.map(month => (
+                        <SelectItem key={month.value} value={month.value.toString()}>{month.name}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+            <Select onValueChange={handleYearChange} defaultValue={selectedDate.getFullYear().toString()}>
+                <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select Year" />
+                </SelectTrigger>
+                <SelectContent>
+                    {years.map(year => (
+                        <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Submitted Reports</CardTitle>
           <CardDescription>
-            A list of all reports related to the scanning project.
+            A list of all reports related to the scanning project for the selected period.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -123,8 +191,8 @@ export default function EmployeeReportsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {employeeReports.length > 0 ? (
-                employeeReports.map((report) => (
+              {monthlyReports.length > 0 ? (
+                monthlyReports.map((report) => (
                     <TableRow key={report.employeeId + report.submittedDate}>
                     <TableCell className="font-medium">{report.employeeName}</TableCell>
                     <TableCell>
@@ -159,7 +227,7 @@ export default function EmployeeReportsPage() {
               ) : (
                 <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground">
-                        No scanning project reports found.
+                        No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
               )}
