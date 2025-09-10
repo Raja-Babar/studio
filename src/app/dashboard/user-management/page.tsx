@@ -48,7 +48,7 @@ export default function UserManagementPage() {
     const doc = new jsPDF();
     doc.text('Panhwar Portal Users Report', 14, 16);
     (doc as any).autoTable({
-        head: [['ID', 'Name', 'Role', 'Email']],
+        head: [['ID', 'Employee Name', 'Role', 'Email']],
         body: allUsers.map(u => [u.id, u.name, u.role, u.email]),
         startY: 20
     });
@@ -118,7 +118,7 @@ export default function UserManagementPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>ID</TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>Employee Name</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead className="text-right">Actions</TableHead>

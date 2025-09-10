@@ -156,9 +156,8 @@ export default function AttendancePage() {
             <Table>
                 <TableHeader>
                 <TableRow>
-                    {!isEmployee && <TableHead>Employee Name</TableHead>}
-                    {isEmployee && <TableHead>Date</TableHead>}
-                     {!isEmployee && <TableHead>Date</TableHead>}
+                    <TableHead>Employee Name</TableHead>
+                    <TableHead>Date</TableHead>
                     <TableHead>Time In</TableHead>
                     <TableHead>Time Out</TableHead>
                     <TableHead>Status</TableHead>
@@ -168,9 +167,8 @@ export default function AttendancePage() {
                 {displayedRecords.length > 0 ? (
                     displayedRecords.map((record) => (
                         <TableRow key={`${record.employeeId}-${record.date}`}>
-                            {!isEmployee && <TableCell className="font-medium">{record.name}</TableCell>}
-                            {isEmployee && <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>}
-                             {!isEmployee && <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>}
+                            <TableCell className="font-medium">{isEmployee ? user?.name : record.name}</TableCell>
+                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
                             <TableCell>{record.timeIn}</TableCell>
                             <TableCell>{record.timeOut}</TableCell>
                             <TableCell>
@@ -184,6 +182,7 @@ export default function AttendancePage() {
                     <TableRow>
                        {isEmployee && user ? (
                          <>
+                          <TableCell className="font-medium">{user.name}</TableCell>
                           <TableCell>{new Date(selectedDate).toLocaleDateString()}</TableCell>
                           <TableCell>--:--</TableCell>
                           <TableCell>--:--</TableCell>
