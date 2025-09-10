@@ -44,6 +44,17 @@ const getStatusVariant = (status: string) => {
   }
 };
 
+const getTaskStatusVariant = (status: string) => {
+    switch (status) {
+        case 'Scanning':
+        return 'default';
+        case 'Completed':
+        return 'secondary';
+        default:
+        return 'outline';
+    }
+};
+
 
 function AdminDashboard() {
   const { getUsers } = useAuth();
@@ -167,6 +178,11 @@ function EmployeeDashboard() {
       });
     }
   };
+  
+  const employeeTasks = [
+    { title: 'Scanning Project Quarterly Review', stage: 'Scanning', assignedDate: '2024-07-25' },
+    { title: 'Scanning Report June', stage: 'Completed', assignedDate: '2024-06-15' },
+  ];
 
 
   return (
@@ -192,9 +208,35 @@ function EmployeeDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>My Tasks</CardTitle>
+           <p className="text-muted-foreground">A list of your assigned reports and their current status.</p>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">You have no assigned tasks.</p>
+           {employeeTasks.length > 0 ? (
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Report Title</TableHead>
+                            <TableHead>Stage</TableHead>
+                            <TableHead>Assigned</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {employeeTasks.map((task) => (
+                            <TableRow key={task.title}>
+                                <TableCell className="font-medium">{task.title}</TableCell>
+                                <TableCell>
+                                    <Badge variant={getTaskStatusVariant(task.stage)}>
+                                        {task.stage}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>{new Date(task.assignedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+              ) : (
+                <p className="text-muted-foreground">You have no assigned tasks.</p>
+              )}
         </CardContent>
       </Card>
     </div>
