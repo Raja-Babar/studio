@@ -443,10 +443,6 @@ export default function EmployeeReportsPage() {
                         <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
                       </TableRow>
                     ))}
-                    <TableRow className="font-bold border-t-2">
-                        <TableCell>Grand Total</TableCell>
-                        <TableCell className="text-right">{summary.totalQuantity.toLocaleString()}</TableCell>
-                    </TableRow>
                   </TableBody>
                 </Table>
               </div>
@@ -508,4 +504,5 @@ export default function EmployeeReportsPage() {
       </Dialog>
     </div>
   );
-}
+
+    
