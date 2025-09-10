@@ -104,35 +104,37 @@ function AdminDashboard() {
         })}
       </div>
        <div className="grid grid-cols-1 gap-6 mt-6">
-        <Card>
-            <CardHeader>
-                <CardTitle>Report Status</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Report Name</TableHead>
-                            <TableHead>Stage</TableHead>
-                            <TableHead>Next Action</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {reportStages.map((report) => (
-                            <TableRow key={report.name}>
-                                <TableCell className="font-medium">{report.name}</TableCell>
-                                <TableCell>
-                                    <Badge variant={getStatusVariant(report.stage)}>
-                                        {report.stage}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{report.nextAction}</TableCell>
+       <Link href="/dashboard/employee-reports">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Report Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Report Name</TableHead>
+                                <TableHead>Stage</TableHead>
+                                <TableHead>Next Action</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </CardContent>
-        </Card>
+                        </TableHeader>
+                        <TableBody>
+                            {reportStages.map((report) => (
+                                <TableRow key={report.name}>
+                                    <TableCell className="font-medium">{report.name}</TableCell>
+                                    <TableCell>
+                                        <Badge variant={getStatusVariant(report.stage)}>
+                                            {report.stage}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>{report.nextAction}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </Link>
       </div>
     </div>
   );
