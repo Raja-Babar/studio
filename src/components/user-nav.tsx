@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/use-auth';
 import { LogOut, User as UserIcon } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 export function UserNav() {
   const { user, logout } = useAuth();
@@ -31,8 +33,14 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
+        <Button variant="ghost" className="relative h-10 px-2 flex items-center gap-2">
+           <div className="flex flex-col items-end">
+             <p className="text-sm font-medium leading-tight">{user.name}</p>
+             <p className="text-xs leading-tight text-muted-foreground">
+              {user.role}
+            </p>
+           </div>
+          <Avatar className="h-9 w-9">
             <AvatarImage src={`https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
           </Avatar>
