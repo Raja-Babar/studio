@@ -260,7 +260,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         const maxId = Object.values(mockUsers)
-            .map(u => parseInt(u.id.replace('EMP', ''), 10))
+            .map(u => u.id ? parseInt(u.id.replace('EMP', ''), 10) : 0)
             .filter(n => !isNaN(n))
             .reduce((max, current) => Math.max(max, current), 0);
         const newIdNumber = maxId + 1;
