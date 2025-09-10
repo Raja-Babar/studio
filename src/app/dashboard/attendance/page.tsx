@@ -74,7 +74,8 @@ export default function AttendancePage() {
     setSelectedDate(newDate);
   };
 
-  const years = Array.from(new Set(attendanceRecords.map(r => new Date(r.date).getFullYear()))).sort((a,b) => b-a);
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 16 }, (_, i) => currentYear + 5 - i);
   const months = Array.from({ length: 12 }, (_, i) => ({ value: i, name: new Date(0, i).toLocaleString('en-US', { month: 'long' }) }));
 
   const handleExportPDF = () => {
@@ -156,7 +157,8 @@ export default function AttendancePage() {
                 <TableHeader>
                 <TableRow>
                     {!isEmployee && <TableHead>Employee Name</TableHead>}
-                    <TableHead>Date</TableHead>
+                    {isEmployee && <TableHead>Date</TableHead>}
+                     {!isEmployee && <TableHead>Date</TableHead>}
                     <TableHead>Time In</TableHead>
                     <TableHead>Time Out</TableHead>
                     <TableHead>Status</TableHead>
@@ -167,7 +169,8 @@ export default function AttendancePage() {
                     displayedRecords.map((record) => (
                         <TableRow key={`${record.employeeId}-${record.date}`}>
                             {!isEmployee && <TableCell className="font-medium">{record.name}</TableCell>}
-                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
+                            {isEmployee && <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>}
+                             {!isEmployee && <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>}
                             <TableCell>{record.timeIn}</TableCell>
                             <TableCell>{record.timeOut}</TableCell>
                             <TableCell>
