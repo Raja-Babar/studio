@@ -35,14 +35,14 @@ const mainNavItems = [
   { href: '/dashboard/publications', icon: BookOpen, label: 'Publications' },
   { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
   { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
-  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Employee Reports' },
+  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Scanning Reports' },
 ];
 
 
 const employeeNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
-  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Employee Reports' },
+  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Scanning Reports' },
 ];
 
 export function DashboardNav() {

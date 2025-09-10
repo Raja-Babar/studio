@@ -284,11 +284,13 @@ export default function EmployeeReportsPage() {
                     </TableRow>
                 ))
               ) : (
+                user?.role !== 'Employee' && (
                 <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground pt-8">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>
+                )
               )}
             </TableBody>
           </Table>
