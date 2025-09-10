@@ -49,7 +49,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -97,7 +97,6 @@ export default function EmployeeReportsPage() {
 
     const summary = useMemo(() => {
       const byStage: { [key: string]: number } = {};
-      const byType: { [key: string]: { total: number; byStage: { [key: string]: number } } } = {};
   
       monthlyReports.forEach(report => {
         // Summary by Stage
@@ -105,22 +104,9 @@ export default function EmployeeReportsPage() {
           byStage[report.stage] = 0;
         }
         byStage[report.stage] += report.quantity;
-  
-        // Summary by Type
-        if (!byType[report.type]) {
-          byType[report.type] = { total: 0, byStage: {} };
-        }
-        byType[report.type].total += report.quantity;
-
-        if(report.type === 'Books') {
-            if(!byType[report.type].byStage[report.stage]) {
-                byType[report.type].byStage[report.stage] = 0;
-            }
-            byType[report.type].byStage[report.stage] += report.quantity;
-        }
       });
   
-      return { byStage, byType };
+      return { byStage };
     }, [monthlyReports]);
 
     const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
@@ -135,7 +121,7 @@ export default function EmployeeReportsPage() {
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
 
     // Submitted Reports Table
-    autoTable(doc, {
+    (doc as any).autoTable({
         head: [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity']],
         body: monthlyReports.map(r => [
             r.employeeName,
@@ -158,7 +144,7 @@ export default function EmployeeReportsPage() {
 
         // Summary by Stage Table
         doc.text('Summary by Stage', 14, finalY);
-        autoTable(doc, {
+        (doc as any).autoTable({
             head: [['Stage', 'Quantity']],
             body: Object.entries(summary.byStage).map(([stage, quantity]) => [stage, quantity.toLocaleString()]),
             startY: finalY + 2,
@@ -168,37 +154,7 @@ export default function EmployeeReportsPage() {
                 finalY = data.cursor.y;
             }
         });
-        const byStageFinalY = (doc as any).lastAutoTable.finalY;
-
-
-        // Summary by Type Table
-        doc.text('Summary by Type', 105, finalY);
-        const byTypeBody = Object.entries(summary.byType).flatMap(([type, data]) => {
-            if (type === 'Books' && Object.keys(data.byStage).length > 0) {
-                return Object.entries(data.byStage).map(([stage, quantity], index) => 
-                    index === 0
-                    ? [{ content: type, rowSpan: Object.keys(data.byStage).length, styles: { valign: 'middle'} }, stage, quantity.toLocaleString()]
-                    : [stage, quantity.toLocaleString()]
-                );
-            }
-            return [[type, 'N/A', data.total.toLocaleString()]];
-        });
-
-        autoTable(doc, {
-            head: [['Type', 'Stage', 'Quantity']],
-            body: byTypeBody,
-            startY: finalY + 2,
-            margin: { left: 105 },
-            tableWidth: 'auto',
-            didDrawPage: (data: any) => {
-                finalY = data.cursor.y;
-            }
-        });
-        const byTypeFinalY = (doc as any).lastAutoTable.finalY;
-
-        finalY = Math.max(byStageFinalY, byTypeFinalY) + 10;
     }
-
 
     doc.save(`scanning_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
   };
@@ -470,7 +426,7 @@ export default function EmployeeReportsPage() {
               A summary of all scanning project reports for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
             </CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-6 md:grid-cols-2">
+          <CardContent>
               <div>
                 <h3 className="font-medium mb-2">Summary by Stage</h3>
                 <Table>
@@ -489,42 +445,6 @@ export default function EmployeeReportsPage() {
                     ))}
                   </TableBody>
                 </Table>
-              </div>
-              <div>
-                <h3 className="font-medium mb-2">Summary by Type</h3>
-                 <Table>
-                    <TableHeader>
-                        <TableRow>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Stage</TableHead>
-                        <TableHead className="text-right">Quantity</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {Object.entries(summary.byType).map(([type, data]) => {
-                        if (type === 'Books' && Object.keys(data.byStage).length > 0) {
-                            return Object.entries(data.byStage).map(([stage, quantity], index) => (
-                            <TableRow key={`${type}-${stage}`}>
-                                {index === 0 && (
-                                <TableCell rowSpan={Object.keys(data.byStage).length} className="font-medium align-top">
-                                    {type}
-                                </TableCell>
-                                )}
-                                <TableCell>{stage}</TableCell>
-                                <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
-                            </TableRow>
-                            ));
-                        }
-                        return (
-                            <TableRow key={type}>
-                            <TableCell className="font-medium">{type}</TableCell>
-                             <TableCell>N/A</TableCell>
-                            <TableCell className="text-right">{data.total.toLocaleString()}</TableCell>
-                            </TableRow>
-                        );
-                        })}
-                    </TableBody>
-                    </Table>
               </div>
           </CardContent>
         </Card>
