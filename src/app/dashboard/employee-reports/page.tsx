@@ -313,72 +313,74 @@ export default function EmployeeReportsPage() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-            <CardTitle>Submit a New Report</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Employee Name</TableHead>
-                        <TableHead>Report Stage</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
-                        <TableHead>
-                            <span className="sr-only">Actions</span>
-                        </TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    <TableRow>
-                        <TableCell className="font-medium">{user?.name}</TableCell>
-                        <TableCell>
-                            <Select value={newReportStage} onValueChange={setNewReportStage}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Stage" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {reportStages.map(stage => (
-                                    <SelectItem key={stage} value={stage}>{stage}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </TableCell>
-                        <TableCell>
-                            <Select value={newReportType} onValueChange={setNewReportType}>
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Select Type" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {reportTypes.map(type => (
-                                    <SelectItem key={type} value={type}>{type}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </TableCell>
-                        <TableCell>
-                            <Input
-                                type="number"
-                                placeholder="e.g., 100"
-                                value={newReportQuantity}
-                                onChange={(e) => setNewReportQuantity(e.target.value)}
-                            />
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                            {new Date().toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="text-right">
-                            <Button size="sm" onClick={handleAddReport}>
-                            <FilePlus className="mr-2 h-4 w-4" /> Submit
-                            </Button>
-                        </TableCell>
-                    </TableRow>
-                </TableBody>
-            </Table>
-        </CardContent>
-      </Card>
+      {user?.role === 'Employee' && (
+        <Card>
+            <CardHeader>
+                <CardTitle>Submit a New Report</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Employee Name</TableHead>
+                            <TableHead>Report Stage</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Quantity</TableHead>
+                            <TableHead className="hidden md:table-cell">Date Submitted</TableHead>
+                            <TableHead>
+                                <span className="sr-only">Actions</span>
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell className="font-medium">{user?.name}</TableCell>
+                            <TableCell>
+                                <Select value={newReportStage} onValueChange={setNewReportStage}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Stage" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {reportStages.map(stage => (
+                                        <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </TableCell>
+                            <TableCell>
+                                <Select value={newReportType} onValueChange={setNewReportType}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select Type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {reportTypes.map(type => (
+                                        <SelectItem key={type} value={type}>{type}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </TableCell>
+                            <TableCell>
+                                <Input
+                                    type="number"
+                                    placeholder="e.g., 100"
+                                    value={newReportQuantity}
+                                    onChange={(e) => setNewReportQuantity(e.target.value)}
+                                />
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
+                                {new Date().toLocaleDateString()}
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <Button size="sm" onClick={handleAddReport}>
+                                <FilePlus className="mr-2 h-4 w-4" /> Submit
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
+      )}
 
       {reportsByEmployee.length > 0 ? (
         reportsByEmployee.map(({ employeeName, reports: employeeReports, summary }) => (
