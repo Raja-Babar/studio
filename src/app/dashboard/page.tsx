@@ -88,7 +88,7 @@ function AdminDashboard() {
     { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management', subtext: "+5.1% from last month" },
     { title: 'Projects Ongoing', value: '5', icon: Briefcase, subtext: "+1 from last month" },
     { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
-    { title: 'Scanning Progress', value: '75%', icon: BarChart, href: '/dashboard/scanning', subtext: "+2.1% from last month" },
+    { title: 'Digitization Progress', value: '75%', icon: BarChart, href: '/dashboard/scanning', subtext: "+2.1% from last month" },
   ];
 
   return (
