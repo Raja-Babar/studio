@@ -9,9 +9,17 @@ import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import type { AttendanceRecord } from '@/context/auth-provider';
+
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 
@@ -29,8 +37,16 @@ const getStatusVariant = (status: AttendanceStatus) => {
 };
 
 export default function AttendancePage() {
-  const { user, attendanceRecords } = useAuth();
+  const { user, attendanceRecords, updateAttendanceRecord, deleteAttendanceRecord } = useAuth();
+  const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
+  const [editedTimeIn, setEditedTimeIn] = useState('');
+  const [editedTimeOut, setEditedTimeOut] = useState('');
+  const [editedStatus, setEditedStatus] = useState<AttendanceStatus>('Not Marked');
+
 
   const isEmployee = user?.role === 'Employee';
 
@@ -109,6 +125,38 @@ export default function AttendancePage() {
 
     doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
   };
+  
+    const handleEditClick = (record: AttendanceRecord) => {
+        setSelectedRecord(record);
+        setEditedTimeIn(record.timeIn);
+        setEditedTimeOut(record.timeOut);
+        setEditedStatus(record.status as AttendanceStatus);
+        setIsEditDialogOpen(true);
+    };
+
+    const handleUpdateRecord = () => {
+        if (selectedRecord) {
+            updateAttendanceRecord(selectedRecord.employeeId, selectedRecord.date, {
+                timeIn: editedTimeIn,
+                timeOut: editedTimeOut,
+                status: editedStatus,
+            });
+            toast({
+                title: 'Record Updated',
+                description: 'The attendance record has been successfully updated.',
+            });
+            setIsEditDialogOpen(false);
+            setSelectedRecord(null);
+        }
+    };
+
+    const handleDeleteRecord = (employeeId: string, date: string) => {
+        deleteAttendanceRecord(employeeId, date);
+        toast({
+            title: 'Record Deleted',
+            description: 'The attendance record has been successfully deleted.',
+        });
+    };
 
   return (
     <div className="space-y-6">
@@ -161,6 +209,7 @@ export default function AttendancePage() {
                     <TableHead>Time In</TableHead>
                     <TableHead>Time Out</TableHead>
                     <TableHead>Status</TableHead>
+                    {!isEmployee && <TableHead><span className="sr-only">Actions</span></TableHead>}
                 </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -176,6 +225,44 @@ export default function AttendancePage() {
                                 {record.status}
                                 </Badge>
                             </TableCell>
+                            {!isEmployee && (
+                                <TableCell className="text-right">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                <MoreHorizontal className="h-4 w-4" />
+                                                <span className="sr-only">Toggle menu</span>
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                            <DropdownMenuItem onClick={() => handleEditClick(record)}>
+                                                <Edit className="mr-2 h-4 w-4" /> Edit
+                                            </DropdownMenuItem>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                                        <span className="text-destructive">Delete</span>
+                                                    </DropdownMenuItem>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to delete this attendance record? This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDeleteRecord(record.employeeId, record.date)}>Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </TableCell>
+                            )}
                         </TableRow>
                     ))
                 ) : (
@@ -191,7 +278,7 @@ export default function AttendancePage() {
                           </TableCell>
                          </>
                        ) : (
-                          <TableCell colSpan={5} className="text-center text-muted-foreground">
+                          <TableCell colSpan={isEmployee ? 5 : 6} className="text-center text-muted-foreground">
                               No attendance records for this month.
                           </TableCell>
                        )}
@@ -202,6 +289,46 @@ export default function AttendancePage() {
             </CardContent>
         </Card>
       </div>
+
+       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Attendance Record</DialogTitle>
+            <DialogDescription>
+              Make changes to the record for <span className="font-semibold">{selectedRecord?.name}</span> on <span className="font-semibold">{selectedRecord ? new Date(selectedRecord.date + 'T00:00:00').toLocaleDateString() : ''}</span>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="timeIn" className="text-right">Time In</Label>
+              <Input id="timeIn" value={editedTimeIn} onChange={(e) => setEditedTimeIn(e.target.value)} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="timeOut" className="text-right">Time Out</Label>
+                <Input id="timeOut" value={editedTimeOut} onChange={(e) => setEditedTimeOut(e.target.value)} className="col-span-3" />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">Status</Label>
+               <Select onValueChange={(value) => setEditedStatus(value as AttendanceStatus)} defaultValue={editedStatus}>
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select a status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Present">Present</SelectItem>
+                  <SelectItem value="Absent">Absent</SelectItem>
+                  <SelectItem value="Leave">Leave</SelectItem>
+                  <SelectItem value="Not Marked">Not Marked</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" onClick={handleUpdateRecord}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
+

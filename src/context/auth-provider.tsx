@@ -17,7 +17,7 @@ type User = {
 
 type StoredUser = User & { passwordHash: string };
 
-type AttendanceRecord = {
+export type AttendanceRecord = {
   employeeId: string;
   name: string;
   date: string;
@@ -49,6 +49,8 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
+  updateAttendanceRecord: (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => void;
+  deleteAttendanceRecord: (employeeId: string, date: string) => void;
   employeeReports: EmployeeReport[];
   addEmployeeReport: (report: Omit<EmployeeReport, 'id'> & { id?: string }) => void;
   updateEmployeeReport: (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => void;
@@ -332,6 +334,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAttendanceRecords(updatedAttendance);
     syncAttendanceToStorage(updatedAttendance);
   };
+  
+    const updateAttendanceRecord = (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => {
+        const updatedRecords = attendanceRecords.map(record =>
+            record.employeeId === employeeId && record.date === date ? { ...record, ...data } : record
+        );
+        setAttendanceRecords(updatedRecords);
+        syncAttendanceToStorage(updatedRecords);
+    };
+
+    const deleteAttendanceRecord = (employeeId: string, date: string) => {
+        const updatedRecords = attendanceRecords.filter(record => !(record.employeeId === employeeId && record.date === date));
+        setAttendanceRecords(updatedRecords);
+        syncAttendanceToStorage(updatedRecords);
+    };
+
 
     const addEmployeeReport = (report: Omit<EmployeeReport, 'id'> & { id?: string }) => {
         const newReport: EmployeeReport = {
@@ -409,7 +426,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport };
 
   if (isLoading) {
     return (

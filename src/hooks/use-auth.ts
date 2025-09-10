@@ -2,7 +2,7 @@
 'use client';
 
 import { useContext } from 'react';
-import { AuthContext } from '@/context/auth-provider';
+import { AuthContext, AttendanceRecord } from '@/context/auth-provider';
 
 type UserRole = 'Admin' | 'Employee';
 type User = {
@@ -12,15 +12,6 @@ type User = {
   role: UserRole;
 };
 type StoredUser = User & { passwordHash: string };
-
-type AttendanceRecord = {
-  employeeId: string;
-  name: string;
-  date: string;
-  timeIn: string;
-  timeOut: string;
-  status: 'Present' | 'Absent' | 'Leave' | 'Not Marked';
-};
 
 type EmployeeReport = {
     id: string;
@@ -45,6 +36,8 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
+  updateAttendanceRecord: (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => void;
+  deleteAttendanceRecord: (employeeId: string, date: string) => void;
   employeeReports: EmployeeReport[];
   addEmployeeReport: (report: Omit<EmployeeReport, 'id'> & { id?: string }) => void;
   updateEmployeeReport: (reportId: string, data: Partial<Omit<EmployeeReport, 'id'>>) => void;
