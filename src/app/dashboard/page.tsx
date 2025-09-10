@@ -19,7 +19,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-bold tracking-tight">Welcome, {user.name}!</h1>
+      <h1 className="text-3xl font-bold tracking-tight">Welcome, {user.name}!</h1>
       {user.role === 'Admin' ? (
         <AdminDashboard />
       ) : (
@@ -77,18 +77,18 @@ function AdminDashboard() {
 
   return (
     <div>
-      <h2 className="text-3xl font-semibold mb-4">Admin Overview</h2>
+      <h2 className="text-2xl font-semibold mb-4">Admin Overview</h2>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => {
             const cardContent = (
                  <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className={`text-base font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
+                    <CardTitle className={`text-sm font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
                     <stat.icon className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                     <div className="text-2xl font-bold">{stat.value || <>&nbsp;</>}</div>
-                    <p className="text-sm text-muted-foreground h-4">{stat.subtext || ''}</p>
+                    <p className="text-xs text-muted-foreground h-4">{stat.subtext || ''}</p>
                     </CardContent>
                 </Card>
             );
@@ -190,7 +190,7 @@ function EmployeeDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>My Attendance</CardTitle>
-          <p className="text-muted-foreground">Clock in and out for today.</p>
+          <p className="text-sm text-muted-foreground">Clock in and out for today.</p>
         </CardHeader>
         <CardContent className="flex flex-col items-start gap-4">
             <div className="flex w-full gap-4">
@@ -208,7 +208,7 @@ function EmployeeDashboard() {
       <Card className="lg:col-span-2">
         <CardHeader>
           <CardTitle>My Tasks</CardTitle>
-           <p className="text-muted-foreground">A list of your assigned reports and their current stages.</p>
+           <p className="text-sm text-muted-foreground">A list of your assigned reports and their current stages.</p>
         </CardHeader>
         <CardContent>
           <Table>
@@ -244,7 +244,7 @@ function EmployeeDashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Create Report</CardTitle>
-          <p className="text-muted-foreground">Start a new report submission.</p>
+          <p className="text-sm text-muted-foreground">Start a new report submission.</p>
         </CardHeader>
         <CardContent>
             <Link href="/dashboard/employee-reports">
