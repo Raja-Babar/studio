@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -118,6 +119,7 @@ export default function LoginPage() {
                     </p>
                     <p className="mt-2">Admin: admin@example.com / admin123</p>
                     <p>Employee: employee@example.com / emp123</p>
+                    <p>Supervisor: supervisor@example.com / super123</p>
                 </div>
               </form>
             </Form>
@@ -127,3 +129,5 @@ export default function LoginPage() {
     </main>
   );
 }
+
+    

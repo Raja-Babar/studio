@@ -8,11 +8,14 @@ import { useToast } from '@/hooks/use-toast';
 import { attendanceRecords as defaultAttendanceRecords, employeeReports as defaultEmployeeReports } from '@/lib/placeholder-data';
 
 type UserRole = 'Admin' | 'Employee';
+type UserStatus = 'Approved' | 'Pending';
+
 type User = {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  status: UserStatus;
 };
 
 type StoredUser = User & { passwordHash: string };
@@ -47,6 +50,7 @@ type AuthContextType = {
   resetUsers: () => Promise<void>;
   updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
+  approveUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
   updateAttendanceRecord: (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => void;
@@ -70,8 +74,9 @@ const simpleHash = async (text: string): Promise<string> => {
 };
 
 const getDefaultUsers = async (): Promise<{ [email: string]: StoredUser }> => ({
-  'admin@example.com': { id: 'EMP001', name: 'Ali Khan', email: 'admin@example.com', role: 'Admin', passwordHash: await simpleHash('admin123') },
-  'employee@example.com': { id: 'EMP101', name: 'Employee User', email: 'employee@example.com', role: 'Employee', passwordHash: await simpleHash('emp123') },
+  'admin@example.com': { id: 'EMP001', name: 'Ali Khan', email: 'admin@example.com', role: 'Admin', status: 'Approved', passwordHash: await simpleHash('admin123') },
+  'employee@example.com': { id: 'EMP101', name: 'Employee User', email: 'employee@example.com', role: 'Employee', status: 'Approved', passwordHash: await simpleHash('emp123') },
+  'supervisor@example.com': { id: 'EMP000', name: 'Supervisor', email: 'supervisor@example.com', role: 'Admin', status: 'Approved', passwordHash: await simpleHash('super123') },
 });
 
 
@@ -237,6 +242,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setTimeout(() => {
         const foundUser = mockUsers[email];
         if (foundUser && foundUser.passwordHash === passwordHash) {
+          if (foundUser.status === 'Pending') {
+            setIsLoading(false);
+            reject(new Error('Your account is pending approval.'));
+            return;
+          }
           const { passwordHash: _, ...userToStore } = foundUser;
           setUser(userToStore);
           localStorage.setItem('user', JSON.stringify(userToStore));
@@ -268,10 +278,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             .reduce((max, current) => Math.max(max, current), 0);
         const newIdNumber = maxId + 1;
         const id = `EMP${newIdNumber.toString().padStart(3, '0')}`;
+        
+        const status: UserStatus = role === 'Admin' ? 'Pending' : 'Approved';
 
         const passwordHash = await simpleHash(pass);
 
-        const newUser: StoredUser = { id, name, email, role, passwordHash };
+        const newUser: StoredUser = { id, name, email, role, passwordHash, status };
         const updatedUsers = { ...mockUsers, [email]: newUser };
         setMockUsers(updatedUsers);
         syncUsersToStorage(updatedUsers);
@@ -425,9 +437,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setMockUsers(remainingUsers);
     syncUsersToStorage(remainingUsers);
   };
+
+  const approveUser = async (email: string): Promise<void> => {
+    if (mockUsers[email]) {
+        const updatedUsers = { ...mockUsers };
+        updatedUsers[email].status = 'Approved';
+        setMockUsers(updatedUsers);
+        syncUsersToStorage(updatedUsers);
+    }
+  };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, approveUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport };
 
   if (isLoading) {
     return (
@@ -447,3 +468,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+    

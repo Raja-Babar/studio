@@ -5,12 +5,16 @@ import { useContext } from 'react';
 import { AuthContext, AttendanceRecord, EmployeeReport } from '@/context/auth-provider';
 
 type UserRole = 'Admin' | 'Employee';
+type UserStatus = 'Approved' | 'Pending';
+
 type User = {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  status: UserStatus;
 };
+
 type StoredUser = User & { passwordHash: string };
 
 type AuthContextType = {
@@ -24,6 +28,7 @@ type AuthContextType = {
   resetUsers: () => Promise<void>;
   updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
+  approveUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
   updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
   updateAttendanceRecord: (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => void;

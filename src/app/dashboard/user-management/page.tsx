@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Download, Trash2, Edit } from 'lucide-react';
+import { Download, Trash2, Edit, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -19,22 +19,26 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+type UserRole = 'Admin' | 'Employee';
+type UserStatus = 'Approved' | 'Pending';
+
 type User = {
     id: string;
     name: string;
     email: string;
-    role: 'Admin' | 'Employee';
+    role: UserRole;
+    status: UserStatus;
 };
 
 export default function UserManagementPage() {
-  const { user, getUsers, deleteUser, updateUser } = useAuth();
+  const { user, getUsers, deleteUser, updateUser, approveUser } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editedName, setEditedName] = useState('');
-  const [editedRole, setEditedRole] = useState<'Admin' | 'Employee'>('Employee');
+  const [editedRole, setEditedRole] = useState<UserRole>('Employee');
 
   useEffect(() => {
     if (user?.role !== 'Admin') {
@@ -48,8 +52,8 @@ export default function UserManagementPage() {
     const doc = new jsPDF();
     doc.text('Panhwar Portal Users Report', 14, 16);
     (doc as any).autoTable({
-        head: [['ID', 'Employee Name', 'Role', 'Email']],
-        body: allUsers.map(u => [u.id, u.name, u.role, u.email]),
+        head: [['ID', 'Employee Name', 'Role', 'Email', 'Status']],
+        body: allUsers.map(u => [u.id, u.name, u.role, u.email, u.status]),
         startY: 20
     });
     doc.save('panhwar_portal_users.pdf');
@@ -84,6 +88,23 @@ export default function UserManagementPage() {
       toast({ title: 'User Updated', description: 'User information has been updated.' });
       setIsEditDialogOpen(false);
       setSelectedUser(null);
+    }
+  };
+  
+  const handleApprove = async (email: string) => {
+    await approveUser(email);
+    setAllUsers(getUsers());
+    toast({ title: 'User Approved', description: 'The user has been approved and can now log in.' });
+  };
+
+  const getStatusVariant = (status: UserStatus) => {
+    switch (status) {
+        case 'Approved':
+            return 'secondary';
+        case 'Pending':
+            return 'destructive';
+        default:
+            return 'outline';
     }
   };
 
@@ -121,6 +142,7 @@ export default function UserManagementPage() {
                 <TableHead>Employee Name</TableHead>
                 <TableHead>Role</TableHead>
                 <TableHead>Email</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -135,7 +157,17 @@ export default function UserManagementPage() {
                     </Badge>
                   </TableCell>
                   <TableCell>{u.email}</TableCell>
+                   <TableCell>
+                    <Badge variant={getStatusVariant(u.status)}>
+                      {u.status}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right space-x-2">
+                      {user.email === 'supervisor@example.com' && u.status === 'Pending' && (
+                        <Button variant="outline" size="icon" onClick={() => handleApprove(u.email)}>
+                          <CheckCircle className="h-4 w-4 text-primary" />
+                        </Button>
+                      )}
                       <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)}>
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -210,3 +242,5 @@ export default function UserManagementPage() {
     </div>
   );
 }
+
+    
