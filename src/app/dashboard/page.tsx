@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -206,37 +206,19 @@ function EmployeeDashboard() {
         </CardContent>
       </Card>
       <Card>
-        <CardHeader>
-          <CardTitle>My Tasks</CardTitle>
-           <p className="text-muted-foreground">A list of your assigned reports and their current status.</p>
+        <CardHeader className="flex items-center justify-between">
+            <div>
+                <CardTitle>My Reports</CardTitle>
+                <p className="text-muted-foreground">View and manage your assigned reports.</p>
+            </div>
+            <Link href="/dashboard/employee-reports">
+                <Button variant="outline" size="icon">
+                    <ArrowRight className="h-4 w-4" />
+                </Button>
+            </Link>
         </CardHeader>
         <CardContent>
-           {employeeTasks.length > 0 ? (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Report Title</TableHead>
-                            <TableHead>Stage</TableHead>
-                            <TableHead>Assigned</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {employeeTasks.map((task) => (
-                            <TableRow key={task.title}>
-                                <TableCell className="font-medium">{task.title}</TableCell>
-                                <TableCell>
-                                    <Badge variant={getTaskStatusVariant(task.stage)}>
-                                        {task.stage}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{new Date(task.assignedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-              ) : (
-                <p className="text-muted-foreground">You have no assigned tasks.</p>
-              )}
+           <p className="text-muted-foreground">You have {employeeTasks.length} reports pending action.</p>
         </CardContent>
       </Card>
     </div>
