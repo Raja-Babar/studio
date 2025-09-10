@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon } from 'lucide-react';
+import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -44,6 +44,7 @@ export default function AttendancePage() {
   const { user, attendanceRecords, updateAttendanceRecord, deleteAttendanceRecord, getUsers } = useAuth();
   const { toast } = useToast();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [searchTerm, setSearchTerm] = useState('');
   
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
@@ -76,8 +77,10 @@ export default function AttendancePage() {
   }, [selectedDate, userAttendanceRecords]);
 
   const displayedRecords = useMemo(() => {
-    return monthlyRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  }, [monthlyRecords]);
+    return monthlyRecords
+        .filter(record => record.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    }, [monthlyRecords, searchTerm]);
 
   const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -157,13 +160,25 @@ export default function AttendancePage() {
             Viewing records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
+            {!isEmployee && (
+              <div className="relative w-full">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="search"
+                  placeholder="Search employees..."
+                  className="w-full rounded-lg bg-background pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            )}
             <Popover>
               <PopoverTrigger asChild>
                 <Button
                   variant={"outline"}
                   className={cn(
-                    "w-[280px] justify-start text-left font-normal",
+                    "w-full sm:w-[280px] justify-start text-left font-normal",
                     !selectedDate && "text-muted-foreground"
                   )}
                 >
@@ -180,7 +195,7 @@ export default function AttendancePage() {
                 />
               </PopoverContent>
             </Popover>
-             <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full">
+             <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full sm:w-auto">
                 <Download className="mr-2 h-4 w-4" /> Export PDF
             </Button>
         </div>
@@ -271,7 +286,7 @@ export default function AttendancePage() {
                          </>
                        ) : (
                           <TableCell colSpan={isEmployee ? 5 : 6} className="text-center text-muted-foreground">
-                              No attendance records for this month.
+                              No attendance records found.
                           </TableCell>
                        )}
                     </TableRow>
