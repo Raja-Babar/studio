@@ -94,6 +94,28 @@ export default function EmployeeReportsPage() {
         });
     }, [selectedDate, employeeReports]);
 
+    const summary = useMemo(() => {
+      const byStage: { [key: string]: number } = {};
+      const byType: { [key: string]: number } = {};
+      let totalQuantity = 0;
+  
+      monthlyReports.forEach(report => {
+        if (!byStage[report.stage]) {
+          byStage[report.stage] = 0;
+        }
+        byStage[report.stage] += report.quantity;
+  
+        if (!byType[report.type]) {
+          byType[report.type] = 0;
+        }
+        byType[report.type] += report.quantity;
+  
+        totalQuantity += report.quantity;
+      });
+  
+      return { byStage, byType, totalQuantity };
+    }, [monthlyReports]);
+
     const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -376,6 +398,61 @@ export default function EmployeeReportsPage() {
           </Table>
         </CardContent>
       </Card>
+
+      {monthlyReports.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Summary</CardTitle>
+            <CardDescription>
+              A summary of all scanning project reports for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="grid gap-6 md:grid-cols-2">
+              <div>
+                <h3 className="font-medium mb-2">Summary by Stage</h3>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Stage</TableHead>
+                      <TableHead className="text-right">Quantity</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {Object.entries(summary.byStage).map(([stage, quantity]) => (
+                      <TableRow key={stage}>
+                        <TableCell>{stage}</TableCell>
+                        <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <div>
+                <h3 className="font-medium mb-2">Summary by Type</h3>
+                 <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Type</TableHead>
+                      <TableHead className="text-right">Quantity</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {Object.entries(summary.byType).map(([type, quantity]) => (
+                      <TableRow key={type}>
+                        <TableCell>{type}</TableCell>
+                        <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                    <TableRow className="font-bold border-t-2">
+                        <TableCell>Grand Total</TableCell>
+                        <TableCell className="text-right">{summary.totalQuantity.toLocaleString()}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
+          </CardContent>
+        </Card>
+      )}
       
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[425px]">
