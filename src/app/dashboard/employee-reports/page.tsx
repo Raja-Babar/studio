@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Download } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -29,6 +29,9 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/use-auth';
 import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+
 
 const allEmployeeReports = [
   {
@@ -137,6 +140,26 @@ export default function EmployeeReportsPage() {
         month: 'long',
     });
 
+  const handleExportPDF = () => {
+    const doc = new jsPDF();
+    doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
+    const head = [['Employee Name', 'Report Title', 'Date Submitted', 'Stage', 'Books Scanned', 'Pages Scanned']];
+    const body = monthlyReports.map(r => [
+        r.employeeName,
+        r.reportTitle,
+        new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
+        r.stage,
+        r.booksScanned.toString(),
+        r.pagesScanned.toString()
+    ]);
+    (doc as any).autoTable({
+        head: head,
+        body: body,
+        startY: 20,
+    });
+    doc.save(`scanning_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
@@ -167,6 +190,9 @@ export default function EmployeeReportsPage() {
                     ))}
                 </SelectContent>
             </Select>
+            <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full">
+                <Download className="mr-2 h-4 w-4" /> Export PDF
+            </Button>
         </div>
       </div>
 
@@ -182,6 +208,7 @@ export default function EmployeeReportsPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Employee Name</TableHead>
+                <TableHead>Report Title</TableHead>
                 <TableHead>Report Stage</TableHead>
                 <TableHead>Books Scanned</TableHead>
                 <TableHead>Pages Scanned</TableHead>
@@ -196,6 +223,7 @@ export default function EmployeeReportsPage() {
                 monthlyReports.map((report) => (
                     <TableRow key={report.employeeId + report.submittedDate}>
                     <TableCell className="font-medium">{report.employeeName}</TableCell>
+                    <TableCell>{report.reportTitle}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{report.stage}</Badge>
                     </TableCell>
@@ -227,7 +255,7 @@ export default function EmployeeReportsPage() {
                 ))
               ) : (
                 <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center text-muted-foreground">
                         No scanning project reports found for this month.
                     </TableCell>
                 </TableRow>

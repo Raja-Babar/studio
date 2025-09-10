@@ -35,8 +35,6 @@ export default function UserManagementPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editedName, setEditedName] = useState('');
   const [editedRole, setEditedRole] = useState<'Admin' | 'Employee'>('Employee');
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
 
   useEffect(() => {
     if (user?.role !== 'Admin') {
@@ -94,25 +92,6 @@ export default function UserManagementPage() {
     return null;
   }
 
-  const handleMonthChange = (month: string) => {
-    const newDate = new Date(selectedDate);
-    newDate.setMonth(parseInt(month, 10));
-    newDate.setDate(1); 
-    setSelectedDate(newDate);
-  };
-
-  const handleYearChange = (year: string) => {
-    const newDate = new Date(selectedDate);
-    newDate.setFullYear(parseInt(year, 10));
-    newDate.setDate(1); 
-    setSelectedDate(newDate);
-  };
-
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 16 }, (_, i) => currentYear + 5 - i);
-  const months = Array.from({ length: 12 }, (_, i) => ({ value: i, name: new Date(0, i).toLocaleString('en-US', { month: 'long' }) }));
-
-
   return (
     <div className="space-y-6">
       <div>
@@ -129,26 +108,6 @@ export default function UserManagementPage() {
                 <CardDescription>A list of all registered users in the system.</CardDescription>
             </div>
             <div className="flex items-center gap-2">
-                 <Select onValueChange={handleMonthChange} defaultValue={selectedDate.getMonth().toString()}>
-                    <SelectTrigger className="w-full md:w-[180px]">
-                        <SelectValue placeholder="Select Month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {months.map(month => (
-                            <SelectItem key={month.value} value={month.value.toString()}>{month.name}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-                <Select onValueChange={handleYearChange} defaultValue={selectedDate.getFullYear().toString()}>
-                    <SelectTrigger className="w-full md:w-[120px]">
-                        <SelectValue placeholder="Select Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {years.map(year => (
-                            <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
                 <Button variant="outline" size="sm" onClick={handleExport} className="w-full md:w-auto">
                     <Download className="mr-2 h-4 w-4" /> Export PDF
                 </Button>
