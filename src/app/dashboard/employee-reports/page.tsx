@@ -49,7 +49,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useState, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -130,13 +130,12 @@ export default function EmployeeReportsPage() {
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
-    const autoTable = (doc as any).autoTable;
     let finalY = 20;
 
     doc.text(`Scanning Reports - ${selectedMonthFormatted}`, 14, 16);
 
     // Submitted Reports Table
-    autoTable({
+    autoTable(doc, {
         head: [['Employee Name', 'Date Submitted', 'Stage', 'Type', 'Quantity']],
         body: monthlyReports.map(r => [
             r.employeeName,
@@ -159,7 +158,7 @@ export default function EmployeeReportsPage() {
 
         // Summary by Stage Table
         doc.text('Summary by Stage', 14, finalY);
-        autoTable({
+        autoTable(doc, {
             head: [['Stage', 'Quantity']],
             body: Object.entries(summary.byStage).map(([stage, quantity]) => [stage, quantity.toLocaleString()]),
             startY: finalY + 2,
@@ -185,7 +184,7 @@ export default function EmployeeReportsPage() {
             return [[type, 'N/A', data.total.toLocaleString()]];
         });
 
-        autoTable({
+        autoTable(doc, {
             head: [['Type', 'Stage', 'Quantity']],
             body: byTypeBody,
             startY: finalY + 2,
@@ -585,7 +584,4 @@ export default function EmployeeReportsPage() {
       </Dialog>
     </div>
   );
-
-    
-
-
+}
