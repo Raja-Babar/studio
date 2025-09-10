@@ -177,17 +177,6 @@ function EmployeeDashboard() {
           <p className="text-muted-foreground">Clock in and out for today.</p>
         </CardHeader>
         <CardContent className="flex flex-col items-start gap-4">
-            <div className="w-full rounded-lg border bg-card text-card-foreground p-6 flex justify-around items-center">
-                <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Time In</p>
-                    <p className="text-2xl font-bold">{timeIn}</p>
-                </div>
-                <div className="h-12 w-px bg-border"></div>
-                <div className="text-center">
-                    <p className="text-sm text-muted-foreground">Time Out</p>
-                    <p className="text-2xl font-bold">{timeOut}</p>
-                </div>
-            </div>
             <div className="flex w-full gap-4">
                  <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn}>
                     <Clock className="mr-2 h-4 w-4" />
