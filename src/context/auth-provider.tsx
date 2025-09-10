@@ -54,7 +54,7 @@ const simpleHash = async (text: string): Promise<string> => {
 };
 
 const getDefaultUsers = async (): Promise<{ [email: string]: StoredUser }> => ({
-  'admin@example.com': { id: 'EMP000', name: 'Admin User', email: 'admin@example.com', role: 'Admin', passwordHash: await simpleHash('admin123') },
+  'admin@example.com': { id: 'EMP001', name: 'Ali Khan', email: 'admin@example.com', role: 'Admin', passwordHash: await simpleHash('admin123') },
   'employee@example.com': { id: 'EMP101', name: 'Employee User', email: 'employee@example.com', role: 'Employee', passwordHash: await simpleHash('emp123') },
 });
 
