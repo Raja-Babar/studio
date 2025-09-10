@@ -62,14 +62,22 @@ export default function DashboardPage() {
   );
 }
 
-const getTaskStatusVariant = (status: string) => {
-    switch (status) {
-        case 'Scanning':
-        return 'default';
-        case 'Completed':
-        return 'secondary';
+const getStageBadgeClass = (stage: string) => {
+    switch (stage.toLowerCase()) {
+        case 'completed':
+            return 'bg-green-600 text-white';
+        case 'scanning':
+            return 'bg-blue-500 text-white';
+        case 'scanning q-c':
+            return 'bg-yellow-500 text-black';
+        case 'pdf pages':
+            return 'bg-purple-500 text-white';
+        case 'pdf q-c':
+            return 'bg-orange-500 text-white';
+        case 'pdf uploading':
+            return 'bg-teal-500 text-white';
         default:
-        return 'outline';
+            return 'bg-gray-500 text-white';
     }
 };
 
@@ -274,7 +282,7 @@ function EmployeeDashboard() {
                   <TableRow key={task.id}>
                     <TableCell className="font-medium">{`${task.type} - ${task.quantity}`}</TableCell>
                     <TableCell>
-                      <Badge variant={getTaskStatusVariant(task.stage)}>{task.stage}</Badge>
+                      <Badge className={cn(getStageBadgeClass(task.stage))}>{task.stage}</Badge>
                     </TableCell>
                     <TableCell>{new Date(task.submittedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
                   </TableRow>
