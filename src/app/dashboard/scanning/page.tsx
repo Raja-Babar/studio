@@ -2,7 +2,7 @@
 // src/app/dashboard/scanning/page.tsx
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search } from 'lucide-react';
+import { MoreHorizontal, Search, X } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -57,8 +57,6 @@ type ScanningRecord = {
   month: string;
 };
 
-const initialScanningRecords: ScanningRecord[] = JSON.parse(scanningProgressRecordsJSON);
-
 const getStatusClasses = (status: string) => {
   switch (status.toLowerCase()) {
     case 'completed':
@@ -92,18 +90,73 @@ const statusOptions = [
 
 
 export default function ScanningPage() {
-  const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>(initialScanningRecords);
+  const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>([]);
+
+  useEffect(() => {
+    try {
+      const storedRecords = localStorage.getItem('scanningProgressRecords');
+      setScanningRecords(storedRecords ? JSON.parse(storedRecords) : JSON.parse(scanningProgressRecordsJSON));
+    } catch (e) {
+      setScanningRecords(JSON.parse(scanningProgressRecordsJSON));
+    }
+  }, []);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   const [editedStatus, setEditedStatus] = useState('');
   const { toast } = useToast();
 
+  const [filters, setFilters] = useState({
+    year: '',
+    status: '',
+    scanned_by: '',
+    assigned_to: '',
+    source: '',
+    month: '',
+  });
+
+  const filterOptions = useMemo(() => {
+    const options = {
+      year: new Set<string>(),
+      status: new Set<string>(),
+      scanned_by: new Set<string>(),
+      assigned_to: new Set<string>(),
+      source: new Set<string>(),
+      month: new Set<string>(),
+    };
+    scanningRecords.forEach(record => {
+      options.year.add(record.year);
+      options.status.add(record.status);
+      if (record.scanned_by) options.scanned_by.add(record.scanned_by);
+      if (record.assigned_to) options.assigned_to.add(record.assigned_to);
+      options.source.add(record.source);
+      options.month.add(record.month);
+    });
+    return {
+      year: Array.from(options.year).sort(),
+      status: Array.from(options.status).sort(),
+      scanned_by: Array.from(options.scanned_by).sort(),
+      assigned_to: Array.from(options.assigned_to).sort(),
+      source: Array.from(options.source).sort(),
+      month: Array.from(options.month).sort(),
+    };
+  }, [scanningRecords]);
+
   const filteredRecords = useMemo(() => {
-    return scanningRecords.filter(record =>
-      record.title_english.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [scanningRecords, searchTerm]);
+    return scanningRecords.filter(record => {
+      return (
+        record.title_english.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (filters.year ? record.year === filters.year : true) &&
+        (filters.status ? record.status === filters.status : true) &&
+        (filters.scanned_by ? record.scanned_by === filters.scanned_by : true) &&
+        (filters.assigned_to ? record.assigned_to === filters.assigned_to : true) &&
+        (filters.source ? record.source === filters.source : true) &&
+        (filters.month ? record.month === filters.month : true)
+      );
+    });
+  }, [scanningRecords, searchTerm, filters]);
+
 
   const formatDateTime = (isoString: string) => {
     if (!isoString) return 'N/A';
@@ -125,11 +178,29 @@ export default function ScanningPage() {
         : record
       );
       setScanningRecords(updatedRecords);
+      localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
       toast({ title: 'Status Updated', description: `Status for "${selectedRecord.title_english}" has been updated.` });
       setIsEditDialogOpen(false);
       setSelectedRecord(null);
     }
   };
+  
+  const handleFilterChange = (filterName: keyof typeof filters, value: string) => {
+    setFilters(prev => ({...prev, [filterName]: value}));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      year: '',
+      status: '',
+      scanned_by: '',
+      assigned_to: '',
+      source: '',
+      month: '',
+    });
+  };
+
+  const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
   return (
     <div className="space-y-6">
@@ -159,6 +230,50 @@ export default function ScanningPage() {
                         />
                     </div>
                 </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 pt-4">
+                  <Select value={filters.year} onValueChange={(v) => handleFilterChange('year', v)}>
+                    <SelectTrigger><SelectValue placeholder="Year" /></SelectTrigger>
+                    <SelectContent>
+                      {filterOptions.year.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filters.status} onValueChange={(v) => handleFilterChange('status', v)}>
+                    <SelectTrigger><SelectValue placeholder="Status" /></SelectTrigger>
+                    <SelectContent>
+                      {filterOptions.status.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                   <Select value={filters.scanned_by} onValueChange={(v) => handleFilterChange('scanned_by', v)}>
+                    <SelectTrigger><SelectValue placeholder="Scanned By" /></SelectTrigger>
+                    <SelectContent>
+                      {filterOptions.scanned_by.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filters.assigned_to} onValueChange={(v) => handleFilterChange('assigned_to', v)}>
+                    <SelectTrigger><SelectValue placeholder="Assigned To" /></SelectTrigger>
+                    <SelectContent>
+                      {filterOptions.assigned_to.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filters.source} onValueChange={(v) => handleFilterChange('source', v)}>
+                    <SelectTrigger><SelectValue placeholder="Source" /></SelectTrigger>
+                    <SelectContent>
+                      {filterOptions.source.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filters.month} onValueChange={(v) => handleFilterChange('month', v)}>
+                    <SelectTrigger><SelectValue placeholder="Month" /></SelectTrigger>
+                    <SelectContent>
+                      {filterOptions.month.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {activeFilterCount > 0 && (
+                    <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground">
+                      <X className="mr-2 h-4 w-4" />
+                      Clear Filters
+                    </Button>
+                  )}
               </div>
             </CardHeader>
             <CardContent>
@@ -224,8 +339,6 @@ export default function ScanningPage() {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                             <DropdownMenuItem onClick={() => handleEditClick(record)}>Edit</DropdownMenuItem>
-                                            <DropdownMenuItem>View Details</DropdownMenuItem>
-                                            <DropdownMenuItem>Update Status</DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
@@ -270,4 +383,3 @@ export default function ScanningPage() {
     </div>
   );
 }
-
