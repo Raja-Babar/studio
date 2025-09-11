@@ -261,7 +261,7 @@ export default function AutoGenerateBillPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="bookTitleSindhi" className="font-sindhi text-lg text-white" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
+              <Label htmlFor="bookTitleSindhi" className="font-sindhi text-lg">ڪتاب جو عنوان / ليکڪ</Label>
               <Input
                 id="bookTitleSindhi"
                 value={bookTitleSindhi}
@@ -274,28 +274,28 @@ export default function AutoGenerateBillPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="purchaserName">Purchaser Name</Label>
-                <span className="font-sindhi text-lg text-white" dir="rtl">خريدار جو نالو</span>
+                <span className="font-sindhi text-lg" dir="rtl">خريدار جو نالو</span>
               </div>
               <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="quantity">Quantity Sold</Label>
-                <span className="font-sindhi text-lg text-white" dir="rtl">وڪرو ٿيل مقدار</span>
+                <span className="font-sindhi text-lg" dir="rtl">وڪرو ٿيل مقدار</span>
               </div>
               <Input id="quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 2" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
-                <span className="font-sindhi text-lg text-white" dir="rtl">يونٽ جي قيمت (روپيا)</span>
+                <span className="font-sindhi text-lg" dir="rtl">يونٽ جي قيمت (روپيا)</span>
               </div>
               <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
             </div>
             <div className="space-y-2">
                <div className="flex items-center justify-between">
                 <Label htmlFor="discountPercent">Discount %</Label>
-                <span className="font-sindhi text-lg text-white" dir="rtl">رعايت٪</span>
+                <span className="font-sindhi text-lg" dir="rtl">رعايت٪</span>
               </div>
               <Input id="discountPercent" type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} placeholder="e.g., 10" />
             </div>
@@ -470,5 +470,7 @@ export default function AutoGenerateBillPage() {
         </Dialog>
     </div>
   );
+
+    
 
     
