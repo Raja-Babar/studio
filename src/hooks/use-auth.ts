@@ -2,7 +2,7 @@
 'use client';
 
 import { useContext } from 'react';
-import { AuthContext, AttendanceRecord, EmployeeReport } from '@/context/auth-provider';
+import { AuthContext, AttendanceRecord, EmployeeReport, ScanningRecord } from '@/context/auth-provider';
 
 type UserRole = 'Admin' | 'Employee';
 type UserStatus = 'Approved' | 'Pending';
@@ -39,6 +39,7 @@ type AuthContextType = {
   deleteEmployeeReport: (reportId: string) => void;
   requiredIp: string;
   setRequiredIp: (ip: string) => void;
+  importScanningRecords: (records: ScanningRecord[]) => void;
 };
 
 export const useAuth = (): AuthContextType => {

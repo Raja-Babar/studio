@@ -2,7 +2,7 @@
 // src/app/dashboard/scanning/page.tsx
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -35,6 +35,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/use-auth';
+import Papa from 'papaparse';
+
 
 type ScanningRecord = {
   book_id: string;
@@ -58,7 +61,7 @@ type ScanningRecord = {
 };
 
 const getStatusClasses = (status: string) => {
-  switch (status.toLowerCase()) {
+  switch (status?.toLowerCase()) {
     case 'completed':
       return 'bg-primary text-primary-foreground hover:bg-primary/80';
     case 'uploading':
@@ -90,7 +93,9 @@ const statusOptions = [
 
 
 export default function ScanningPage() {
+  const { importScanningRecords } = useAuth();
   const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     try {
@@ -202,12 +207,58 @@ export default function ScanningPage() {
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length;
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          importScanningRecords(results.data as ScanningRecord[]);
+          setScanningRecords(results.data as ScanningRecord[]);
+          toast({
+            title: "Import Successful",
+            description: `${results.data.length} records have been imported.`,
+          });
+        },
+        error: (error) => {
+          toast({
+            variant: "destructive",
+            title: "Import Failed",
+            description: error.message,
+          });
+        },
+      });
+    }
+  };
+
+
   return (
     <div className="space-y-6">
        <div>
             <h1 className="text-3xl font-bold tracking-tight">I.T &amp; Scanning</h1>
             <p className="text-muted-foreground mt-2">Monitor the book scanning and digitization workflow.</p>
        </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Import from CSV</CardTitle>
+                <CardDescription>Upload a CSV file to populate the digitization progress table.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <Input
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                />
+                <Button onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import CSV
+                </Button>
+            </CardContent>
+        </Card>
 
         <Card>
             <CardHeader>

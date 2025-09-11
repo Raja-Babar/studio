@@ -5,7 +5,7 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { attendanceRecords as defaultAttendanceRecords, employeeReports as defaultEmployeeReports } from '@/lib/placeholder-data';
+import { attendanceRecords as defaultAttendanceRecords, employeeReports as defaultEmployeeReports, scanningProgressRecords as defaultScanningProgressRecords } from '@/lib/placeholder-data';
 
 type UserRole = 'Admin' | 'Employee';
 type UserStatus = 'Approved' | 'Pending';
@@ -39,6 +39,28 @@ export type EmployeeReport = {
     quantity: number;
 };
 
+export type ScanningRecord = {
+  book_id: string;
+  file_name: string;
+  file_name_sindhi: string;
+  title_english: string;
+  title_sindhi: string;
+  author_english: string;
+  author_sindhi: string;
+  year: string;
+  language: string;
+  link: string;
+  status: string;
+  scanned_by: string | null;
+  assigned_to: string | null;
+  source: string;
+  created_time: string;
+  last_edited_time: string;
+  last_edited_by: string | null;
+  month: string;
+};
+
+
 type AuthContextType = {
   user: User | null;
   login: (email: string, pass: string) => Promise<void>;
@@ -61,6 +83,7 @@ type AuthContextType = {
   deleteEmployeeReport: (reportId: string) => void;
   requiredIp: string;
   setRequiredIp: (ip: string) => void;
+  importScanningRecords: (records: ScanningRecord[]) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -122,6 +145,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Failed to save employee reports to localStorage", error);
     }
   }, []);
+
+  const syncScanningToStorage = useCallback((records: ScanningRecord[]) => {
+    try {
+      localStorage.setItem('scanningProgressRecords', JSON.stringify(records));
+    } catch (error) {
+      console.error("Failed to save scanning records to localStorage", error);
+    }
+  }, []);
+  
+  const importScanningRecords = (records: ScanningRecord[]) => {
+    syncScanningToStorage(records);
+  };
+
 
   const setRequiredIp = (ip: string) => {
     localStorage.setItem('requiredIp', ip);
@@ -187,6 +223,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setEmployeeReports(storedReports);
 
+      try {
+        const scanningFromStorage = localStorage.getItem('scanningProgressRecords');
+        if (!scanningFromStorage) {
+            syncScanningToStorage(JSON.parse(defaultScanningProgressRecords));
+        }
+      } catch (error) {
+        console.error("Failed to parse scanning records from localStorage, resetting to default.", error);
+        syncScanningToStorage(JSON.parse(defaultScanningProgressRecords));
+      }
+
+
       const storedIp = localStorage.getItem('requiredIp');
       if (storedIp) {
         setRequiredIpState(storedIp);
@@ -214,7 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     initAuth();
-  }, [syncUsersToStorage, syncAttendanceToStorage, syncReportsToStorage]);
+  }, [syncUsersToStorage, syncAttendanceToStorage, syncReportsToStorage, syncScanningToStorage]);
 
   useEffect(() => {
     let activityTimer: NodeJS.Timeout;
@@ -480,7 +527,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, approveUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, requiredIp, setRequiredIp };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, approveUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, requiredIp, setRequiredIp, importScanningRecords };
 
   if (isLoading) {
     return (
