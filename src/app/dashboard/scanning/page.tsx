@@ -96,6 +96,7 @@ export default function ScanningPage() {
   const { importScanningRecords } = useAuth();
   const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     try {
@@ -110,7 +111,6 @@ export default function ScanningPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   const [editedStatus, setEditedStatus] = useState('');
-  const { toast } = useToast();
 
   const [filters, setFilters] = useState({
     year: '',
@@ -214,12 +214,20 @@ export default function ScanningPage() {
         header: true,
         skipEmptyLines: true,
         complete: (results) => {
-          importScanningRecords(results.data as ScanningRecord[]);
-          setScanningRecords(results.data as ScanningRecord[]);
-          toast({
-            title: "Import Successful",
-            description: `${results.data.length} records have been imported.`,
-          });
+          try {
+            importScanningRecords(results.data as ScanningRecord[]);
+            setScanningRecords(results.data as ScanningRecord[]);
+            toast({
+              title: "Import Successful",
+              description: `${results.data.length} records have been imported.`,
+            });
+          } catch (e: any) {
+             toast({
+                variant: "destructive",
+                title: "Import Failed",
+                description: e.message || "An unknown error occurred.",
+              });
+          }
         },
         error: (error) => {
           toast({

@@ -151,11 +151,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('scanningProgressRecords', JSON.stringify(records));
     } catch (error) {
       console.error("Failed to save scanning records to localStorage", error);
+      if (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22)) {
+         throw new Error("The file is too large to be saved. Please use a smaller file.");
+      }
+      throw error;
     }
   }, []);
   
   const importScanningRecords = (records: ScanningRecord[]) => {
-    syncScanningToStorage(records);
+    try {
+      syncScanningToStorage(records);
+    } catch (error: any) {
+        throw error;
+    }
   };
 
 
@@ -230,7 +238,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error("Failed to parse scanning records from localStorage, resetting to default.", error);
-        syncScanningToStorage(JSON.parse(defaultScanningProgressRecords));
+        if (!(error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22))) {
+           syncScanningToStorage(JSON.parse(defaultScanningProgressRecords));
+        }
       }
 
 
