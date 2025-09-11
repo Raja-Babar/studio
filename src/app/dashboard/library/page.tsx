@@ -206,10 +206,12 @@ export default function AutoGenerateBillPage() {
         fontStyle: 'bold',
       },
       didParseCell: function(data: any) {
+        // Check for Sindhi characters in the specific columns
         if (data.column.dataKey === 0 || data.column.dataKey === 1) { 
              const text = data.cell.raw as string;
+             // A simple regex to detect Arabic script characters
              if (/[\u0600-\u06FF]/.test(text)) {
-                 data.cell.styles.font = 'helvetica';
+                 data.cell.styles.font = 'helvetica'; // A font with better unicode support
                  data.cell.styles.halign = 'right';
              }
         }
@@ -513,5 +515,7 @@ export default function AutoGenerateBillPage() {
         </Dialog>
     </div>
   );
+
+    
 
     
