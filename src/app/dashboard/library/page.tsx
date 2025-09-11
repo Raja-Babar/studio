@@ -429,6 +429,7 @@ export default function AutoGenerateBillPage() {
                     <TableRow>
                         <TableHead>Bill ID</TableHead>
                         <TableHead>Purchaser Name</TableHead>
+                        <TableHead>Book Title(s)</TableHead>
                         <TableHead>Date</TableHead>
                         <TableHead>Total Amount (Rs.)</TableHead>
                         <TableHead><span className="sr-only">Actions</span></TableHead>
@@ -440,6 +441,10 @@ export default function AutoGenerateBillPage() {
                             <TableRow key={bill.id}>
                                 <TableCell className="font-medium">{bill.id}</TableCell>
                                 <TableCell>{bill.purchaserName}</TableCell>
+                                <TableCell>
+                                    {bill.entries[0]?.bookTitle}
+                                    {bill.entries.length > 1 && ` (+${bill.entries.length - 1} more)`}
+                                </TableCell>
                                 <TableCell>{bill.date}</TableCell>
                                 <TableCell className="font-semibold">{bill.totalAmount.toFixed(2)}</TableCell>
                                 <TableCell className="text-right">
@@ -452,7 +457,7 @@ export default function AutoGenerateBillPage() {
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={5} className="h-24 text-center">
+                            <TableCell colSpan={6} className="h-24 text-center">
                                 No bills have been generated yet.
                             </TableCell>
                         </TableRow>
@@ -509,3 +514,4 @@ export default function AutoGenerateBillPage() {
     </div>
   );
 
+    
