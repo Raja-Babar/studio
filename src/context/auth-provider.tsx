@@ -34,6 +34,7 @@ export type EmployeeReport = {
     employeeId: string;
     employeeName: string;
     submittedDate: string;
+    submittedTime: string;
     stage: string;
     type: string;
     quantity: number;

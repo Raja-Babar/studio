@@ -174,9 +174,10 @@ export default function EmployeeReportsPage() {
 
         // Submitted Reports Table
         autoTable(doc, {
-            head: [['Date Submitted', 'Stage', 'Type', 'Quantity']],
+            head: [['Date Submitted', 'Time Submitted', 'Stage', 'Type', 'Quantity']],
             body: reports.map(r => [
                 new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
+                r.submittedTime || '--:--',
                 r.stage,
                 r.type,
                 r.quantity.toString(),
@@ -235,11 +236,13 @@ export default function EmployeeReportsPage() {
 
 
     if (user) {
+      const now = new Date();
       addEmployeeReport({
         id: `REP-${Date.now()}`,
         employeeId: user.id,
         employeeName: user.name,
-        submittedDate: new Date().toISOString().split('T')[0],
+        submittedDate: now.toISOString().split('T')[0],
+        submittedTime: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
         stage: newReportStage,
         type: newReportType,
         quantity: quantity,
@@ -432,6 +435,7 @@ export default function EmployeeReportsPage() {
                             <TableHeader>
                             <TableRow>
                                 <TableHead>Date Submitted</TableHead>
+                                <TableHead>Time Submitted</TableHead>
                                 <TableHead>Report Stage</TableHead>
                                 <TableHead>Type</TableHead>
                                 <TableHead>Quantity</TableHead>
@@ -445,9 +449,10 @@ export default function EmployeeReportsPage() {
                             <TableBody>
                             {employeeReports.map((report) => (
                                 <TableRow key={report.id}>
-                                <TableCell className="hidden md:table-cell">
+                                <TableCell>
                                     {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                                 </TableCell>
+                                <TableCell>{report.submittedTime || '--:--'}</TableCell>
                                 <TableCell>
                                     <Badge className={cn(getStageBadgeClass(report.stage))}>{report.stage}</Badge>
                                 </TableCell>
