@@ -214,7 +214,7 @@ export default function EmployeeReportsPage() {
         month: 'long',
     });
 
-    const handleExportPDF = () => {
+    const handleExportAllPDF = () => {
       const doc = new jsPDF();
       let finalY = 20;
   
@@ -224,10 +224,10 @@ export default function EmployeeReportsPage() {
       doc.text(`A summary of all digitization reports for ${selectedMonthFormatted}.`, 14, finalY);
       finalY += 8;
 
-      reportsByEmployee.forEach(({ employeeName, reports, summary }, index) => {
-        if (index > 0) {
-          finalY += 10;
-        }
+      reportsByEmployee.forEach(({ employeeName, reports, summary }) => {
+        doc.addPage();
+        finalY = 20;
+        doc.setPage(doc.internal.getNumberOfPages());
 
         doc.setFontSize(12);
         doc.text(`Employee: ${employeeName}`, 14, finalY);
@@ -271,8 +271,62 @@ export default function EmployeeReportsPage() {
             finalY = (doc as any).lastAutoTable.finalY;
         }
       });
+      
+      doc.deletePage(1); // Delete the initial blank page
   
-      doc.save(`digitization_reports_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+      doc.save(`digitization_reports_all_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+    };
+    
+    const handleExportSinglePDF = (employeeData: { employeeName: string; reports: CombinedRecord[]; summary: { byStage: { [key: string]: number } } }) => {
+        const { employeeName, reports, summary } = employeeData;
+        const doc = new jsPDF();
+        let finalY = 20;
+    
+        doc.text(`Digitization Report - ${selectedMonthFormatted}`, 14, 16);
+        finalY = 22;
+        
+        doc.setFontSize(12);
+        doc.text(`Employee: ${employeeName}`, 14, finalY);
+        finalY += 10;
+
+        // Submitted Reports Table
+        autoTable(doc, {
+            head: [['Date Submitted', 'Time Submitted', 'Stage', 'Type', 'Quantity']],
+            body: reports.filter(r => !r.isLeaveRecord).map(r => [
+                new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
+                (r as EmployeeReport).submittedTime || '--:--',
+                r.stage,
+                r.type,
+                r.quantity?.toString(),
+            ]),
+            startY: finalY,
+            didDrawPage: function (data: any) {
+                finalY = data.cursor.y;
+            }
+        });
+
+        finalY = (doc as any).lastAutoTable.finalY + 10;
+  
+        if (Object.keys(summary.byStage).length > 0) {
+            doc.setFontSize(12);
+            doc.text('Monthly Summary by Stage', 14, finalY);
+            finalY += 5;
+    
+            // Summary by Stage Table
+            autoTable(doc, {
+                head: [['Stage', 'Quantity']],
+                body: Object.entries(summary.byStage).map(([stage, quantity]) => [stage, quantity.toLocaleString()]),
+                startY: finalY + 2,
+                margin: { left: 14 },
+                tableWidth: 'auto',
+                didDrawPage: (data: any) => {
+                    finalY = data.cursor.y;
+                }
+            });
+            finalY = (doc as any).lastAutoTable.finalY;
+        }
+      
+        doc.save(`digitization_report_${employeeName.replace(' ', '_')}_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
     };
 
   const handleAddReport = () => {
@@ -438,8 +492,8 @@ export default function EmployeeReportsPage() {
                     />
                 </PopoverContent>
             </Popover>
-            <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full sm:w-auto">
-                <Download className="mr-2 h-4 w-4" /> Export PDF
+            <Button variant="outline" size="sm" onClick={handleExportAllPDF} className="w-full sm:w-auto">
+                <Download className="mr-2 h-4 w-4" /> Export All PDF
             </Button>
         </div>
       </div>
@@ -514,7 +568,8 @@ export default function EmployeeReportsPage() {
       )}
 
       {reportsByEmployee.length > 0 ? (
-        reportsByEmployee.map(({ employeeId, employeeName, reports: employeeCombinedRecords, summary }) => {
+        reportsByEmployee.map((employeeData) => {
+            const { employeeId, employeeName, reports: employeeCombinedRecords, summary } = employeeData;
             const selectableReports = employeeCombinedRecords.filter(r => !r.isLeaveRecord);
             const isAllSelected = selectableReports.length > 0 && selectedReportIds.length === selectableReports.length;
             const isExpanded = expandedEmployees.includes(employeeId);
@@ -523,11 +578,16 @@ export default function EmployeeReportsPage() {
 
             return (
                 <Card key={employeeId}>
-                    <CardHeader>
-                        <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
-                        <CardDescription>
-                            Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
-                        </CardDescription>
+                    <CardHeader className="flex flex-row items-start justify-between">
+                        <div>
+                            <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
+                            <CardDescription>
+                                Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+                            </CardDescription>
+                        </div>
+                        <Button variant="outline" size="sm" onClick={() => handleExportSinglePDF(employeeData)}>
+                            <Download className="mr-2 h-4 w-4" /> Export PDF
+                        </Button>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div>
