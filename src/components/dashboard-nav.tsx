@@ -21,15 +21,24 @@ import {
   Users,
   FileText,
   FileSignature,
+  ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
 
 const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
-  { href: '/dashboard/scanning', icon: ScanLine, label: 'I.T & Scanning-Section' },
-  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
+];
+
+const itScanningSubItems = [
+    { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
+];
+
+const mainNavItemsAfter = [
   { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
   { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
@@ -37,7 +46,6 @@ const mainNavItems = [
   { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
   { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
 ];
-
 
 const employeeNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -48,17 +56,15 @@ const employeeNavItems = [
 export function DashboardNav() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [isItScanningOpen, setIsItScanningOpen] = useState(pathname.startsWith('/dashboard/employee-reports'));
 
   const isAdmin = user?.role === 'Admin';
   
-  const navItems = isAdmin 
-    ? mainNavItems
-    : employeeNavItems;
-
-  return (
-      <SidebarContent className="p-2">
+  if (!isAdmin) {
+    return (
+       <SidebarContent className="p-2">
           <SidebarMenu>
-              {navItems.map((item, index) => (
+              {employeeNavItems.map((item, index) => (
               <SidebarMenuItem key={`${item.href}-${index}`}>
                   <Link href={item.href}>
                   <SidebarMenuButton
@@ -71,6 +77,76 @@ export function DashboardNav() {
                   </Link>
               </SidebarMenuItem>
               ))}
+          </SidebarMenu>
+      </SidebarContent>
+    );
+  }
+
+  return (
+      <SidebarContent className="p-2">
+          <SidebarMenu>
+              {mainNavItems.map((item, index) => (
+              <SidebarMenuItem key={`${item.href}-${index}`}>
+                  <Link href={item.href}>
+                  <SidebarMenuButton
+                      isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
+                      tooltip={item.label}
+                  >
+                      <item.icon />
+                      <span>{item.label}</span>
+                  </SidebarMenuButton>
+                  </Link>
+              </SidebarMenuItem>
+              ))}
+
+            <Collapsible open={isItScanningOpen} onOpenChange={setIsItScanningOpen}>
+                <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                        <SidebarMenuButton tooltip="I.T & Scanning-Section" className="w-full justify-between">
+                            <div className="flex items-center gap-2">
+                                <ScanLine />
+                                <span>I.T & Scanning-Section</span>
+                            </div>
+                            <ChevronDown className={cn("h-4 w-4 transition-transform", isItScanningOpen && "rotate-180")} />
+                        </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                </SidebarMenuItem>
+                <CollapsibleContent>
+                    <div className="pl-6">
+                        <SidebarMenu>
+                            {itScanningSubItems.map((item, index) => (
+                                <SidebarMenuItem key={`${item.href}-${index}`}>
+                                    <Link href={item.href}>
+                                        <SidebarMenuButton
+                                            isActive={pathname.startsWith(item.href)}
+                                            tooltip={item.label}
+                                            variant="ghost"
+                                        >
+                                            <item.icon />
+                                            <span>{item.label}</span>
+                                        </SidebarMenuButton>
+                                    </Link>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
+
+
+              {mainNavItemsAfter.map((item, index) => (
+                <SidebarMenuItem key={`${item.href}-${index}`}>
+                    <Link href={item.href}>
+                    <SidebarMenuButton
+                        isActive={pathname.startsWith(item.href)}
+                        tooltip={item.label}
+                    >
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
+                ))}
           </SidebarMenu>
       </SidebarContent>
   )
