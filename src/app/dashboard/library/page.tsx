@@ -26,8 +26,6 @@ import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { parseBillEntry } from './actions';
 
 
 type BillEntry = {
@@ -55,9 +53,14 @@ export default function AutoGenerateBillPage() {
   const [billEntries, setBillEntries] = useState<BillEntry[]>([]);
   const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>([]);
   const [nextEntryId, setNextEntryId] = useState(1);
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const [naturalLanguageInput, setNaturalLanguageInput] = useState('');
+  const [bookTitle, setBookTitle] = useState('');
+  const [bookTitleSindhi, setBookTitleSindhi] = useState('');
+  const [language, setLanguage] = useState('');
+  const [purchaserName, setPurchaserName] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [unitPrice, setUnitPrice] = useState('');
+  const [discountPercent, setDiscountPercent] = useState('0');
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<BillEntry | null>(null);
@@ -71,58 +74,49 @@ export default function AutoGenerateBillPage() {
     discountPercent: '',
   });
 
-  const handleAddEntry = async () => {
-    if (!naturalLanguageInput.trim()) {
+  const handleAddEntry = () => {
+    const qty = parseFloat(quantity);
+    const price = parseFloat(unitPrice);
+    const discount = parseFloat(discountPercent);
+
+    if (!bookTitle || !purchaserName || isNaN(qty) || isNaN(price) || qty <= 0 || price < 0) {
       toast({
         variant: 'destructive',
-        title: 'Missing Input',
-        description: 'Please enter the bill details in the text area.',
+        title: 'Missing or Invalid Fields',
+        description: 'Please fill in all required fields with valid values.',
       });
       return;
     }
 
-    setIsProcessing(true);
-    try {
-      const result = await parseBillEntry(naturalLanguageInput);
-      if (result.success && result.data) {
-        const { bookTitle, purchaserName, quantity, unitPrice, discount } = result.data;
-        const newBillEntry: BillEntry = {
-          id: nextEntryId,
-          bookTitle: bookTitle,
-          bookTitleSindhi: '', // AI doesn't provide this yet
-          language: '', // AI doesn't provide this yet
-          purchaserName: purchaserName,
-          date: new Date().toLocaleDateString('en-US'),
-          quantity: quantity,
-          unitPrice: unitPrice,
-          discountPercent: discount,
-        };
+    const newBillEntry: BillEntry = {
+      id: nextEntryId,
+      bookTitle,
+      bookTitleSindhi,
+      language,
+      purchaserName,
+      date: new Date().toLocaleDateString('en-US'),
+      quantity: qty,
+      unitPrice: price,
+      discountPercent: isNaN(discount) ? 0 : discount,
+    };
 
-        setBillEntries(prev => [...prev, newBillEntry]);
-        setNextEntryId(prev => prev + 1);
-        setNaturalLanguageInput(''); // Clear input on success
-        toast({
-          title: 'Entry Added',
-          description: `Added "${bookTitle}" to the bill.`,
-        });
-      } else {
-        toast({
-          variant: 'destructive',
-          title: 'Parsing Failed',
-          description: result.error || 'Could not understand the input. Please try again.',
-        });
-      }
-    } catch (error) {
-       toast({
-          variant: 'destructive',
-          title: 'Error',
-          description: 'An error occurred while processing your request.',
-        });
-    } finally {
-      setIsProcessing(false);
-    }
+    setBillEntries(prev => [...prev, newBillEntry]);
+    setNextEntryId(prev => prev + 1);
+
+    // Reset form
+    setBookTitle('');
+    setBookTitleSindhi('');
+    setLanguage('');
+    setPurchaserName('');
+    setQuantity('');
+    setUnitPrice('');
+    setDiscountPercent('0');
+
+    toast({
+      title: 'Entry Added',
+      description: 'The new entry has been added to the current bill.',
+    });
   };
-
 
   const handleDeleteEntry = (id: number) => {
     setBillEntries(prev => prev.filter(entry => entry.id !== id));
@@ -259,26 +253,46 @@ export default function AutoGenerateBillPage() {
       <Card>
         <CardHeader>
           <CardTitle>Add New Bill Entry</CardTitle>
-           <CardDescription>
-            Enter the bill details in any language (English, Sindhi, Urdu). For example: "2 copies of 'History of Sindh' for Ali Khan at 500 each with a 10% discount."
+          <CardDescription>
+            Fill in the details below to add a new item to the current bill.
           </CardDescription>
         </CardHeader>
         <CardContent>
-            <div className="space-y-4">
-                <Label htmlFor="natural-language-input">Bill Details</Label>
-                <Textarea
-                    id="natural-language-input"
-                    placeholder="Enter bill details here..."
-                    value={naturalLanguageInput}
-                    onChange={(e) => setNaturalLanguageInput(e.target.value)}
-                    rows={4}
-                />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="bookTitle">Book Title / Author</Label>
+              <Input id="bookTitle" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g., History of Sindh" />
             </div>
+             <div className="space-y-2">
+              <Label htmlFor="bookTitleSindhi" className="text-right w-full block" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
+              <Input id="bookTitleSindhi" value={bookTitleSindhi} onChange={e => setBookTitleSindhi(e.target.value)} placeholder="e.g., سنڌ جي تاريخ" className="text-right" dir="rtl" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="language">Language</Label>
+              <Input id="language" value={language} onChange={e => setLanguage(e.target.value)} placeholder="e.g., English" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="purchaserName">Purchaser Name</Label>
+              <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="quantity">Quantity Sold</Label>
+              <Input id="quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 2" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
+              <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="discountPercent">Discount %</Label>
+              <Input id="discountPercent" type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} placeholder="e.g., 10" />
+            </div>
+          </div>
         </CardContent>
         <CardFooter>
-             <Button onClick={handleAddEntry} disabled={isProcessing}>
-                <PlusCircle className="mr-2" /> {isProcessing ? 'Processing...' : 'Add to Bill'}
-            </Button>
+          <Button onClick={handleAddEntry}>
+            <PlusCircle className="mr-2" /> Add to Bill
+          </Button>
         </CardFooter>
       </Card>
 
@@ -449,3 +463,5 @@ export default function AutoGenerateBillPage() {
   );
 }
   
+
+    
