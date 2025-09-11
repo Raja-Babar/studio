@@ -9,7 +9,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search, Globe, CalendarOff, Clock } from 'lucide-react';
+import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search, Globe, CalendarOff, Clock, Minus, Check, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -152,7 +152,10 @@ export default function AttendancePage() {
         doc.text(`Employee: ${employeeName}`, 14, finalY);
         finalY += 6;
 
-        const summaryText = `Summary: ${summary.Present} Present, ${summary.Absent} Absent, ${summary.Leave} on Leave`;
+        const presentAbsentBalance = summary.Present - summary.Absent;
+        const absentLeaveBalance = summary.Absent - summary.Leave;
+
+        const summaryText = `Summary: ${summary.Present} Present, ${summary.Absent} Absent, ${summary.Leave} on Leave | Balances: P-A: ${presentAbsentBalance}, A-L: ${absentLeaveBalance}`;
         doc.setFontSize(10);
         doc.text(summaryText, 14, finalY);
         finalY += 5;
@@ -348,7 +351,11 @@ export default function AttendancePage() {
 
       <div className="grid gap-6">
         {recordsByEmployee.length > 0 ? (
-            recordsByEmployee.map(({ employeeName, records, summary }) => (
+            recordsByEmployee.map(({ employeeName, records, summary }) => {
+                const presentAbsentBalance = summary.Present - summary.Absent;
+                const absentLeaveBalance = summary.Absent - summary.Leave;
+                
+                return (
                 <Card key={employeeName}>
                     <CardHeader>
                         <CardTitle>{employeeName}'s Attendance</CardTitle>
@@ -421,26 +428,40 @@ export default function AttendancePage() {
                             </TableBody>
                         </Table>
                     </CardContent>
-                    <CardFooter className="flex-col items-start gap-2 pt-4">
+                    <CardFooter className="flex-col items-start gap-4 pt-4">
                         <Separator />
                         <h3 className="font-semibold text-lg mt-2">Monthly Summary</h3>
-                        <div className="flex justify-start gap-8 text-sm">
-                            <div>
-                                <span className="font-semibold text-green-500">{summary.Present}</span>
-                                <span className="text-muted-foreground ml-2">Present</span>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-4 text-sm w-full">
+                            <div className="flex items-center gap-2">
+                                <Check className="w-4 h-4 text-green-500"/>
+                                <span className="font-semibold">{summary.Present}</span>
+                                <span className="text-muted-foreground">Present</span>
                             </div>
-                            <div>
-                                <span className="font-semibold text-red-500">{summary.Absent}</span>
-                                <span className="text-muted-foreground ml-2">Absent</span>
+                            <div className="flex items-center gap-2">
+                                <X className="w-4 h-4 text-red-500"/>
+                                <span className="font-semibold">{summary.Absent}</span>
+                                <span className="text-muted-foreground">Absent</span>
                             </div>
-                            <div>
-                                <span className="font-semibold text-gray-500">{summary.Leave}</span>
-                                <span className="text-muted-foreground ml-2">On Leave</span>
+                            <div className="flex items-center gap-2">
+                                <CalendarOff className="w-4 h-4 text-gray-500"/>
+                                <span className="font-semibold">{summary.Leave}</span>
+                                <span className="text-muted-foreground">On Leave</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Minus className="w-4 h-4 text-blue-500"/>
+                                <span className="font-semibold">{presentAbsentBalance}</span>
+                                <span className="text-muted-foreground">(Present - Absent)</span>
+                            </div>
+                             <div className="flex items-center gap-2">
+                                <Minus className="w-4 h-4 text-orange-500"/>
+                                <span className="font-semibold">{absentLeaveBalance}</span>
+                                <span className="text-muted-foreground">(Absent - Leave)</span>
                             </div>
                         </div>
                     </CardFooter>
                 </Card>
-            ))
+                );
+            })
         ) : (
              <Card>
                 <CardContent className="text-center text-muted-foreground pt-8">
@@ -494,4 +515,5 @@ export default function AttendancePage() {
 
 
 
+    
     
