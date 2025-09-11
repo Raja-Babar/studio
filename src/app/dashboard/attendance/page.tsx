@@ -141,9 +141,9 @@ export default function AttendancePage() {
     month: 'long',
   });
 
-  const handleExportPDF = () => {
+  const handleExportAllPDF = () => {
     const doc = new jsPDF();
-    doc.text(`Daily Attendance - ${selectedMonthFormatted}`, 14, 16);
+    doc.text(`Daily Attendance Report - ${selectedMonthFormatted}`, 14, 16);
 
     let finalY = 22;
 
@@ -175,7 +175,37 @@ export default function AttendancePage() {
         finalY = (doc as any).lastAutoTable.finalY + 10;
     });
 
-    doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+    doc.save(`attendance_report_all_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
+  };
+
+  const handleExportSinglePDF = (employeeData: { employeeName: string; records: AttendanceRecord[]; summary: { Present: number; Absent: number; Leave: number; }; }) => {
+    const { employeeName, records, summary } = employeeData;
+    const doc = new jsPDF();
+    doc.text(`Daily Attendance Report - ${selectedMonthFormatted}`, 14, 16);
+
+    let finalY = 22;
+
+    doc.setFontSize(12);
+    doc.text(`Employee: ${employeeName}`, 14, finalY);
+    finalY += 6;
+
+    const summaryText = `Summary: ${summary.Present} Present, ${summary.Absent} Absent, ${summary.Leave} on Leave`;
+    doc.setFontSize(10);
+    doc.text(summaryText, 14, finalY);
+    finalY += 5;
+
+    (doc as any).autoTable({
+        head: [['Date', 'Time In', 'Time Out', 'Status']],
+        body: records.map(r => [
+            new Date(r.date + 'T00:00:00').toLocaleDateString(),
+            r.timeIn,
+            r.timeOut,
+            r.status
+        ]),
+        startY: finalY,
+    });
+    
+    doc.save(`attendance_report_${employeeName.replace(' ', '_')}_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
   };
   
   const handleEditClick = (record: AttendanceRecord) => {
@@ -286,8 +316,8 @@ export default function AttendancePage() {
                 />
               </PopoverContent>
             </Popover>
-             <Button variant="outline" size="sm" onClick={handleExportPDF} className="w-full sm:w-auto">
-                <Download className="mr-2 h-4 w-4" /> Export PDF
+             <Button variant="outline" size="sm" onClick={handleExportAllPDF} className="w-full sm:w-auto">
+                <Download className="mr-2 h-4 w-4" /> Export All PDF
             </Button>
         </div>
       </div>
@@ -348,13 +378,20 @@ export default function AttendancePage() {
 
       <div className="grid gap-6">
         {recordsByEmployee.length > 0 ? (
-            recordsByEmployee.map(({ employeeName, records, summary }) => (
-                <Card key={employeeName}>
-                    <CardHeader>
-                        <CardTitle>{employeeName}'s Attendance</CardTitle>
-                        <CardDescription>
-                            Daily records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
-                        </CardDescription>
+            recordsByEmployee.map((employeeData) => (
+                <Card key={employeeData.employeeName}>
+                    <CardHeader className="flex flex-row items-start justify-between">
+                        <div>
+                            <CardTitle>{employeeData.employeeName}'s Attendance</CardTitle>
+                            <CardDescription>
+                                Daily records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+                            </CardDescription>
+                        </div>
+                         {!isEmployee && (
+                             <Button variant="outline" size="sm" onClick={() => handleExportSinglePDF(employeeData)}>
+                                <Download className="mr-2 h-4 w-4" /> Export PDF
+                            </Button>
+                         )}
                     </CardHeader>
                     <CardContent>
                         <Table>
@@ -368,7 +405,7 @@ export default function AttendancePage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {records.map((record) => (
+                                {employeeData.records.map((record) => (
                                     <TableRow key={`${record.employeeId}-${record.date}`}>
                                         <TableCell>{new Date(record.date + 'T00:00:00').toLocaleDateString()}</TableCell>
                                         <TableCell>{record.timeIn}</TableCell>
@@ -426,11 +463,11 @@ export default function AttendancePage() {
                         <h3 className="font-semibold text-lg mt-2">Monthly Summary</h3>
                         <p className="text-sm text-muted-foreground space-x-4">
                             <span className="text-green-500">Present:</span>
-                            <span className="font-semibold text-foreground">{summary.Present}</span>
+                            <span className="font-semibold text-foreground">{employeeData.summary.Present}</span>
                             <span className="text-destructive">Absent:</span>
-                            <span className="font-semibold text-foreground">{summary.Absent}</span>
+                            <span className="font-semibold text-foreground">{employeeData.summary.Absent}</span>
                             <span className="text-primary">On Leave:</span>
-                            <span className="font-semibold text-foreground">{summary.Leave}</span>
+                            <span className="font-semibold text-foreground">{employeeData.summary.Leave}</span>
                         </p>
                     </CardFooter>
                 </Card>
@@ -485,6 +522,5 @@ export default function AttendancePage() {
     </div>
   );
 }
-
-
+    
     
