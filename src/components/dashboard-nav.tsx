@@ -21,15 +21,26 @@ import {
   Users,
   FileText,
   FileSignature,
+  ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+
 
 const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
-  { href: '/dashboard/scanning', icon: ScanLine, label: 'Digitization Progress' },
-  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
+];
+
+const itScanningItems = [
+    { href: '/dashboard/scanning', icon: ScanLine, label: 'Digitization Progress' },
+    { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
+]
+
+const otherNavItems = [
   { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
   { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
@@ -48,6 +59,7 @@ export function DashboardNav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const isAdmin = user?.role === 'Admin';
+  const [isItSectionOpen, setIsItSectionOpen] = useState(pathname.startsWith('/dashboard/scanning') || pathname.startsWith('/dashboard/employee-reports'));
   
   if (!isAdmin) {
     return (
@@ -75,17 +87,61 @@ export function DashboardNav() {
       <SidebarContent className="p-2">
           <SidebarMenu>
               {mainNavItems.map((item, index) => (
-              <SidebarMenuItem key={`${item.href}-${index}`}>
-                  <Link href={item.href}>
-                  <SidebarMenuButton
-                      isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
-                      tooltip={item.label}
-                  >
-                      <item.icon />
-                      <span>{item.label}</span>
-                  </SidebarMenuButton>
-                  </Link>
-              </SidebarMenuItem>
+                <SidebarMenuItem key={`${item.href}-${index}`}>
+                    <Link href={item.href}>
+                    <SidebarMenuButton
+                        isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
+                        tooltip={item.label}
+                    >
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
+              ))}
+
+            <Collapsible open={isItSectionOpen} onOpenChange={setIsItSectionOpen} className="w-full">
+                <CollapsibleTrigger className="w-full">
+                    <SidebarMenuButton className='w-full justify-between'>
+                        <div className="flex items-center gap-2">
+                            <ScanLine />
+                            <span>I.T & Scanning-Section</span>
+                        </div>
+                        <ChevronDown className={cn('h-4 w-4 transition-transform', isItSectionOpen && 'rotate-180')} />
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-1 pl-6">
+                     <SidebarMenu>
+                        {itScanningItems.map((item, index) => (
+                            <SidebarMenuItem key={`${item.href}-${index}`}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith(item.href)}
+                                    tooltip={item.label}
+                                    className="h-8"
+                                >
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
+
+              {otherNavItems.map((item, index) => (
+                <SidebarMenuItem key={`${item.href}-${index}`}>
+                    <Link href={item.href}>
+                    <SidebarMenuButton
+                        isActive={pathname.startsWith(item.href)}
+                        tooltip={item.label}
+                    >
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
               ))}
           </SidebarMenu>
       </SidebarContent>
