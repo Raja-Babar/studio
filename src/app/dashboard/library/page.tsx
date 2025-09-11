@@ -246,7 +246,7 @@ export default function AutoGenerateBillPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="bookTitle">Book Title / Author</Label>
-                <span className="text-sm font-bold text-foreground" dir="rtl">ڪتاب جو عنوان / ليکڪ</span>
+                <span className="font-sindhi text-lg font-bold text-white" dir="rtl">ڪتاب جو عنوان / ليکڪ</span>
               </div>
               <Input
                 id="bookTitle"
@@ -259,28 +259,28 @@ export default function AutoGenerateBillPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="purchaserName">Purchaser Name</Label>
-                <span className="text-sm font-bold text-foreground" dir="rtl">خريدار جو نالو</span>
+                <span className="font-sindhi text-lg font-bold text-white" dir="rtl">خريدار جو نالو</span>
               </div>
               <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="quantity">Quantity Sold</Label>
-                <span className="text-sm font-bold text-foreground" dir="rtl">وڪرو ٿيل مقدار</span>
+                <span className="font-sindhi text-lg font-bold text-white" dir="rtl">وڪرو ٿيل مقدار</span>
               </div>
               <Input id="quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 2" />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
-                <span className="text-sm font-bold text-foreground" dir="rtl">يونٽ جي قيمت (روپيا)</span>
+                <span className="font-sindhi text-lg font-bold text-white" dir="rtl">يونٽ جي قيمت (روپيا)</span>
               </div>
               <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
             </div>
             <div className="space-y-2">
                <div className="flex items-center justify-between">
                 <Label htmlFor="discountPercent">Discount %</Label>
-                <span className="text-sm font-bold text-foreground" dir="rtl">رعايت٪</span>
+                <span className="font-sindhi text-lg font-bold text-white" dir="rtl">رعايت٪</span>
               </div>
               <Input id="discountPercent" type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} placeholder="e.g., 10" />
             </div>

@@ -13,6 +13,7 @@ export default {
         body: ['Poppins', 'sans-serif'],
         headline: ['Poppins', 'sans-serif'],
         code: ['monospace'],
+        sindhi: ['"MB Lateefi"', 'sans-serif'],
       },
       colors: {
         background: 'hsl(var(--background))',
