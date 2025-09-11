@@ -23,6 +23,7 @@ import {
   FileSignature,
   ChevronDown,
   File,
+  Library,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
@@ -44,6 +45,10 @@ const itScanningItems = [
 const administrationItems = [
     { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
     { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
+];
+
+const libraryItems = [
+    { href: '/dashboard/library', icon: Library, label: 'Library' },
 ];
 
 const appFileItems = [
@@ -73,6 +78,10 @@ export function DashboardNav() {
   
   const [isAdministrationSectionOpen, setIsAdministrationSectionOpen] = useState(
     pathname.startsWith('/dashboard/salaries') || pathname.startsWith('/dashboard/petty-cash')
+  );
+
+  const [isLibrarySectionOpen, setIsLibrarySectionOpen] = useState(
+    pathname.startsWith('/dashboard/library')
   );
   
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
@@ -165,6 +174,38 @@ export function DashboardNav() {
                 <CollapsibleContent className="py-1 pl-6">
                      <SidebarMenu>
                         {administrationItems.map((item, index) => (
+                            <SidebarMenuItem key={`${item.href}-${index}`}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith(item.href)}
+                                    tooltip={item.label}
+                                    className="h-8"
+                                >
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
+            
+            <Collapsible open={isLibrarySectionOpen} onOpenChange={setIsLibrarySectionOpen} className="w-full">
+                <CollapsibleTrigger asChild>
+                    <div className='w-full'>
+                        <SidebarMenuButton className='w-full justify-between' isActive={isLibrarySectionOpen}>
+                            <div className="flex items-center gap-2">
+                                <Library />
+                                <span>Library-Section</span>
+                            </div>
+                            <ChevronDown className={cn('h-4 w-4 transition-transform', isLibrarySectionOpen && 'rotate-180')} />
+                        </SidebarMenuButton>
+                    </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-1 pl-6">
+                     <SidebarMenu>
+                        {libraryItems.map((item, index) => (
                             <SidebarMenuItem key={`${item.href}-${index}`}>
                                 <Link href={item.href}>
                                 <SidebarMenuButton
