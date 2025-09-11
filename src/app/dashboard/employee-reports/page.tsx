@@ -134,10 +134,15 @@ export default function EmployeeReportsPage() {
         Object.values(grouped).forEach(employeeData => {
             const byStage: { [key: string]: number } = {};
             employeeData.reports.forEach(report => {
-                if (!byStage[report.stage]) {
-                    byStage[report.stage] = 0;
+                let stageKey = report.stage;
+                if (report.stage === 'PDF Pages') {
+                    stageKey = `PDF Pages (${report.type})`;
                 }
-                byStage[report.stage] += report.quantity;
+
+                if (!byStage[stageKey]) {
+                    byStage[stageKey] = 0;
+                }
+                byStage[stageKey] += report.quantity;
             });
             employeeData.summary.byStage = byStage;
         });
