@@ -484,14 +484,14 @@ export default function EmployeeReportsPage() {
                                   </TableCell>
                                   <TableCell>{report.submittedTime || '--:--'}</TableCell>
                                   <TableCell>
-                                      {isOnLeave ? '' : (
+                                      {isOnLeave ? '-' : (
                                           <Badge className={cn(getStageBadgeClass(report.stage))}>
                                               {report.stage}
                                           </Badge>
                                       )}
                                   </TableCell>
-                                  <TableCell>{isOnLeave ? '' : report.type}</TableCell>
-                                  <TableCell className="font-semibold text-foreground">{isOnLeave ? '' : report.quantity}</TableCell>
+                                  <TableCell>{isOnLeave ? '-' : report.type}</TableCell>
+                                  <TableCell className="font-semibold text-foreground">{isOnLeave ? '-' : report.quantity}</TableCell>
                                   <TableCell>
                                       <Badge variant={getAttendanceStatusBadgeClass(attendanceStatus)}>
                                           {attendanceStatus}
