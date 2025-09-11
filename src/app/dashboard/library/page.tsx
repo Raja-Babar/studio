@@ -305,7 +305,7 @@ export default function AutoGenerateBillPage() {
                   id="bookTitleSindhi"
                   value={bookTitleSindhi}
                   onChange={(e) => setBookTitleSindhi(e.target.value)}
-                  placeholder="مثال طور، سنڌ جي تاريخ"
+                  placeholder="مثال طور، آپ بيتي جڳ بيتي"
                   className="font-sindhi"
                   dir="rtl"
                 />
@@ -533,4 +533,5 @@ export default function AutoGenerateBillPage() {
     </>
   );
 }
+    
     
