@@ -179,11 +179,6 @@ export default function AutoGenerateBillPage() {
   const generateAndSavePDF = (bill: GeneratedBill) => {
     const doc = new jsPDF();
     const { id, purchaserName, date, totalAmount, entries } = bill;
-
-    // It's important to have a font that supports Sindhi characters.
-    // jsPDF's default fonts do not. This requires embedding a font.
-    // For simplicity, we'll format as a string, but complex scripts may not render correctly without font embedding.
-    // A more robust solution would involve `doc.addFileToVFS` and `doc.addFont`.
     
     doc.text(`Bill for ${purchaserName} (ID: ${id})`, 14, 16);
     doc.text(`Date: ${date}`, 14, 22);
@@ -211,10 +206,12 @@ export default function AutoGenerateBillPage() {
         fontStyle: 'bold',
       },
       didParseCell: function(data: any) {
-        if (data.column.dataKey === 0 || data.column.dataKey === 1) { // Book Title & Purchaser
-            if (data.cell.raw.includes('\n')) {
-                 data.cell.styles.font = 'helvetica'; // Fallback, real solution needs font embedding
-            }
+        if (data.column.dataKey === 0 || data.column.dataKey === 1) { 
+             const text = data.cell.raw as string;
+             if (/[\u0600-\u06FF]/.test(text)) {
+                 data.cell.styles.font = 'helvetica';
+                 data.cell.styles.halign = 'right';
+             }
         }
       }
     });
@@ -511,3 +508,4 @@ export default function AutoGenerateBillPage() {
         </Dialog>
     </div>
   );
+
