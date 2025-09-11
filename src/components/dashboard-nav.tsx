@@ -101,14 +101,16 @@ export function DashboardNav() {
               ))}
 
             <Collapsible open={isItSectionOpen} onOpenChange={setIsItSectionOpen} className="w-full">
-                <CollapsibleTrigger className="w-full">
-                    <SidebarMenuButton className='w-full justify-between'>
-                        <div className="flex items-center gap-2">
-                            <ScanLine />
-                            <span>I.T & Scanning-Section</span>
-                        </div>
-                        <ChevronDown className={cn('h-4 w-4 transition-transform', isItSectionOpen && 'rotate-180')} />
-                    </SidebarMenuButton>
+                <CollapsibleTrigger asChild>
+                    <div className='w-full'>
+                        <SidebarMenuButton className='w-full justify-between' isActive={isItSectionOpen}>
+                            <div className="flex items-center gap-2">
+                                <ScanLine />
+                                <span>I.T & Scanning-Section</span>
+                            </div>
+                            <ChevronDown className={cn('h-4 w-4 transition-transform', isItSectionOpen && 'rotate-180')} />
+                        </SidebarMenuButton>
+                    </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-1 pl-6">
                      <SidebarMenu>
