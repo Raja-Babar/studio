@@ -120,7 +120,7 @@ export default function EmployeeReportsPage() {
     const [editedQuantity, setEditedQuantity] = useState('');
     const [selectedReportIds, setSelectedReportIds] = useState<string[]>([]);
     const [expandedEmployees, setExpandedEmployees] = useState<string[]>([]);
-    const REPORTS_TO_SHOW = 5;
+    const REPORTS_TO_SHOW = 1;
 
     const employeeReports = useMemo(() => {
         if (user?.role === 'Employee') {
