@@ -22,6 +22,7 @@ import {
   FileText,
   FileSignature,
   ChevronDown,
+  File,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
@@ -45,11 +46,14 @@ const administrationItems = [
     { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
 ];
 
+const appFileItems = [
+    { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
+    { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
+];
+
 const otherNavItems = [
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
   { href: '/dashboard/publications', icon: BookOpen, label: 'Publications' },
-  { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
-  { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
 ];
 
 const employeeNavItems = [
@@ -69,6 +73,10 @@ export function DashboardNav() {
   
   const [isAdministrationSectionOpen, setIsAdministrationSectionOpen] = useState(
     pathname.startsWith('/dashboard/salaries') || pathname.startsWith('/dashboard/petty-cash')
+  );
+  
+  const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
+    pathname.startsWith('/dashboard/report-assistant') || pathname.startsWith('/dashboard/reporting')
   );
   
   if (!isAdmin) {
@@ -157,6 +165,38 @@ export function DashboardNav() {
                 <CollapsibleContent className="py-1 pl-6">
                      <SidebarMenu>
                         {administrationItems.map((item, index) => (
+                            <SidebarMenuItem key={`${item.href}-${index}`}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith(item.href)}
+                                    tooltip={item.label}
+                                    className="h-8"
+                                >
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
+
+            <Collapsible open={isAppFileSectionOpen} onOpenChange={setIsAppFileSectionOpen} className="w-full">
+                <CollapsibleTrigger asChild>
+                    <div className='w-full'>
+                        <SidebarMenuButton className='w-full justify-between' isActive={isAppFileSectionOpen}>
+                            <div className="flex items-center gap-2">
+                                <File />
+                                <span>App File</span>
+                            </div>
+                            <ChevronDown className={cn('h-4 w-4 transition-transform', isAppFileSectionOpen && 'rotate-180')} />
+                        </SidebarMenuButton>
+                    </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-1 pl-6">
+                     <SidebarMenu>
+                        {appFileItems.map((item, index) => (
                             <SidebarMenuItem key={`${item.href}-${index}`}>
                                 <Link href={item.href}>
                                 <SidebarMenuButton
