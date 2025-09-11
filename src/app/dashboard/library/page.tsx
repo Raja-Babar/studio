@@ -271,7 +271,10 @@ export default function AutoGenerateBillPage() {
               <Input id="quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 2" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
+                <span className="text-sm text-muted-foreground" dir="rtl">يونٽ جي قيمت (روپيا)</span>
+              </div>
               <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
             </div>
             <div className="space-y-2">
@@ -445,5 +448,7 @@ export default function AutoGenerateBillPage() {
     </div>
   );
 }
+
+    
 
     
