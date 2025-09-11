@@ -484,7 +484,7 @@ export default function EmployeeReportsPage() {
                                   </TableCell>
                                   <TableCell>{isOnLeave ? '' : report.submittedTime || '--:--'}</TableCell>
                                   <TableCell>
-                                      {!isOnLeave && (
+                                      {isOnLeave ? '' : (
                                           <Badge className={cn(getStageBadgeClass(report.stage))}>
                                               {report.stage}
                                           </Badge>
