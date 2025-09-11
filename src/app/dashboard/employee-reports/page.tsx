@@ -55,15 +55,19 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
-import type { EmployeeReport } from '@/context/auth-provider';
+import type { EmployeeReport, AttendanceRecord } from '@/context/auth-provider';
 
 
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
 const reportTypes = ["Pages", "Books"];
 
-const getStageBadgeClass = (stage: string) => {
+type CombinedRecord = (EmployeeReport & { isLeaveRecord?: false }) | (Partial<EmployeeReport> & { isLeaveRecord: true, submittedDate: string, employeeId: string, employeeName: string });
+
+
+const getStageBadgeClass = (stage?: string) => {
+    if (!stage) return '';
     switch (stage.toLowerCase()) {
         case 'completed':
             return 'bg-green-600 text-white';
@@ -99,7 +103,7 @@ const getAttendanceStatusBadgeClass = (status?: string) => {
 
 
 export default function EmployeeReportsPage() {
-    const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, attendanceRecords } = useAuth();
+    const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, attendanceRecords, getUsers } = useAuth();
     const { toast } = useToast();
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [searchTerm, setSearchTerm] = useState('');
@@ -130,25 +134,52 @@ export default function EmployeeReportsPage() {
         });
     }, [selectedDate, employeeReports]);
 
-    const reportsByEmployee = useMemo(() => {
-        const grouped: { [key: string]: { employeeName: string, reports: EmployeeReport[], summary: { byStage: { [key: string]: number } } } } = {};
+     const reportsByEmployee = useMemo(() => {
+        const grouped: { [key: string]: { employeeName: string, reports: CombinedRecord[], summary: { byStage: { [key: string]: number } } } } = {};
+        const allUsers = getUsers().filter(u => u.role === 'Employee');
 
-        monthlyReports.forEach(report => {
-            if (!grouped[report.employeeId]) {
-                grouped[report.employeeId] = {
-                    employeeName: report.employeeName,
-                    reports: [],
-                    summary: {
-                        byStage: {},
-                    },
-                };
-            }
-            grouped[report.employeeId].reports.push(report);
-        });
+        const start = startOfMonth(selectedDate);
+        const end = endOfMonth(selectedDate);
+        const allDaysInMonth = eachDayOfInterval({ start, end });
 
-        Object.values(grouped).forEach(employeeData => {
+        const usersToDisplay = user?.role === 'Employee' ? allUsers.filter(u => u.id === user.id) : allUsers;
+
+        usersToDisplay.forEach(emp => {
+            const employeeData = {
+                employeeName: emp.name,
+                reports: [] as CombinedRecord[],
+                summary: { byStage: {} },
+            };
+
+            const userReportsForMonth = monthlyReports.filter(r => r.employeeId === emp.id);
+
+            const userAttendanceForMonth = attendanceRecords.filter(ar => {
+                const recordDate = new Date(ar.date + 'T00:00:00');
+                return ar.employeeId === emp.id &&
+                       recordDate.getFullYear() === selectedDate.getFullYear() &&
+                       recordDate.getMonth() === selectedDate.getMonth();
+            });
+
+            const combinedRecords: CombinedRecord[] = [...userReportsForMonth];
+
+            userAttendanceForMonth.forEach(ar => {
+                if (ar.status === 'Leave' && !combinedRecords.some(cr => cr.submittedDate === ar.date)) {
+                    combinedRecords.push({
+                        id: `LEAVE-${ar.employeeId}-${ar.date}`,
+                        employeeId: ar.employeeId,
+                        employeeName: ar.name,
+                        submittedDate: ar.date,
+                        isLeaveRecord: true,
+                    });
+                }
+            });
+
+            combinedRecords.sort((a, b) => new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime());
+
+            employeeData.reports = combinedRecords;
+
             const byStage: { [key: string]: number } = {};
-            employeeData.reports.forEach(report => {
+            userReportsForMonth.forEach(report => {
                 let stageKey = report.stage;
                 if (report.stage === 'PDF Pages') {
                     stageKey = `PDF Pages (${report.type})`;
@@ -160,12 +191,15 @@ export default function EmployeeReportsPage() {
                 byStage[stageKey] += report.quantity;
             });
             employeeData.summary.byStage = byStage;
+
+            grouped[emp.id] = employeeData;
         });
+
 
         return Object.values(grouped).filter(employeeData =>
             employeeData.employeeName.toLowerCase().includes(searchTerm.toLowerCase())
         );
-    }, [monthlyReports, searchTerm]);
+    }, [monthlyReports, selectedDate, attendanceRecords, user, getUsers, searchTerm]);
 
 
     const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
@@ -195,12 +229,12 @@ export default function EmployeeReportsPage() {
         // Submitted Reports Table
         autoTable(doc, {
             head: [['Date Submitted', 'Time Submitted', 'Stage', 'Type', 'Quantity']],
-            body: reports.map(r => [
+            body: reports.filter(r => !r.isLeaveRecord).map(r => [
                 new Date(r.submittedDate + 'T00:00:00').toLocaleDateString(),
-                r.submittedTime || '--:--',
+                (r as EmployeeReport).submittedTime || '--:--',
                 r.stage,
                 r.type,
-                r.quantity.toString(),
+                r.quantity?.toString(),
             ]),
             startY: finalY,
             didDrawPage: function (data: any) {
@@ -440,7 +474,7 @@ export default function EmployeeReportsPage() {
       )}
 
       {reportsByEmployee.length > 0 ? (
-        reportsByEmployee.map(({ employeeName, reports: employeeReports, summary }) => (
+        reportsByEmployee.map(({ employeeName, reports: employeeCombinedRecords, summary }) => (
             <Card key={employeeName}>
                 <CardHeader>
                     <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
@@ -468,37 +502,34 @@ export default function EmployeeReportsPage() {
                             </TableRow>
                             </TableHeader>
                             <TableBody>
-                            {employeeReports.map((report) => {
+                            {employeeCombinedRecords.map((report) => {
                                 const attendanceRecord = attendanceRecords.find(
                                     (r) =>
                                       r.employeeId === report.employeeId &&
                                       r.date === report.submittedDate
                                 );
-                                const attendanceStatus = attendanceRecord?.status || 'Not Marked';
-                                const isOnLeave = attendanceStatus === 'Leave';
+                                const attendanceStatus = report.isLeaveRecord ? 'Leave' : attendanceRecord?.status || 'Not Marked';
 
                                 return (
                                 <TableRow key={report.id}>
                                   <TableCell>
                                       {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                                   </TableCell>
-                                  <TableCell>{report.submittedTime || '--:--'}</TableCell>
+                                  <TableCell>{report.isLeaveRecord ? '-' : (report as EmployeeReport).submittedTime || '--:--'}</TableCell>
                                   <TableCell>
-                                      {isOnLeave ? '-' : (
-                                          <Badge className={cn(getStageBadgeClass(report.stage))}>
-                                              {report.stage}
-                                          </Badge>
-                                      )}
+                                    <Badge className={cn(getStageBadgeClass(report.stage))}>
+                                        {report.isLeaveRecord ? '-' : report.stage}
+                                    </Badge>
                                   </TableCell>
-                                  <TableCell>{isOnLeave ? '-' : report.type}</TableCell>
-                                  <TableCell className="font-semibold text-foreground">{isOnLeave ? '-' : report.quantity}</TableCell>
+                                  <TableCell>{report.isLeaveRecord ? '-' : report.type}</TableCell>
+                                  <TableCell className="font-semibold text-foreground">{report.isLeaveRecord ? '-' : report.quantity}</TableCell>
                                   <TableCell>
                                       <Badge variant={getAttendanceStatusBadgeClass(attendanceStatus)}>
                                           {attendanceStatus}
                                       </Badge>
                                   </TableCell>
                                   <TableCell className="text-right">
-                                      {user?.role === 'Admin' && (
+                                      {user?.role === 'Admin' && !report.isLeaveRecord && (
                                       <DropdownMenu>
                                           <DropdownMenuTrigger asChild>
                                           <Button
@@ -512,7 +543,7 @@ export default function EmployeeReportsPage() {
                                           </DropdownMenuTrigger>
                                           <DropdownMenuContent align="end">
                                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                          <DropdownMenuItem onClick={() => handleEditClick(report)}>
+                                          <DropdownMenuItem onClick={() => handleEditClick(report as EmployeeReport)}>
                                               <Edit className="mr-2 h-4 w-4" /> Edit
                                           </DropdownMenuItem>
                                           <AlertDialog>
@@ -531,7 +562,7 @@ export default function EmployeeReportsPage() {
                                                   </AlertDialogHeader>
                                                   <AlertDialogFooter>
                                                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
+                                                      <AlertDialogAction onClick={() => handleDeleteReport(report.id!)}>Delete</AlertDialogAction>
                                                   </AlertDialogFooter>
                                               </AlertDialogContent>
                                           </AlertDialog>
@@ -546,25 +577,27 @@ export default function EmployeeReportsPage() {
                         </Table>
                     </div>
 
-                    <div>
-                        <h3 className="text-base font-semibold mb-2">Monthly Summary by Stage</h3>
-                        <Table>
-                        <TableHeader>
-                            <TableRow>
-                            <TableHead>Stage</TableHead>
-                            <TableHead className="text-right">Quantity</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {Object.entries(summary.byStage).map(([stage, quantity]) => (
-                            <TableRow key={stage}>
-                                <TableCell>{stage}</TableCell>
-                                <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
-                            </TableRow>
-                            ))}
-                        </TableBody>
-                        </Table>
-                    </div>
+                    {Object.keys(summary.byStage).length > 0 && (
+                        <div>
+                            <h3 className="text-base font-semibold mb-2">Monthly Summary by Stage</h3>
+                            <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Stage</TableHead>
+                                <TableHead className="text-right">Quantity</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(summary.byStage).map(([stage, quantity]) => (
+                                <TableRow key={stage}>
+                                    <TableCell>{stage}</TableCell>
+                                    <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                            </Table>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         ))
