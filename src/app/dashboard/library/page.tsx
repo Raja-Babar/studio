@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -242,10 +242,19 @@ export default function AutoGenerateBillPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col gap-4">
+          <div className="space-y-4">
             <div className="space-y-2">
+              <div className="flex items-center justify-between">
                 <Label htmlFor="bookTitle">Book Title / Author</Label>
-                <Input id="bookTitle" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g., History of Sindh" dir="auto" />
+                <span className="text-sm text-muted-foreground" dir="rtl">ڪتاب جو عنوان / ليکڪ</span>
+              </div>
+              <Input
+                id="bookTitle"
+                value={bookTitle}
+                onChange={(e) => setBookTitle(e.target.value)}
+                placeholder="e.g., History of Sindh"
+                dir="auto"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="purchaserName">Purchaser Name</Label>
@@ -430,3 +439,5 @@ export default function AutoGenerateBillPage() {
     </div>
   );
 }
+
+    
