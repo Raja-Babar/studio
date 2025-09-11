@@ -425,9 +425,9 @@ export default function AttendancePage() {
                         <Separator />
                         <h3 className="font-semibold text-lg mt-2">Monthly Summary</h3>
                         <p className="text-sm text-muted-foreground">
-                            Present: <span className="font-semibold text-foreground">{summary.Present}</span>, 
-                            Absent: <span className="font-semibold text-foreground">{summary.Absent}</span>, 
-                            On Leave: <span className="font-semibold text-foreground">{summary.Leave}</span>
+                            Present: <span className="font-semibold text-green-500">{summary.Present}</span>, 
+                            Absent: <span className="font-semibold text-destructive">{summary.Absent}</span>, 
+                            On Leave: <span className="font-semibold text-primary">{summary.Leave}</span>
                         </p>
                     </CardFooter>
                 </Card>
