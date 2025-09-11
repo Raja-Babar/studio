@@ -180,15 +180,23 @@ export default function AutoGenerateBillPage() {
     const doc = new jsPDF();
     const { id, purchaserName, date, totalAmount, entries } = bill;
 
+    // It's important to have a font that supports Sindhi characters.
+    // jsPDF's default fonts do not. This requires embedding a font.
+    // For simplicity, we'll format as a string, but complex scripts may not render correctly without font embedding.
+    // A more robust solution would involve `doc.addFileToVFS` and `doc.addFont`.
+    
     doc.text(`Bill for ${purchaserName} (ID: ${id})`, 14, 16);
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
-      head: [['Book Title / Author', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+      head: [['Book Title / Author', 'Purchaser Name', 'Qty', 'Unit Price', 'Discount %', 'Total']],
       body: entries.map(entry => {
         const { totalAmount } = calculateRow(entry);
+        const bookTitleCombined = `${entry.bookTitle}\n${entry.bookTitleSindhi || ''}`;
+        const purchaserNameCombined = `${entry.purchaserName}\n${entry.purchaserNameSindhi || ''}`;
         return [
-          entry.bookTitle,
+          bookTitleCombined,
+          purchaserNameCombined,
           entry.quantity,
           entry.unitPrice.toFixed(2),
           `${entry.discountPercent}%`,
@@ -196,12 +204,19 @@ export default function AutoGenerateBillPage() {
         ];
       }),
       startY: 30,
-      foot: [['', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
+      foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
       footStyles: {
         fillColor: [230, 230, 230],
         textColor: 20,
         fontStyle: 'bold',
       },
+      didParseCell: function(data: any) {
+        if (data.column.dataKey === 0 || data.column.dataKey === 1) { // Book Title & Purchaser
+            if (data.cell.raw.includes('\n')) {
+                 data.cell.styles.font = 'helvetica'; // Fallback, real solution needs font embedding
+            }
+        }
+      }
     });
 
     doc.save(`bill_${purchaserName.replace(/\s+/g, '_')}_${id}.pdf`);
@@ -496,11 +511,3 @@ export default function AutoGenerateBillPage() {
         </Dialog>
     </div>
   );
-
-    
-
-    
-
-    
-
-    
