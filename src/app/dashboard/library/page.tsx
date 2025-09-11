@@ -278,7 +278,10 @@ export default function AutoGenerateBillPage() {
               <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="discountPercent">Discount %</Label>
+               <div className="flex items-center justify-between">
+                <Label htmlFor="discountPercent">Discount %</Label>
+                <span className="text-sm text-muted-foreground" dir="rtl">رعايت٪</span>
+              </div>
               <Input id="discountPercent" type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} placeholder="e.g., 10" />
             </div>
           </div>
@@ -448,7 +451,3 @@ export default function AutoGenerateBillPage() {
     </div>
   );
 }
-
-    
-
-    
