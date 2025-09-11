@@ -21,8 +21,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 type BillEntry = {
   id: number;
@@ -112,6 +114,47 @@ export default function AutoGenerateBillPage() {
     return acc + totalAmount;
   }, 0);
 
+  const handleExportPDF = () => {
+    if (billEntries.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Export Failed',
+        description: 'There are no entries to export.',
+      });
+      return;
+    }
+
+    const doc = new jsPDF();
+    const purchaserName = billEntries.length > 0 ? billEntries[0].purchaserName : 'Customer';
+    const billDate = new Date().toLocaleDateString('en-US');
+
+    doc.text(`Bill for ${purchaserName}`, 14, 16);
+    doc.text(`Date: ${billDate}`, 14, 22);
+
+    (doc as any).autoTable({
+      head: [['Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+      body: billEntries.map(entry => {
+        const { totalAmount } = calculateRow(entry);
+        return [
+          entry.bookTitle,
+          entry.quantity,
+          entry.unitPrice.toFixed(2),
+          `${entry.discountPercent}%`,
+          totalAmount.toFixed(2),
+        ];
+      }),
+      startY: 30,
+      foot: [['', '', '', 'Overall Total (Rs.)', overallTotal.toFixed(2)]],
+      footStyles: {
+        fillColor: [230, 230, 230],
+        textColor: 20,
+        fontStyle: 'bold',
+      },
+    });
+
+    doc.save(`bill_${purchaserName.replace(/\s+/g, '_')}_${billDate}.pdf`);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -153,9 +196,15 @@ export default function AutoGenerateBillPage() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Current Bill</CardTitle>
-          <CardDescription>Review the items added to the current bill.</CardDescription>
+        <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Current Bill</CardTitle>
+              <CardDescription>Review the items added to the current bill.</CardDescription>
+            </div>
+            <Button variant="outline" onClick={handleExportPDF}>
+              <Download className="mr-2 h-4 w-4" />
+              Export PDF
+            </Button>
         </CardHeader>
         <CardContent>
           <Table>
