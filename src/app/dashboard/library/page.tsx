@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -26,6 +26,9 @@ import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { translateBookTitle } from './actions';
+import { useDebouncedCallback } from 'use-debounce';
+
 
 type BillEntry = {
   id: number;
@@ -69,6 +72,22 @@ export default function AutoGenerateBillPage() {
     unitPrice: '',
     discountPercent: '',
   });
+
+  const debouncedTranslate = useDebouncedCallback(async (text: string) => {
+    if (text) {
+      const translation = await translateBookTitle(text);
+      setBookTitleSindhi(translation);
+    } else {
+      setBookTitleSindhi('');
+    }
+  }, 500);
+
+  const handleBookTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setBookTitle(text);
+    debouncedTranslate(text);
+  };
+
 
   const handleAddEntry = () => {
     const qty = parseFloat(quantity);
@@ -252,7 +271,7 @@ export default function AutoGenerateBillPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label htmlFor="bookTitle">Book Title / Author</Label>
-              <Input id="bookTitle" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g., History of Sindh" dir="auto" />
+              <Input id="bookTitle" value={bookTitle} onChange={handleBookTitleChange} placeholder="e.g., History of Sindh" />
             </div>
             <div className="space-y-2 col-span-1 md:col-span-2">
               <Label htmlFor="bookTitleSindhi" className="text-right w-full block" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
@@ -446,4 +465,3 @@ export default function AutoGenerateBillPage() {
     </div>
   );
 }
-  
