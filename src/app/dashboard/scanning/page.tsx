@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search } from 'lucide-react';
+import { MoreHorizontal, Search, Calendar as CalendarIcon } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -35,6 +35,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 
 type ScanningRecord = {
   book_id: string;
@@ -86,12 +89,27 @@ export default function ScanningPage() {
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   const [editedStatus, setEditedStatus] = useState('');
   const { toast } = useToast();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+
+  const monthlyRecords = useMemo(() => {
+    const month = selectedDate.getMonth();
+    const year = selectedDate.getFullYear();
+    return scanningRecords.filter(r => {
+        const recordDate = new Date(r.updated_at);
+        return recordDate.getMonth() === month && recordDate.getFullYear() === year;
+    });
+  }, [selectedDate, scanningRecords]);
 
   const filteredRecords = useMemo(() => {
-    return scanningRecords.filter(record =>
+    return monthlyRecords.filter(record =>
       record.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [scanningRecords, searchTerm]);
+  }, [monthlyRecords, searchTerm]);
+  
+  const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+  });
 
   const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
@@ -127,22 +145,46 @@ export default function ScanningPage() {
 
         <Card>
             <CardHeader>
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex-1">
+              <div className="flex items-center justify-between gap-4 flex-col md:flex-row">
+                <div className="flex-1 w-full">
                     <CardTitle>Digitization Progress</CardTitle>
                     <CardDescription>
-                        A real-time overview of the book digitization pipeline.
+                       A real-time overview of the book digitization pipeline for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
                     </CardDescription>
                 </div>
-                <div className="relative">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        type="search"
-                        placeholder="Search books..."
-                        className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                 <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
+                    <div className="relative w-full">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="search"
+                            placeholder="Search books..."
+                            className="w-full rounded-lg bg-background pl-8"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                     <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-full sm:w-[280px] justify-start text-left font-normal",
+                                !selectedDate && "text-muted-foreground"
+                            )}
+                            >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={(date) => date && setSelectedDate(date)}
+                            initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </div>
               </div>
             </CardHeader>
