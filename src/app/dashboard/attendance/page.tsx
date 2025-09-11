@@ -100,20 +100,40 @@ export default function AttendancePage() {
     return records;
   }, [isEmployee, user, attendanceRecords, getUsers]);
 
-  const monthlyRecords = useMemo(() => {
-    const month = selectedDate.getMonth();
-    const year = selectedDate.getFullYear();
-    return userAttendanceRecords.filter(r => {
-        const recordDate = new Date(r.date + 'T00:00:00');
-        return recordDate.getMonth() === month && recordDate.getFullYear() === year;
-    });
-  }, [selectedDate, userAttendanceRecords]);
+  const recordsByEmployee = useMemo(() => {
+      const month = selectedDate.getMonth();
+      const year = selectedDate.getFullYear();
+      
+      const grouped: { [key: string]: { employeeName: string, records: AttendanceRecord[], summary: { Present: number, Absent: number, Leave: number } } } = {};
+      const allUsers = getUsers().filter(u => u.role === 'Employee');
 
-  const displayedRecords = useMemo(() => {
-    return monthlyRecords
-        .filter(record => record.name.toLowerCase().includes(searchTerm.toLowerCase()))
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [monthlyRecords, searchTerm]);
+      const usersToDisplay = isEmployee ? allUsers.filter(u => u.id === user?.id) : allUsers;
+
+      usersToDisplay.forEach(emp => {
+          const userRecordsForMonth = userAttendanceRecords.filter(r => {
+              const recordDate = new Date(r.date + 'T00:00:00');
+              return r.employeeId === emp.id && recordDate.getMonth() === month && recordDate.getFullYear() === year;
+          });
+
+          const summary = { Present: 0, Absent: 0, Leave: 0 };
+          userRecordsForMonth.forEach(r => {
+              if (r.status === 'Present') summary.Present++;
+              else if (r.status === 'Absent') summary.Absent++;
+              else if (r.status === 'Leave') summary.Leave++;
+          });
+
+          grouped[emp.id] = {
+              employeeName: emp.name,
+              records: userRecordsForMonth.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+              summary: summary
+          };
+      });
+
+      return Object.values(grouped).filter(employeeData =>
+          employeeData.employeeName.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+  }, [selectedDate, userAttendanceRecords, isEmployee, user, getUsers, searchTerm]);
+
 
   const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
     year: 'numeric',
@@ -124,29 +144,34 @@ export default function AttendancePage() {
     const doc = new jsPDF();
 
     doc.text(`Daily Attendance - ${selectedMonthFormatted}`, 14, 16);
-    const head = isEmployee ? [['Date', 'Time In', 'Time Out', 'Status']] : [['Employee Name', 'Date', 'Time In', 'Time Out', 'Status']];
-    const body = displayedRecords.map(r => {
-        const row = [
-            new Date(r.date + 'T00:00:00').toLocaleDateString(),
-            r.timeIn,
-            r.timeOut,
-            r.status
-        ];
-        if (!isEmployee) {
-            row.unshift(r.name);
-        }
-        return row;
-    });
+    let finalY = 22;
 
+    recordsByEmployee.forEach(({ employeeName, records, summary }) => {
+        doc.setFontSize(12);
+        doc.text(`Employee: ${employeeName}`, 14, finalY);
+        finalY += 6;
 
-    (doc as any).autoTable({
-        head: head,
-        body: body,
-        startY: 20,
-        didDrawPage: function (data) {
-            doc.setFontSize(20);
-            doc.setTextColor(40);
-        },
+        const summaryText = `Summary: ${summary.Present} Present, ${summary.Absent} Absent, ${summary.Leave} on Leave`;
+        doc.setFontSize(10);
+        doc.text(summaryText, 14, finalY);
+        finalY += 5;
+
+        (doc as any).autoTable({
+            head: [['Date', 'Time In', 'Time Out', 'Status']],
+            body: records.map(r => [
+                new Date(r.date + 'T00:00:00').toLocaleDateString(),
+                r.timeIn,
+                r.timeOut,
+                r.status
+            ]),
+            startY: finalY,
+            didDrawPage: function (data: any) {
+                if (data.pageNumber > 1) {
+                    finalY = 20;
+                }
+            },
+        });
+        finalY = (doc as any).lastAutoTable.finalY + 10;
     });
 
     doc.save(`attendance_report_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
@@ -321,99 +346,92 @@ export default function AttendancePage() {
         )}
 
       <div className="grid gap-6">
-        <Card>
-            <CardHeader>
-                <CardTitle>Daily Attendance</CardTitle>
-                <CardDescription>All attendance entries for the selected period.</CardDescription>
-            </CardHeader>
-            <CardContent>
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Employee Name</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Time In</TableHead>
-                    <TableHead>Time Out</TableHead>
-                    <TableHead>Status</TableHead>
-                    {!isEmployee && <TableHead><span className="sr-only">Actions</span></TableHead>}
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {displayedRecords.length > 0 ? (
-                    displayedRecords.map((record) => (
-                        <TableRow key={`${record.employeeId}-${record.date}`}>
-                            <TableCell className="font-medium">{isEmployee ? user?.name : record.name}</TableCell>
-                            <TableCell>{new Date(record.date  + 'T00:00:00').toLocaleDateString()}</TableCell>
-                            <TableCell>{record.timeIn}</TableCell>
-                            <TableCell>{record.timeOut}</TableCell>
-                            <TableCell>
-                                <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
-                                {record.status}
-                                </Badge>
-                            </TableCell>
-                            {!isEmployee && (
-                                <TableCell className="text-right">
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button aria-haspopup="true" size="icon" variant="ghost">
-                                                <MoreHorizontal className="h-4 w-4" />
-                                                <span className="sr-only">Toggle menu</span>
-                                            </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                            <DropdownMenuItem onClick={() => handleEditClick(record)}>
-                                                <Edit className="mr-2 h-4 w-4" /> Edit
-                                            </DropdownMenuItem>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                                                        <span className="text-destructive">Delete</span>
-                                                    </DropdownMenuItem>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Delete Record</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            Are you sure you want to delete this attendance record? This action cannot be undone.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDeleteRecord(record.employeeId, record.date)}>Delete</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                </TableCell>
-                            )}
-                        </TableRow>
-                    ))
-                ) : (
-                    <TableRow>
-                       {isEmployee && user ? (
-                         <>
-                          <TableCell className="font-medium">{user.name}</TableCell>
-                          <TableCell>{new Date(selectedDate).toLocaleDateString()}</TableCell>
-                          <TableCell>--:--</TableCell>
-                          <TableCell>--:--</TableCell>
-                          <TableCell>
-                            <Badge variant="outline">Not Marked</Badge>
-                          </TableCell>
-                         </>
-                       ) : (
-                          <TableCell colSpan={isEmployee ? 5 : 6} className="text-center text-muted-foreground">
-                              No attendance records found.
-                          </TableCell>
-                       )}
-                    </TableRow>
-                )}
-                </TableBody>
-            </Table>
-            </CardContent>
-        </Card>
+        {recordsByEmployee.length > 0 ? (
+            recordsByEmployee.map(({ employeeName, records, summary }) => (
+                <Card key={employeeName}>
+                    <CardHeader>
+                        <CardTitle>{employeeName}'s Attendance</CardTitle>
+                        <CardDescription>
+                            Summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>: 
+                            <span className="font-semibold text-green-500"> {summary.Present}</span> Present, 
+                            <span className="font-semibold text-red-500"> {summary.Absent}</span> Absent, 
+                            <span className="font-semibold text-gray-500"> {summary.Leave}</span> Leave
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Time In</TableHead>
+                                    <TableHead>Time Out</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    {!isEmployee && <TableHead><span className="sr-only">Actions</span></TableHead>}
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {records.map((record) => (
+                                    <TableRow key={`${record.employeeId}-${record.date}`}>
+                                        <TableCell>{new Date(record.date + 'T00:00:00').toLocaleDateString()}</TableCell>
+                                        <TableCell>{record.timeIn}</TableCell>
+                                        <TableCell>{record.timeOut}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
+                                                {record.status}
+                                            </Badge>
+                                        </TableCell>
+                                        {!isEmployee && (
+                                            <TableCell className="text-right">
+                                                <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button aria-haspopup="true" size="icon" variant="ghost">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                            <span className="sr-only">Toggle menu</span>
+                                                        </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                        <DropdownMenuItem onClick={() => handleEditClick(record)}>
+                                                            <Edit className="mr-2 h-4 w-4" /> Edit
+                                                        </DropdownMenuItem>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                                    <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                                                    <span className="text-destructive">Delete</span>
+                                                                </DropdownMenuItem>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                                                                    <AlertDialogDescription>
+                                                                        Are you sure you want to delete this attendance record? This action cannot be undone.
+                                                                    </AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleDeleteRecord(record.employeeId, record.date)}>Delete</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
+                                        )}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            ))
+        ) : (
+             <Card>
+                <CardContent className="text-center text-muted-foreground pt-8">
+                     No attendance records found for the selected period.
+                </CardContent>
+            </Card>
+        )}
       </div>
 
        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -457,3 +475,4 @@ export default function AttendancePage() {
     </div>
   );
 }
+
