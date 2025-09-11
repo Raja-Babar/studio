@@ -131,7 +131,7 @@ export default function AutoGenerateBillPage() {
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
-      head: [['Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+      head: [['Book Title / Author', 'Qty', 'Unit Price', 'Discount %', 'Total']],
       body: entries.map(entry => {
         const { totalAmount } = calculateRow(entry);
         return [
@@ -201,8 +201,8 @@ export default function AutoGenerateBillPage() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
             <div className="space-y-2 lg:col-span-2">
-                <Label htmlFor="bookTitle">Book Title</Label>
-                <Input id="bookTitle" name="bookTitle" value={newEntry.bookTitle} onChange={handleInputChange} placeholder="e.g., History of Sindh" />
+                <Label htmlFor="bookTitle">Book Title / Author</Label>
+                <Input id="bookTitle" name="bookTitle" value={newEntry.bookTitle} onChange={handleInputChange} placeholder="e.g., History of Sindh / Dr. Nabi Bux" />
             </div>
              <div className="space-y-2">
                 <Label htmlFor="purchaserName">Purchaser Name</Label>
@@ -243,7 +243,7 @@ export default function AutoGenerateBillPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Book Title</TableHead>
+                <TableHead>Book Title / Author</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Purchaser Name</TableHead>
                 <TableHead>Quantity Sold</TableHead>
@@ -342,5 +342,7 @@ export default function AutoGenerateBillPage() {
       </Card>
     </div>
   );
+
+    
 
     
