@@ -480,9 +480,9 @@ export default function EmployeeReportsPage() {
                                 return (
                                 <TableRow key={report.id}>
                                   <TableCell>
-                                      {isOnLeave ? '' : new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
+                                      {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                                   </TableCell>
-                                  <TableCell>{isOnLeave ? '' : report.submittedTime || '--:--'}</TableCell>
+                                  <TableCell>{report.submittedTime || '--:--'}</TableCell>
                                   <TableCell>
                                       {isOnLeave ? '' : (
                                           <Badge className={cn(getStageBadgeClass(report.stage))}>
