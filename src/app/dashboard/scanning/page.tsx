@@ -35,9 +35,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
 
 type ScanningRecord = {
   book_id: string;
@@ -89,27 +86,12 @@ export default function ScanningPage() {
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   const [editedStatus, setEditedStatus] = useState('');
   const { toast } = useToast();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
-  const monthlyRecords = useMemo(() => {
-    const month = selectedDate.getMonth();
-    const year = selectedDate.getFullYear();
-    return scanningRecords.filter(r => {
-        const recordDate = new Date(r.updated_at);
-        return recordDate.getMonth() === month && recordDate.getFullYear() === year;
-    });
-  }, [selectedDate, scanningRecords]);
 
   const filteredRecords = useMemo(() => {
-    return monthlyRecords.filter(record =>
+    return scanningRecords.filter(record =>
       record.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [monthlyRecords, searchTerm]);
-  
-  const selectedMonthFormatted = selectedDate.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-  });
+  }, [scanningRecords, searchTerm]);
 
   const formatDateTime = (isoString: string) => {
     const date = new Date(isoString);
@@ -149,7 +131,7 @@ export default function ScanningPage() {
                 <div className="flex-1 w-full">
                     <CardTitle>Digitization Progress</CardTitle>
                     <CardDescription>
-                       A real-time overview of the book digitization pipeline for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+                       A real-time overview of the book digitization pipeline.
                     </CardDescription>
                 </div>
                  <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
@@ -163,28 +145,6 @@ export default function ScanningPage() {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                     <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full sm:w-[280px] justify-start text-left font-normal",
-                                !selectedDate && "text-muted-foreground"
-                            )}
-                            >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={(date) => date && setSelectedDate(date)}
-                            initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
                 </div>
               </div>
             </CardHeader>
