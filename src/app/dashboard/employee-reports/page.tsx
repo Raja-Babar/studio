@@ -77,6 +77,8 @@ const getStageBadgeClass = (stage: string) => {
             return 'bg-orange-500 text-white';
         case 'pdf uploading':
             return 'bg-teal-500 text-white';
+        case 'leave':
+            return 'bg-gray-500 text-white';
         default:
             return 'bg-gray-500 text-white';
     }
@@ -84,7 +86,7 @@ const getStageBadgeClass = (stage: string) => {
 
 
 export default function EmployeeReportsPage() {
-    const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport } = useAuth();
+    const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, attendanceRecords } = useAuth();
     const { toast } = useToast();
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [searchTerm, setSearchTerm] = useState('');
@@ -452,14 +454,24 @@ export default function EmployeeReportsPage() {
                             </TableRow>
                             </TableHeader>
                             <TableBody>
-                            {employeeReports.map((report) => (
+                            {employeeReports.map((report) => {
+                                const attendanceRecord = attendanceRecords.find(
+                                    (r) =>
+                                      r.employeeId === report.employeeId &&
+                                      r.date === report.submittedDate
+                                );
+                                const isOnLeave = attendanceRecord?.status === 'Leave';
+
+                                return (
                                 <TableRow key={report.id}>
                                 <TableCell>
                                     {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
                                 </TableCell>
                                 <TableCell>{report.submittedTime || '--:--'}</TableCell>
                                 <TableCell>
-                                    <Badge className={cn(getStageBadgeClass(report.stage))}>{report.stage}</Badge>
+                                    <Badge className={cn(getStageBadgeClass(isOnLeave ? 'Leave' : report.stage))}>
+                                        {isOnLeave ? 'Leave' : report.stage}
+                                    </Badge>
                                 </TableCell>
                                 <TableCell>{report.type}</TableCell>
                                 <TableCell className="font-semibold text-foreground">{report.quantity}</TableCell>
@@ -506,7 +518,8 @@ export default function EmployeeReportsPage() {
                                     )}
                                 </TableCell>
                                 </TableRow>
-                            ))}
+                                );
+                            })}
                             </TableBody>
                         </Table>
                     </div>
