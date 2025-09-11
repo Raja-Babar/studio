@@ -28,6 +28,7 @@ const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
   { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
+  { href: '/dashboard/scanning', icon: ScanLine, label: 'I.T & Scanning-Section' },
   { href: '/dashboard/scanning', icon: ScanLine, label: 'Digitization Progress' },
   { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
   { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
@@ -58,8 +59,8 @@ export function DashboardNav() {
   return (
       <SidebarContent className="p-2">
           <SidebarMenu>
-              {navItems.map((item) => (
-              <SidebarMenuItem key={item.href}>
+              {navItems.map((item, index) => (
+              <SidebarMenuItem key={`${item.href}-${index}`}>
                   <Link href={item.href}>
                   <SidebarMenuButton
                       isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
