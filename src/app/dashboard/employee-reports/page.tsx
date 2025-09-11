@@ -84,6 +84,19 @@ const getStageBadgeClass = (stage: string) => {
     }
 };
 
+const getAttendanceStatusBadgeClass = (status?: string) => {
+    switch (status) {
+      case 'Present':
+        return 'default';
+      case 'Absent':
+        return 'destructive';
+      case 'Leave':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+
 
 export default function EmployeeReportsPage() {
     const { user, employeeReports: reports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, attendanceRecords } = useAuth();
@@ -446,6 +459,7 @@ export default function EmployeeReportsPage() {
                                 <TableHead>Report Stage</TableHead>
                                 <TableHead>Type</TableHead>
                                 <TableHead>Quantity</TableHead>
+                                <TableHead>Attendance Status</TableHead>
                                 {user?.role === 'Admin' && (
                                 <TableHead>
                                     <span className="sr-only">Actions</span>
@@ -460,7 +474,7 @@ export default function EmployeeReportsPage() {
                                       r.employeeId === report.employeeId &&
                                       r.date === report.submittedDate
                                 );
-                                const isOnLeave = attendanceRecord?.status === 'Leave';
+                                const attendanceStatus = attendanceRecord?.status || 'Not Marked';
 
                                 return (
                                 <TableRow key={report.id}>
@@ -469,12 +483,17 @@ export default function EmployeeReportsPage() {
                                 </TableCell>
                                 <TableCell>{report.submittedTime || '--:--'}</TableCell>
                                 <TableCell>
-                                    <Badge className={cn(getStageBadgeClass(isOnLeave ? 'Leave' : report.stage))}>
-                                        {isOnLeave ? 'Leave' : report.stage}
+                                    <Badge className={cn(getStageBadgeClass(report.stage))}>
+                                        {report.stage}
                                     </Badge>
                                 </TableCell>
                                 <TableCell>{report.type}</TableCell>
-                                <TableCell className="font-semibold text-foreground">{isOnLeave ? 0 : report.quantity}</TableCell>
+                                <TableCell className="font-semibold text-foreground">{report.quantity}</TableCell>
+                                <TableCell>
+                                    <Badge variant={getAttendanceStatusBadgeClass(attendanceStatus)}>
+                                        {attendanceStatus}
+                                    </Badge>
+                                </TableCell>
                                 <TableCell className="text-right">
                                     {user?.role === 'Admin' && (
                                     <DropdownMenu>
