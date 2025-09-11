@@ -27,9 +27,9 @@ import { useAuth } from '@/hooks/use-auth';
 const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
+  { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
   { href: '/dashboard/scanning', icon: ScanLine, label: 'I.T & Scanning' },
   { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
-  { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
   { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
   { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
