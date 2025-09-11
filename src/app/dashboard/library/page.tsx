@@ -259,7 +259,7 @@ export default function AutoGenerateBillPage() {
                 <Input id="bookTitle" name="bookTitle" value={newEntry.bookTitle} onChange={handleInputChange} placeholder="e.g., History of Sindh / Dr. Nabi Bux" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="bookTitleSindhi">Book Title / Author (Sindhi)</Label>
+                <Label htmlFor="bookTitleSindhi">ڪتاب جو عنوان / ليکڪ</Label>
                 <Input id="bookTitleSindhi" name="bookTitleSindhi" value={newEntry.bookTitleSindhi} onChange={handleInputChange} placeholder="e.g., تاريخ سنڌ / ڊاڪٽر نبي بخش" />
             </div>
              <div className="space-y-2">
