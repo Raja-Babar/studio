@@ -92,6 +92,8 @@ const getStageBadgeClass = (stage: string) => {
             return 'bg-orange-500 text-white';
         case 'pdf uploading':
             return 'bg-teal-500 text-white';
+        case 'leave':
+            return 'bg-gray-500 text-white';
         default:
             return 'bg-gray-500 text-white';
     }
@@ -448,15 +450,26 @@ function EmployeeDashboard() {
             </TableHeader>
             <TableBody>
               {userReports.length > 0 ? (
-                userReports.map((task) => (
-                  <TableRow key={task.id}>
-                    <TableCell className="font-medium">{`${task.type} - ${task.quantity}`}</TableCell>
-                    <TableCell>
-                      <Badge className={cn(getStageBadgeClass(task.stage))}>{task.stage}</Badge>
-                    </TableCell>
-                    <TableCell>{new Date(task.submittedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))
+                userReports.map((task) => {
+                  const attendanceRecord = attendanceRecords.find(
+                    (r) =>
+                      r.employeeId === user?.id &&
+                      r.date === task.submittedDate
+                  );
+                  const isOnLeaveForTask = attendanceRecord?.status === 'Leave';
+                  
+                  return (
+                    <TableRow key={task.id}>
+                      <TableCell className="font-medium">{`${task.type} - ${task.quantity}`}</TableCell>
+                      <TableCell>
+                        <Badge className={cn(getStageBadgeClass(isOnLeaveForTask ? 'Leave' : task.stage))}>
+                          {isOnLeaveForTask ? 'Leave' : task.stage}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>{new Date(task.submittedDate + 'T00:00:00').toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center text-muted-foreground">
