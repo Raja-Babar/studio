@@ -21,10 +21,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Trash2, Download } from 'lucide-react';
+import { PlusCircle, Trash2, Download, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 
 type BillEntry = {
   id: number;
@@ -56,6 +58,16 @@ export default function AutoGenerateBillPage() {
     quantity: '',
     unitPrice: '',
     discountPercent: '0',
+  });
+
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<BillEntry | null>(null);
+  const [editedEntry, setEditedEntry] = useState({
+    bookTitle: '',
+    purchaserName: '',
+    quantity: '',
+    unitPrice: '',
+    discountPercent: '',
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,6 +122,40 @@ export default function AutoGenerateBillPage() {
       description: 'The selected entry has been removed from the bill.',
     });
   };
+
+  const handleEditClick = (entry: BillEntry) => {
+    setSelectedEntry(entry);
+    setEditedEntry({
+      bookTitle: entry.bookTitle,
+      purchaserName: entry.purchaserName,
+      quantity: entry.quantity.toString(),
+      unitPrice: entry.unitPrice.toString(),
+      discountPercent: entry.discountPercent.toString(),
+    });
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleUpdateEntry = () => {
+    if (selectedEntry) {
+        setBillEntries(prev => prev.map(entry =>
+            entry.id === selectedEntry.id ? {
+                ...entry,
+                bookTitle: editedEntry.bookTitle,
+                purchaserName: editedEntry.purchaserName,
+                quantity: parseFloat(editedEntry.quantity),
+                unitPrice: parseFloat(editedEntry.unitPrice),
+                discountPercent: parseFloat(editedEntry.discountPercent),
+            } : entry
+        ));
+        setIsEditDialogOpen(false);
+        setSelectedEntry(null);
+        toast({
+            title: 'Entry Updated',
+            description: 'The bill entry has been successfully updated.',
+        });
+    }
+  };
+
 
   const calculateRow = (entry: BillEntry) => {
     const discountAmount = entry.unitPrice * (entry.discountPercent / 100);
@@ -269,6 +315,10 @@ export default function AutoGenerateBillPage() {
                       <TableCell>{discountedPrice.toFixed(2)}</TableCell>
                       <TableCell className="font-semibold">{totalAmount.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
+                         <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleDeleteEntry(entry.id)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
                             <span className="sr-only">Delete</span>
@@ -340,6 +390,44 @@ export default function AutoGenerateBillPage() {
             </Table>
         </CardContent>
       </Card>
+
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Edit Bill Entry</DialogTitle>
+                    <DialogDescription>
+                        Make changes to the bill entry here. Click save when you're done.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-bookTitle" className="text-right">Title/Author</Label>
+                        <Input id="edit-bookTitle" value={editedEntry.bookTitle} onChange={(e) => setEditedEntry(p => ({...p, bookTitle: e.target.value}))} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
+                        <Input id="edit-purchaserName" value={editedEntry.purchaserName} onChange={(e) => setEditedEntry(p => ({...p, purchaserName: e.target.value}))} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-quantity" className="text-right">Quantity</Label>
+                        <Input id="edit-quantity" type="number" value={editedEntry.quantity} onChange={(e) => setEditedEntry(p => ({...p, quantity: e.target.value}))} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-unitPrice" className="text-right">Unit Price</Label>
+                        <Input id="edit-unitPrice" type="number" value={editedEntry.unitPrice} onChange={(e) => setEditedEntry(p => ({...p, unitPrice: e.target.value}))} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-discountPercent" className="text-right">Discount %</Label>
+                        <Input id="edit-discountPercent" type="number" value={editedEntry.discountPercent} onChange={(e) => setEditedEntry(p => ({...p, discountPercent: e.target.value}))} className="col-span-3" />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                    <Button type="submit" onClick={handleUpdateEntry}>Save changes</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </div>
   );
-}
+
+    
