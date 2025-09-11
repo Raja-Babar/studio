@@ -126,12 +126,12 @@ export default function ScanningPage() {
       month: new Set<string>(),
     };
     scanningRecords.forEach(record => {
-      options.year.add(record.year);
-      options.status.add(record.status);
+      if (record.year) options.year.add(record.year);
+      if (record.status) options.status.add(record.status);
       if (record.scanned_by) options.scanned_by.add(record.scanned_by);
       if (record.assigned_to) options.assigned_to.add(record.assigned_to);
-      options.source.add(record.source);
-      options.month.add(record.month);
+      if (record.source) options.source.add(record.source);
+      if (record.month) options.month.add(record.month);
     });
     return {
       year: Array.from(options.year).sort(),
@@ -146,7 +146,7 @@ export default function ScanningPage() {
   const filteredRecords = useMemo(() => {
     return scanningRecords.filter(record => {
       return (
-        record.title_english.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (record.title_english || '').toLowerCase().includes(searchTerm.toLowerCase()) &&
         (filters.year ? record.year === filters.year : true) &&
         (filters.status ? record.status === filters.status : true) &&
         (filters.scanned_by ? record.scanned_by === filters.scanned_by : true) &&
