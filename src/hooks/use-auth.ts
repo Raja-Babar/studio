@@ -30,7 +30,7 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   approveUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
-  updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
+  updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean; markLeave?: boolean }) => void;
   updateAttendanceRecord: (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => void;
   deleteAttendanceRecord: (employeeId: string, date: string) => void;
   employeeReports: EmployeeReport[];

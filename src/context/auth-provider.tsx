@@ -75,7 +75,7 @@ type AuthContextType = {
   deleteUser: (email: string) => Promise<void>;
   approveUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
-  updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => void;
+  updateAttendance: (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean; markLeave?: boolean }) => void;
   updateAttendanceRecord: (employeeId: string, date: string, data: Partial<Omit<AttendanceRecord, 'employeeId' | 'date' | 'name'>>) => void;
   deleteAttendanceRecord: (employeeId: string, date: string) => void;
   employeeReports: EmployeeReport[];
@@ -383,7 +383,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
   
-  const updateAttendance = (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean }) => {
+  const updateAttendance = (employeeId: string, actions: { clockIn?: boolean; clockOut?: boolean; markLeave?: boolean; }) => {
     const today = new Date().toISOString().split('T')[0];
     const currentTime = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
     
@@ -396,29 +396,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         recordExists = true;
         let newTimeIn = record.timeIn;
         let newTimeOut = record.timeOut;
+        let newStatus = record.status;
 
         if (actions.clockIn) {
           newTimeIn = currentTime;
+          newStatus = 'Present';
         }
         if (actions.clockOut) {
           newTimeOut = currentTime;
+          newStatus = 'Present';
+        }
+        if (actions.markLeave) {
+          newStatus = 'Leave';
+          newTimeIn = '--:--';
+          newTimeOut = '--:--';
         }
         
-        return { ...record, timeIn: newTimeIn, timeOut: newTimeOut, status: 'Present' as const };
+        return { ...record, timeIn: newTimeIn, timeOut: newTimeOut, status: newStatus as 'Present' | 'Leave' };
       }
       return record;
     });
 
-    if (!recordExists && actions.clockIn) {
+    if (!recordExists) {
       const employee = Object.values(usersFromStorage).find((u: any) => u.id === employeeId);
       if (employee) {
+        let newStatus: AttendanceRecord['status'] = 'Not Marked';
+        let newTimeIn = '--:--';
+
+        if(actions.clockIn) {
+            newStatus = 'Present';
+            newTimeIn = currentTime;
+        } else if (actions.markLeave) {
+            newStatus = 'Leave';
+        }
+        
         updatedAttendance.push({
           employeeId: employeeId,
           name: (employee as User).name,
           date: today,
-          timeIn: currentTime,
+          timeIn: newTimeIn,
           timeOut: '--:--',
-          status: 'Present',
+          status: newStatus,
         });
       }
     }

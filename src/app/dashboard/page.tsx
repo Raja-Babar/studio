@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal, CalendarOff } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -313,6 +313,7 @@ function EmployeeDashboard() {
   
   const hasClockedIn = timeIn !== '--:--';
   const hasClockedOut = timeOut !== '--:--';
+  const isOnLeave = todaysRecord?.status === 'Leave';
 
   const userReports = useMemo(() => {
     if (user?.role === 'Employee') {
@@ -349,6 +350,16 @@ function EmployeeDashboard() {
       });
     }
   };
+  
+  const handleMarkLeave = () => {
+    if (user) {
+      updateAttendance(user.id, { markLeave: true });
+      toast({
+        title: "Leave Marked",
+        description: "You have been marked as on leave for today.",
+      });
+    }
+  };
 
 
   return (
@@ -362,15 +373,19 @@ function EmployeeDashboard() {
           <CardContent className="flex flex-col items-start gap-4">
             <div className="w-full space-y-4">
               <div className="flex w-full gap-4">
-                <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn || !canClockIn}>
+                <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn || !canClockIn || isOnLeave}>
                     <Clock className="mr-2 h-4 w-4" />
                     Clock In
                 </Button>
-                <Button onClick={handleClockOut} className="w-full" variant="outline" disabled={!hasClockedIn || hasClockedOut}>
+                <Button onClick={handleClockOut} className="w-full" variant="outline" disabled={!hasClockedIn || hasClockedOut || isOnLeave}>
                     <Clock className="mr-2 h-4 w-4" />
                     Clock Out
                 </Button>
               </div>
+              <Button onClick={handleMarkLeave} className="w-full" variant="secondary" disabled={hasClockedIn || isOnLeave}>
+                <CalendarOff className="mr-2 h-4 w-4" />
+                Mark Leave
+              </Button>
                {!canClockIn && currentIp && requiredIp && (
                 <p className="text-xs text-destructive text-center">
                   Clock-in disabled. Your IP ({currentIp}) does not match required IP ({requiredIp}).
@@ -384,12 +399,18 @@ function EmployeeDashboard() {
                       <TableRow>
                       <TableHead>Time In</TableHead>
                       <TableHead>Time Out</TableHead>
+                      <TableHead>Status</TableHead>
                       </TableRow>
                   </TableHeader>
                   <TableBody>
                       <TableRow>
                       <TableCell>{timeIn}</TableCell>
                       <TableCell>{timeOut}</TableCell>
+                       <TableCell>
+                        <Badge variant={todaysRecord?.status === 'Present' ? 'default' : todaysRecord?.status === 'Leave' ? 'secondary' : 'outline'}>
+                          {todaysRecord?.status || 'Not Marked'}
+                        </Badge>
+                       </TableCell>
                       </TableRow>
                   </TableBody>
               </Table>

@@ -9,7 +9,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search, Globe } from 'lucide-react';
+import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search, Globe, CalendarOff, Clock } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -71,20 +71,22 @@ export default function AttendancePage() {
     }
   }, [isEmployee]);
 
-  const canClockIn = useMemo(() => {
-    if (!isEmployee) return false;
-    if (ipError) return false;
-    if (!requiredIp || !currentIp) return true; // Allow if no restriction or IP not fetched yet
-    return currentIp === requiredIp;
-  }, [isEmployee, requiredIp, currentIp, ipError]);
-
   const todaysRecord = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     return attendanceRecords.find(r => r.employeeId === user?.id && r.date === today);
   }, [attendanceRecords, user]);
 
+  const canClockIn = useMemo(() => {
+    if (!isEmployee) return false;
+    if (ipError) return false;
+    if (todaysRecord?.status === 'Leave') return false;
+    if (!requiredIp || !currentIp) return true; // Allow if no restriction or IP not fetched yet
+    return currentIp === requiredIp;
+  }, [isEmployee, requiredIp, currentIp, ipError, todaysRecord]);
+
   const hasClockedIn = todaysRecord?.timeIn && todaysRecord.timeIn !== '--:--';
   const hasClockedOut = todaysRecord?.timeOut && todaysRecord.timeOut !== '--:--';
+  const isOnLeave = todaysRecord?.status === 'Leave';
 
   const userAttendanceRecords = useMemo(() => {
     const allUsers = getUsers();
@@ -197,6 +199,16 @@ export default function AttendancePage() {
       toast({ title: 'Clocked Out', description: 'Your departure time has been recorded.' });
     }
   };
+  
+  const handleMarkLeave = () => {
+    if (user) {
+      updateAttendance(user.id, { markLeave: true });
+      toast({
+        title: "Leave Marked",
+        description: "You have been marked as on leave for today.",
+      });
+    }
+  };
 
   const handleSetIp = () => {
     setRequiredIp(ipInput);
@@ -253,6 +265,39 @@ export default function AttendancePage() {
             </Button>
         </div>
       </div>
+        {isEmployee && (
+             <Card>
+                <CardHeader>
+                    <CardTitle>Today's Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-col items-start gap-4">
+                    <div className="w-full space-y-4">
+                    <div className="flex w-full gap-4">
+                        <Button onClick={handleClockIn} className="w-full" disabled={hasClockedIn || !canClockIn}>
+                            <Clock className="mr-2 h-4 w-4" />
+                            Clock In
+                        </Button>
+                        <Button onClick={handleClockOut} className="w-full" variant="outline" disabled={!hasClockedIn || hasClockedOut || isOnLeave}>
+                            <Clock className="mr-2 h-4 w-4" />
+                            Clock Out
+                        </Button>
+                    </div>
+                    <Button onClick={handleMarkLeave} className="w-full" variant="secondary" disabled={hasClockedIn || isOnLeave}>
+                        <CalendarOff className="mr-2 h-4 w-4" />
+                        Mark Leave
+                    </Button>
+                    {!canClockIn && currentIp && requiredIp && (
+                        <p className="text-xs text-destructive text-center">
+                        Clock-in disabled. Your IP ({currentIp}) does not match required IP ({requiredIp}).
+                        </p>
+                    )}
+                    {ipError && (
+                        <p className="text-xs text-destructive text-center">{ipError}</p>
+                    )}
+                    </div>
+                </CardContent>
+            </Card>
+        )}
 
         {!isEmployee && (
             <Card>
