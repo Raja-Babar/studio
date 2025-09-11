@@ -48,7 +48,7 @@ const administrationItems = [
 ];
 
 const libraryItems = [
-    { href: '/dashboard/library', icon: Library, label: 'Library' },
+    { href: '/dashboard/library', icon: Library, label: 'Books Sell Bill' },
 ];
 
 const appFileItems = [
