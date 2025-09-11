@@ -32,7 +32,6 @@ type BillEntry = {
   id: number;
   bookTitle: string;
   bookTitleSindhi: string;
-  language: string;
   date: string;
   purchaserName: string;
   quantity: number;
@@ -56,7 +55,6 @@ export default function AutoGenerateBillPage() {
 
   const [bookTitle, setBookTitle] = useState('');
   const [bookTitleSindhi, setBookTitleSindhi] = useState('');
-  const [language, setLanguage] = useState('');
   const [purchaserName, setPurchaserName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
@@ -67,7 +65,6 @@ export default function AutoGenerateBillPage() {
   const [editedEntry, setEditedEntry] = useState({
     bookTitle: '',
     bookTitleSindhi: '',
-    language: '',
     purchaserName: '',
     quantity: '',
     unitPrice: '',
@@ -92,7 +89,6 @@ export default function AutoGenerateBillPage() {
       id: nextEntryId,
       bookTitle,
       bookTitleSindhi,
-      language,
       purchaserName,
       date: new Date().toLocaleDateString('en-US'),
       quantity: qty,
@@ -106,7 +102,6 @@ export default function AutoGenerateBillPage() {
     // Reset form
     setBookTitle('');
     setBookTitleSindhi('');
-    setLanguage('');
     setPurchaserName('');
     setQuantity('');
     setUnitPrice('');
@@ -131,7 +126,6 @@ export default function AutoGenerateBillPage() {
     setEditedEntry({
       bookTitle: entry.bookTitle,
       bookTitleSindhi: entry.bookTitleSindhi,
-      language: entry.language,
       purchaserName: entry.purchaserName,
       quantity: entry.quantity.toString(),
       unitPrice: entry.unitPrice.toString(),
@@ -147,7 +141,6 @@ export default function AutoGenerateBillPage() {
                 ...entry,
                 bookTitle: editedEntry.bookTitle,
                 bookTitleSindhi: editedEntry.bookTitleSindhi,
-                language: editedEntry.language,
                 purchaserName: editedEntry.purchaserName,
                 quantity: parseFloat(editedEntry.quantity),
                 unitPrice: parseFloat(editedEntry.unitPrice),
@@ -184,13 +177,12 @@ export default function AutoGenerateBillPage() {
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
-      head: [['Book Title / Author', 'Book Title / Author (Sindhi)', 'Language', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+      head: [['Book Title / Author', 'Book Title / Author (Sindhi)', 'Qty', 'Unit Price', 'Discount %', 'Total']],
       body: entries.map(entry => {
         const { totalAmount } = calculateRow(entry);
         return [
           entry.bookTitle,
           entry.bookTitleSindhi,
-          entry.language,
           entry.quantity,
           entry.unitPrice.toFixed(2),
           `${entry.discountPercent}%`,
@@ -198,7 +190,7 @@ export default function AutoGenerateBillPage() {
         ];
       }),
       startY: 30,
-      foot: [['', '', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
+      foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
       footStyles: {
         fillColor: [230, 230, 230],
         textColor: 20,
@@ -258,7 +250,7 @@ export default function AutoGenerateBillPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="bookTitle">Book Title / Author</Label>
               <Input id="bookTitle" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g., History of Sindh" />
@@ -266,10 +258,6 @@ export default function AutoGenerateBillPage() {
              <div className="space-y-2">
               <Label htmlFor="bookTitleSindhi" className="text-right w-full block" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
               <Input id="bookTitleSindhi" value={bookTitleSindhi} onChange={e => setBookTitleSindhi(e.target.value)} placeholder="e.g., سنڌ جي تاريخ" className="text-right" dir="rtl" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="language">Language</Label>
-              <Input id="language" value={language} onChange={e => setLanguage(e.target.value)} placeholder="e.g., English" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="purchaserName">Purchaser Name</Label>
@@ -312,7 +300,6 @@ export default function AutoGenerateBillPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Book Title / Author</TableHead>
-                <TableHead>Language</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Purchaser Name</TableHead>
                 <TableHead>Quantity Sold</TableHead>
@@ -330,7 +317,6 @@ export default function AutoGenerateBillPage() {
                   return (
                     <TableRow key={entry.id}>
                       <TableCell className="font-medium">{entry.bookTitle}</TableCell>
-                      <TableCell>{entry.language}</TableCell>
                       <TableCell>{entry.date}</TableCell>
                       <TableCell>{entry.purchaserName}</TableCell>
                       <TableCell>{entry.quantity}</TableCell>
@@ -353,7 +339,7 @@ export default function AutoGenerateBillPage() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center h-24">
+                  <TableCell colSpan={9} className="text-center h-24">
                     No entries added to the bill yet. Start by adding a new entry above.
                   </TableCell>
                 </TableRow>
@@ -431,10 +417,6 @@ export default function AutoGenerateBillPage() {
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-bookTitleSindhi" className="text-right" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
                         <Input id="edit-bookTitleSindhi" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3 text-right" dir="rtl" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-language" className="text-right">Language</Label>
-                        <Input id="edit-language" value={editedEntry.language} onChange={(e) => setEditedEntry(p => ({...p, language: e.target.value}))} className="col-span-3" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
