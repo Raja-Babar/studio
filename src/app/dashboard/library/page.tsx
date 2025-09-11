@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -21,7 +22,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Trash2, Download, Edit } from 'lucide-react';
+import { PlusCircle, Trash2, Download, Edit, Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -222,16 +223,18 @@ export default function AutoGenerateBillPage() {
   };
   
 
-  const handleExportPDF = () => {
+  const handlePrint = () => {
     if (billEntries.length === 0) {
       toast({
         variant: 'destructive',
-        title: 'Export Failed',
-        description: 'There are no entries to export.',
+        title: 'Print Failed',
+        description: 'There are no entries to print.',
       });
       return;
     }
 
+    window.print();
+    
     const billDate = new Date().toLocaleDateString('en-US');
     const purchaserName = billEntries.length > 0 ? billEntries[0].purchaserName : 'Customer';
     const newBill: GeneratedBill = {
@@ -243,279 +246,291 @@ export default function AutoGenerateBillPage() {
     };
 
     setGeneratedBills(prev => [newBill, ...prev]);
-    generateAndSavePDF(newBill);
 
-    // Clear current bill
     setBillEntries([]);
     setNextEntryId(1);
     
     toast({
-        title: 'Bill Generated',
-        description: `Bill ${newBill.id} has been exported and recorded.`,
+        title: 'Bill Recorded',
+        description: `Bill ${newBill.id} has been recorded in history.`,
     });
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Auto-Generate-Bill</h1>
-        <p className="text-muted-foreground mt-2">Create and manage bills for book sales.</p>
-      </div>
+    <>
+      <style jsx global>{`
+        @media print {
+          body > *:not(.printable-bill) {
+            display: none;
+          }
+          .printable-bill {
+            display: block !important;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+        }
+      `}</style>
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Auto-Generate-Bill</h1>
+          <p className="text-muted-foreground mt-2">Create and manage bills for book sales.</p>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Add New Bill Entry</CardTitle>
-          <CardDescription>
-            Fill in the details below to add a new item to the current bill.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="bookTitle">Book Title / Author</Label>
-                <Label htmlFor="bookTitleSindhi" className="font-sindhi text-lg" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
+        <Card>
+          <CardHeader>
+            <CardTitle>Add New Bill Entry</CardTitle>
+            <CardDescription>
+              Fill in the details below to add a new item to the current bill.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="bookTitle">Book Title / Author</Label>
+                  <Label htmlFor="bookTitleSindhi" className="font-sindhi text-lg" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
+                </div>
+                <Input
+                  id="bookTitle"
+                  value={bookTitle}
+                  onChange={(e) => setBookTitle(e.target.value)}
+                  placeholder="e.g., History of Sindh"
+                  dir="auto"
+                />
               </div>
-              <Input
-                id="bookTitle"
-                value={bookTitle}
-                onChange={(e) => setBookTitle(e.target.value)}
-                placeholder="e.g., History of Sindh"
-                dir="auto"
-              />
-            </div>
-            <div className="space-y-2">
-              <Input
-                id="bookTitleSindhi"
-                value={bookTitleSindhi}
-                onChange={(e) => setBookTitleSindhi(e.target.value)}
-                placeholder="مثال طور، سنڌ جي تاريخ"
-                className="font-sindhi"
-                dir="rtl"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="purchaserName">Purchaser Name</Label>
-                <Label htmlFor="purchaserNameSindhi" className="font-sindhi text-lg" dir="rtl">خريدار جو نالو</Label>
+              <div className="space-y-2">
+                <Input
+                  id="bookTitleSindhi"
+                  value={bookTitleSindhi}
+                  onChange={(e) => setBookTitleSindhi(e.target.value)}
+                  placeholder="مثال طور، سنڌ جي تاريخ"
+                  className="font-sindhi"
+                  dir="rtl"
+                />
               </div>
-              <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
-            </div>
-             <div className="space-y-2">
-              <Input
-                id="purchaserNameSindhi"
-                value={purchaserNameSindhi}
-                onChange={(e) => setPurchaserNameSindhi(e.target.value)}
-                placeholder="مثال طور، علي خان"
-                className="font-sindhi"
-                dir="rtl"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="quantity">Quantity Sold</Label>
-                <span className="font-sindhi text-lg" dir="rtl">وڪرو ٿيل مقدار</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="purchaserName">Purchaser Name</Label>
+                  <Label htmlFor="purchaserNameSindhi" className="font-sindhi text-lg" dir="rtl">خريدار جو نالو</Label>
+                </div>
+                <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
               </div>
-              <Input id="quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 2" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
-                <span className="font-sindhi text-lg" dir="rtl">يونٽ جي قيمت (روپيا)</span>
+              <div className="space-y-2">
+                <Input
+                  id="purchaserNameSindhi"
+                  value={purchaserNameSindhi}
+                  onChange={(e) => setPurchaserNameSindhi(e.target.value)}
+                  placeholder="مثال طور، علي خان"
+                  className="font-sindhi"
+                  dir="rtl"
+                />
               </div>
-              <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
-            </div>
-            <div className="space-y-2">
-               <div className="flex items-center justify-between">
-                <Label htmlFor="discountPercent">Discount %</Label>
-                <span className="font-sindhi text-lg" dir="rtl">رعايت٪</span>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="quantity">Quantity Sold</Label>
+                  <span className="font-sindhi text-lg" dir="rtl">وڪرو ٿيل مقدار</span>
+                </div>
+                <Input id="quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 2" />
               </div>
-              <Input id="discountPercent" type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} placeholder="e.g., 10" />
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
+                  <span className="font-sindhi text-lg" dir="rtl">يونٽ جي قيمت (روپيا)</span>
+                </div>
+                <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="discountPercent">Discount %</Label>
+                  <span className="font-sindhi text-lg" dir="rtl">رعايت٪</span>
+                </div>
+                <Input id="discountPercent" type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} placeholder="e.g., 10" />
+              </div>
             </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button onClick={handleAddEntry}>
-            <PlusCircle className="mr-2" /> Add to Bill
-          </Button>
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle>Current Bill</CardTitle>
-              <CardDescription>Review the items added to the current bill.</CardDescription>
-            </div>
-            <Button variant="outline" onClick={handleExportPDF}>
-              <Download className="mr-2 h-4 w-4" />
-              Export PDF
+          </CardContent>
+          <CardFooter>
+            <Button onClick={handleAddEntry}>
+              <PlusCircle className="mr-2" /> Add to Bill
             </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Book Title / Author</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Purchaser Name</TableHead>
-                <TableHead>Quantity Sold</TableHead>
-                <TableHead>Unit Price (Rs.)</TableHead>
-                <TableHead>Discount %</TableHead>
-                <TableHead>Discounted Price (Rs.)</TableHead>
-                <TableHead>Total Amount (Rs.)</TableHead>
-                <TableHead><span className="sr-only">Actions</span></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {billEntries.length > 0 ? (
-                billEntries.map(entry => {
-                  const { discountedPrice, totalAmount } = calculateRow(entry);
-                  return (
-                    <TableRow key={entry.id}>
-                      <TableCell className="font-medium" dir="auto">
-                        {entry.bookTitle}
-                        {entry.bookTitleSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.bookTitleSindhi}</div>}
-                      </TableCell>
-                      <TableCell>{entry.date}</TableCell>
-                      <TableCell>
-                        {entry.purchaserName}
-                        {entry.purchaserNameSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.purchaserNameSindhi}</div>}
-                        </TableCell>
-                      <TableCell>{entry.quantity}</TableCell>
-                      <TableCell>{entry.unitPrice.toFixed(2)}</TableCell>
-                      <TableCell>{entry.discountPercent}%</TableCell>
-                      <TableCell>{discountedPrice.toFixed(2)}</TableCell>
-                      <TableCell className="font-semibold">{totalAmount.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">
-                         <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
-                            <Edit className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteEntry(entry.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                            <span className="sr-only">Delete</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={9} className="text-center h-24">
-                    No entries added to the bill yet. Start by adding a new entry above.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-        {billEntries.length > 0 && (
-            <CardFooter className="flex justify-end">
-                <div className="text-right">
-                    <p className="text-lg font-semibold">Overall Total (Rs.):</p>
-                    <p className="text-2xl font-bold text-primary">{overallTotal.toFixed(2)}</p>
-                </div>
-            </CardFooter>
-        )}
-      </Card>
-      
-      <Card>
-        <CardHeader>
-            <CardTitle>Generated Bills History</CardTitle>
-            <CardDescription>A record of all previously generated bills.</CardDescription>
-        </CardHeader>
-        <CardContent>
+          </CardFooter>
+        </Card>
+
+        <Card className="printable-bill">
+          <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Current Bill</CardTitle>
+                <CardDescription>Review the items added to the current bill.</CardDescription>
+              </div>
+              <Button variant="outline" onClick={handlePrint}>
+                <Printer className="mr-2 h-4 w-4" />
+                Print Bill
+              </Button>
+          </CardHeader>
+          <CardContent>
             <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Bill ID</TableHead>
-                        <TableHead>Purchaser Name</TableHead>
-                        <TableHead>Book Title(s)</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Total Amount (Rs.)</TableHead>
-                        <TableHead><span className="sr-only">Actions</span></TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {generatedBills.length > 0 ? (
-                        generatedBills.map(bill => (
-                            <TableRow key={bill.id}>
-                                <TableCell className="font-medium">{bill.id}</TableCell>
-                                <TableCell>{bill.purchaserName}</TableCell>
-                                <TableCell>
-                                    {bill.entries[0]?.bookTitle}
-                                    {bill.entries.length > 1 && ` (+${bill.entries.length - 1} more)`}
-                                </TableCell>
-                                <TableCell>{bill.date}</TableCell>
-                                <TableCell className="font-semibold">{bill.totalAmount.toFixed(2)}</TableCell>
-                                <TableCell className="text-right">
-                                    <Button variant="ghost" size="sm" onClick={() => generateAndSavePDF(bill)}>
-                                        <Download className="mr-2 h-4 w-4" />
-                                        Re-Download
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={6} className="h-24 text-center">
-                                No bills have been generated yet.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Book Title / Author</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Purchaser Name</TableHead>
+                  <TableHead>Quantity Sold</TableHead>
+                  <TableHead>Unit Price (Rs.)</TableHead>
+                  <TableHead>Discount %</TableHead>
+                  <TableHead>Discounted Price (Rs.)</TableHead>
+                  <TableHead>Total Amount (Rs.)</TableHead>
+                  <TableHead className="print:hidden"><span className="sr-only">Actions</span></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {billEntries.length > 0 ? (
+                  billEntries.map(entry => {
+                    const { discountedPrice, totalAmount } = calculateRow(entry);
+                    return (
+                      <TableRow key={entry.id}>
+                        <TableCell className="font-medium" dir="auto">
+                          {entry.bookTitle}
+                          {entry.bookTitleSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.bookTitleSindhi}</div>}
+                        </TableCell>
+                        <TableCell>{entry.date}</TableCell>
+                        <TableCell>
+                          {entry.purchaserName}
+                          {entry.purchaserNameSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.purchaserNameSindhi}</div>}
+                          </TableCell>
+                        <TableCell>{entry.quantity}</TableCell>
+                        <TableCell>{entry.unitPrice.toFixed(2)}</TableCell>
+                        <TableCell>{entry.discountPercent}%</TableCell>
+                        <TableCell>{discountedPrice.toFixed(2)}</TableCell>
+                        <TableCell className="font-semibold">{totalAmount.toFixed(2)}</TableCell>
+                        <TableCell className="text-right print:hidden">
+                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
+                              <Edit className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                          </Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteEntry(entry.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <span className="sr-only">Delete</span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center h-24">
+                      No entries added to the bill yet. Start by adding a new entry above.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
             </Table>
-        </CardContent>
-      </Card>
+          </CardContent>
+          {billEntries.length > 0 && (
+              <CardFooter className="flex justify-end">
+                  <div className="text-right">
+                      <p className="text-lg font-semibold">Overall Total (Rs.):</p>
+                      <p className="text-2xl font-bold text-primary">{overallTotal.toFixed(2)}</p>
+                  </div>
+              </CardFooter>
+          )}
+        </Card>
+        
+        <Card>
+          <CardHeader>
+              <CardTitle>Generated Bills History</CardTitle>
+              <CardDescription>A record of all previously generated bills.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Table>
+                  <TableHeader>
+                      <TableRow>
+                          <TableHead>Bill ID</TableHead>
+                          <TableHead>Purchaser Name</TableHead>
+                          <TableHead>Book Title(s)</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Total Amount (Rs.)</TableHead>
+                          <TableHead><span className="sr-only">Actions</span></TableHead>
+                      </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                      {generatedBills.length > 0 ? (
+                          generatedBills.map(bill => (
+                              <TableRow key={bill.id}>
+                                  <TableCell className="font-medium">{bill.id}</TableCell>
+                                  <TableCell>{bill.purchaserName}</TableCell>
+                                  <TableCell>
+                                      {bill.entries[0]?.bookTitle}
+                                      {bill.entries.length > 1 && ` (+${bill.entries.length - 1} more)`}
+                                  </TableCell>
+                                  <TableCell>{bill.date}</TableCell>
+                                  <TableCell className="font-semibold">{bill.totalAmount.toFixed(2)}</TableCell>
+                                  <TableCell className="text-right">
+                                      <Button variant="ghost" size="sm" onClick={() => generateAndSavePDF(bill)}>
+                                          <Download className="mr-2 h-4 w-4" />
+                                          Download PDF
+                                      </Button>
+                                  </TableCell>
+                              </TableRow>
+                          ))
+                      ) : (
+                          <TableRow>
+                              <TableCell colSpan={6} className="h-24 text-center">
+                                  No bills have been generated yet.
+                              </TableCell>
+                          </TableRow>
+                      )}
+                  </TableBody>
+              </Table>
+          </CardContent>
+        </Card>
 
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Edit Bill Entry</DialogTitle>
-                    <DialogDescription>
-                        Make changes to the bill entry here. Click save when you're done.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-bookTitle" className="text-right">Title</Label>
-                        <Input id="edit-bookTitle" value={editedEntry.bookTitle} onChange={(e) => setEditedEntry(p => ({...p, bookTitle: e.target.value}))} className="col-span-3" />
-                    </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-bookTitleSindhi" className="text-right font-sindhi">سنڌي عنوان</Label>
-                        <Input id="edit-bookTitleSindhi" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3 font-sindhi" dir="rtl" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
-                        <Input id="edit-purchaserName" value={editedEntry.purchaserName} onChange={(e) => setEditedEntry(p => ({...p, purchaserName: e.target.value}))} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-purchaserNameSindhi" className="text-right font-sindhi">خريدار جو نالو</Label>
-                        <Input id="edit-purchaserNameSindhi" value={editedEntry.purchaserNameSindhi} onChange={(e) => setEditedEntry(p => ({...p, purchaserNameSindhi: e.target.value}))} className="col-span-3 font-sindhi" dir="rtl" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-quantity" className="text-right">Quantity</Label>
-                        <Input id="edit-quantity" type="number" value={editedEntry.quantity} onChange={(e) => setEditedEntry(p => ({...p, quantity: e.target.value}))} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-unitPrice" className="text-right">Unit Price</Label>
-                        <Input id="edit-unitPrice" type="number" value={editedEntry.unitPrice} onChange={(e) => setEditedEntry(p => ({...p, unitPrice: e.target.value}))} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-discountPercent" className="text-right">Discount %</Label>
-                        <Input id="edit-discountPercent" type="number" value={editedEntry.discountPercent} onChange={(e) => setEditedEntry(p => ({...p, discountPercent: e.target.value}))} className="col-span-3" />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-                    <Button type="submit" onClick={handleUpdateEntry}>Save changes</Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    </div>
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+              <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                      <DialogTitle>Edit Bill Entry</DialogTitle>
+                      <DialogDescription>
+                          Make changes to the bill entry here. Click save when you're done.
+                      </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="edit-bookTitle" className="text-right">Title</Label>
+                          <Input id="edit-bookTitle" value={editedEntry.bookTitle} onChange={(e) => setEditedEntry(p => ({...p, bookTitle: e.target.value}))} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="edit-bookTitleSindhi" className="text-right font-sindhi">سنڌي عنوان</Label>
+                          <Input id="edit-bookTitleSindhi" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3 font-sindhi" dir="rtl" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
+                          <Input id="edit-purchaserName" value={editedEntry.purchaserName} onChange={(e) => setEditedEntry(p => ({...p, purchaserName: e.target.value}))} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="edit-purchaserNameSindhi" className="text-right font-sindhi">خريدار جو نالو</Label>
+                          <Input id="edit-purchaserNameSindhi" value={editedEntry.purchaserNameSindhi} onChange={(e) => setEditedEntry(p => ({...p, purchaserNameSindhi: e.target.value}))} className="col-span-3 font-sindhi" dir="rtl" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="edit-quantity" className="text-right">Quantity</Label>
+                          <Input id="edit-quantity" type="number" value={editedEntry.quantity} onChange={(e) => setEditedEntry(p => ({...p, quantity: e.target.value}))} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="edit-unitPrice" className="text-right">Unit Price</Label>
+                          <Input id="edit-unitPrice" type="number" value={editedEntry.unitPrice} onChange={(e) => setEditedEntry(p => ({...p, unitPrice: e.target.value}))} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="edit-discountPercent" className="text-right">Discount %</Label>
+                          <Input id="edit-discountPercent" type="number" value={editedEntry.discountPercent} onChange={(e) => setEditedEntry(p => ({...p, discountPercent: e.target.value}))} className="col-span-3" />
+                      </div>
+                  </div>
+                  <DialogFooter>
+                      <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                      <Button type="submit" onClick={handleUpdateEntry}>Save changes</Button>
+                  </DialogFooter>
+              </DialogContent>
+          </Dialog>
+      </div>
+    </>
   );
-
-    
-
+}
     
