@@ -38,11 +38,14 @@ const mainNavItems = [
 const itScanningItems = [
     { href: '/dashboard/scanning', icon: ScanLine, label: 'Digitization Progress' },
     { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
-]
+];
+
+const administrationItems = [
+    { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
+    { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
+];
 
 const otherNavItems = [
-  { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
-  { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
   { href: '/dashboard/publications', icon: BookOpen, label: 'Publications' },
   { href: '/dashboard/report-assistant', icon: Sparkles, label: 'Report Assistant' },
@@ -59,7 +62,14 @@ export function DashboardNav() {
   const pathname = usePathname();
   const { user } = useAuth();
   const isAdmin = user?.role === 'Admin';
-  const [isItSectionOpen, setIsItSectionOpen] = useState(pathname.startsWith('/dashboard/scanning') || pathname.startsWith('/dashboard/employee-reports'));
+  
+  const [isItSectionOpen, setIsItSectionOpen] = useState(
+    pathname.startsWith('/dashboard/scanning') || pathname.startsWith('/dashboard/employee-reports')
+  );
+  
+  const [isAdministrationSectionOpen, setIsAdministrationSectionOpen] = useState(
+    pathname.startsWith('/dashboard/salaries') || pathname.startsWith('/dashboard/petty-cash')
+  );
   
   if (!isAdmin) {
     return (
@@ -115,6 +125,38 @@ export function DashboardNav() {
                 <CollapsibleContent className="py-1 pl-6">
                      <SidebarMenu>
                         {itScanningItems.map((item, index) => (
+                            <SidebarMenuItem key={`${item.href}-${index}`}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith(item.href)}
+                                    tooltip={item.label}
+                                    className="h-8"
+                                >
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
+            
+            <Collapsible open={isAdministrationSectionOpen} onOpenChange={setIsAdministrationSectionOpen} className="w-full">
+                <CollapsibleTrigger asChild>
+                    <div className='w-full'>
+                        <SidebarMenuButton className='w-full justify-between' isActive={isAdministrationSectionOpen}>
+                            <div className="flex items-center gap-2">
+                                <Wallet />
+                                <span>Administration-Section</span>
+                            </div>
+                            <ChevronDown className={cn('h-4 w-4 transition-transform', isAdministrationSectionOpen && 'rotate-180')} />
+                        </SidebarMenuButton>
+                    </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-1 pl-6">
+                     <SidebarMenu>
+                        {administrationItems.map((item, index) => (
                             <SidebarMenuItem key={`${item.href}-${index}`}>
                                 <Link href={item.href}>
                                 <SidebarMenuButton
