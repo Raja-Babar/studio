@@ -259,8 +259,8 @@ export default function AutoGenerateBillPage() {
                 <Input id="bookTitle" name="bookTitle" value={newEntry.bookTitle} onChange={handleInputChange} placeholder="e.g., History of Sindh / Dr. Nabi Bux" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="bookTitleSindhi">ڪتاب جو عنوان / ليکڪ</Label>
-                <Input id="bookTitleSindhi" name="bookTitleSindhi" value={newEntry.bookTitleSindhi} onChange={handleInputChange} placeholder="e.g., تاريخ سنڌ / ڊاڪٽر نبي بخش" />
+                <Label htmlFor="bookTitleSindhi" dir="rtl" className="text-right w-full block">ڪتاب جو عنوان / ليکڪ</Label>
+                <Input id="bookTitleSindhi" name="bookTitleSindhi" value={newEntry.bookTitleSindhi} onChange={handleInputChange} placeholder="e.g., تاريخ سنڌ / ڊاڪٽر نبي بخش" dir="rtl" className="text-right" />
             </div>
              <div className="space-y-2">
                 <Label htmlFor="purchaserName">Purchaser Name</Label>
@@ -302,7 +302,7 @@ export default function AutoGenerateBillPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Book Title / Author</TableHead>
-                <TableHead>Book Title / Author (Sindhi)</TableHead>
+                <TableHead className="text-right">Book Title / Author (Sindhi)</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Purchaser Name</TableHead>
                 <TableHead>Quantity Sold</TableHead>
@@ -320,7 +320,7 @@ export default function AutoGenerateBillPage() {
                   return (
                     <TableRow key={entry.id}>
                       <TableCell className="font-medium">{entry.bookTitle}</TableCell>
-                      <TableCell className="font-medium">{entry.bookTitleSindhi}</TableCell>
+                      <TableCell className="font-medium text-right" dir="rtl">{entry.bookTitleSindhi}</TableCell>
                       <TableCell>{entry.date}</TableCell>
                       <TableCell>{entry.purchaserName}</TableCell>
                       <TableCell>{entry.quantity}</TableCell>
@@ -419,8 +419,8 @@ export default function AutoGenerateBillPage() {
                         <Input id="edit-bookTitle" value={editedEntry.bookTitle} onChange={(e) => setEditedEntry(p => ({...p, bookTitle: e.target.value}))} className="col-span-3" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-bookTitleSindhi" className="text-right">Title/Author (Sindhi)</Label>
-                        <Input id="edit-bookTitleSindhi" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3" />
+                        <Label htmlFor="edit-bookTitleSindhi" className="text-right" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
+                        <Input id="edit-bookTitleSindhi" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3 text-right" dir="rtl" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
@@ -449,3 +449,4 @@ export default function AutoGenerateBillPage() {
   );
 
     
+
