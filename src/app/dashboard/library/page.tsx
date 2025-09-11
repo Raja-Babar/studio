@@ -268,12 +268,12 @@ export default function AutoGenerateBillPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="space-y-2 col-span-1 md:col-span-2">
+          <div className="flex flex-col gap-4">
+            <div className="space-y-2">
               <Label htmlFor="bookTitle">Book Title / Author</Label>
               <Input id="bookTitle" value={bookTitle} onChange={handleBookTitleChange} placeholder="e.g., History of Sindh" />
             </div>
-            <div className="space-y-2 col-span-1 md:col-span-2">
+            <div className="space-y-2">
               <Label htmlFor="bookTitleSindhi" className="text-right w-full block" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
               <Input id="bookTitleSindhi" value={bookTitleSindhi} onChange={e => setBookTitleSindhi(e.target.value)} placeholder="سنڌ جي تاريخ" dir="rtl" />
             </div>
