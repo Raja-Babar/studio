@@ -26,6 +26,8 @@ import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { parseBillEntry } from './actions';
 
 
 type BillEntry = {
@@ -53,16 +55,9 @@ export default function AutoGenerateBillPage() {
   const [billEntries, setBillEntries] = useState<BillEntry[]>([]);
   const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>([]);
   const [nextEntryId, setNextEntryId] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const [newEntry, setNewEntry] = useState({
-    bookTitle: '',
-    bookTitleSindhi: '',
-    language: '',
-    purchaserName: '',
-    quantity: '',
-    unitPrice: '',
-    discountPercent: '0',
-  });
+  const [naturalLanguageInput, setNaturalLanguageInput] = useState('');
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<BillEntry | null>(null);
@@ -76,54 +71,58 @@ export default function AutoGenerateBillPage() {
     discountPercent: '',
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setNewEntry(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddEntry = () => {
-    const { bookTitle, bookTitleSindhi, language, purchaserName, quantity, unitPrice, discountPercent } = newEntry;
-
-    if (!bookTitle || !language || !purchaserName || !quantity || !unitPrice) {
+  const handleAddEntry = async () => {
+    if (!naturalLanguageInput.trim()) {
       toast({
         variant: 'destructive',
-        title: 'Missing Fields',
-        description: 'Please fill out all required fields before adding an entry.',
+        title: 'Missing Input',
+        description: 'Please enter the bill details in the text area.',
       });
       return;
     }
 
-    const newBillEntry: BillEntry = {
-      id: nextEntryId,
-      bookTitle,
-      bookTitleSindhi,
-      language,
-      purchaserName,
-      date: new Date().toLocaleDateString('en-US'),
-      quantity: parseFloat(quantity),
-      unitPrice: parseFloat(unitPrice),
-      discountPercent: parseFloat(discountPercent),
-    };
+    setIsProcessing(true);
+    try {
+      const result = await parseBillEntry(naturalLanguageInput);
+      if (result.success && result.data) {
+        const { bookTitle, purchaserName, quantity, unitPrice, discount } = result.data;
+        const newBillEntry: BillEntry = {
+          id: nextEntryId,
+          bookTitle: bookTitle,
+          bookTitleSindhi: '', // AI doesn't provide this yet
+          language: '', // AI doesn't provide this yet
+          purchaserName: purchaserName,
+          date: new Date().toLocaleDateString('en-US'),
+          quantity: quantity,
+          unitPrice: unitPrice,
+          discountPercent: discount,
+        };
 
-    setBillEntries(prev => [...prev, newBillEntry]);
-    setNextEntryId(prev => prev + 1);
-
-    // Reset form
-    setNewEntry({
-      bookTitle: '',
-      bookTitleSindhi: '',
-      language: '',
-      purchaserName: '',
-      quantity: '',
-      unitPrice: '',
-      discountPercent: '0',
-    });
-
-    toast({
-      title: 'Entry Added',
-      description: `Added "${bookTitle}" to the bill.`,
-    });
+        setBillEntries(prev => [...prev, newBillEntry]);
+        setNextEntryId(prev => prev + 1);
+        setNaturalLanguageInput(''); // Clear input on success
+        toast({
+          title: 'Entry Added',
+          description: `Added "${bookTitle}" to the bill.`,
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Parsing Failed',
+          description: result.error || 'Could not understand the input. Please try again.',
+        });
+      }
+    } catch (error) {
+       toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'An error occurred while processing your request.',
+        });
+    } finally {
+      setIsProcessing(false);
+    }
   };
+
 
   const handleDeleteEntry = (id: number) => {
     setBillEntries(prev => prev.filter(entry => entry.id !== id));
@@ -260,40 +259,25 @@ export default function AutoGenerateBillPage() {
       <Card>
         <CardHeader>
           <CardTitle>Add New Bill Entry</CardTitle>
+           <CardDescription>
+            Enter the bill details in any language (English, Sindhi, Urdu). For example: "2 copies of 'History of Sindh' for Ali Khan at 500 each with a 10% discount."
+          </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-            <div className="space-y-2">
-                <Label htmlFor="bookTitle">Book Title / Author</Label>
-                <Input id="bookTitle" name="bookTitle" value={newEntry.bookTitle} onChange={handleInputChange} placeholder="e.g., History of Sindh / Dr. Nabi Bux" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="bookTitleSindhi" dir="rtl" className="text-right w-full block">ڪتاب جو عنوان / ليکڪ</Label>
-                <Input id="bookTitleSindhi" name="bookTitleSindhi" value={newEntry.bookTitleSindhi} onChange={handleInputChange} placeholder="e.g., تاريخ سنڌ / ڊاڪٽر نبي بخش" dir="rtl" className="text-right" />
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="purchaserName">Purchaser Name</Label>
-                <Input id="purchaserName" name="purchaserName" value={newEntry.purchaserName} onChange={handleInputChange} placeholder="e.g., Ali Khan" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="language">Language</Label>
-                <Input id="language" name="language" value={newEntry.language} onChange={handleInputChange} placeholder="e.g., English" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity</Label>
-                <Input id="quantity" name="quantity" type="number" value={newEntry.quantity} onChange={handleInputChange} placeholder="e.g., 2" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
-                <Input id="unitPrice" name="unitPrice" type="number" value={newEntry.unitPrice} onChange={handleInputChange} placeholder="e.g., 500" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="discountPercent">Discount (%)</Label>
-                <Input id="discountPercent" name="discountPercent" type="number" value={newEntry.discountPercent} onChange={handleInputChange} />
+        <CardContent>
+            <div className="space-y-4">
+                <Label htmlFor="natural-language-input">Bill Details</Label>
+                <Textarea
+                    id="natural-language-input"
+                    placeholder="Enter bill details here..."
+                    value={naturalLanguageInput}
+                    onChange={(e) => setNaturalLanguageInput(e.target.value)}
+                    rows={4}
+                />
             </div>
         </CardContent>
         <CardFooter>
-             <Button onClick={handleAddEntry}>
-                <PlusCircle className="mr-2" /> Add to Bill
+             <Button onClick={handleAddEntry} disabled={isProcessing}>
+                <PlusCircle className="mr-2" /> {isProcessing ? 'Processing...' : 'Add to Bill'}
             </Button>
         </CardFooter>
       </Card>
@@ -314,7 +298,6 @@ export default function AutoGenerateBillPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Book Title / Author</TableHead>
-                <TableHead className="text-right">Book Title / Author (Sindhi)</TableHead>
                 <TableHead>Language</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Purchaser Name</TableHead>
@@ -333,7 +316,6 @@ export default function AutoGenerateBillPage() {
                   return (
                     <TableRow key={entry.id}>
                       <TableCell className="font-medium">{entry.bookTitle}</TableCell>
-                      <TableCell className="font-medium text-right" dir="rtl">{entry.bookTitleSindhi}</TableCell>
                       <TableCell>{entry.language}</TableCell>
                       <TableCell>{entry.date}</TableCell>
                       <TableCell>{entry.purchaserName}</TableCell>
@@ -357,7 +339,7 @@ export default function AutoGenerateBillPage() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center h-24">
+                  <TableCell colSpan={10} className="text-center h-24">
                     No entries added to the bill yet. Start by adding a new entry above.
                   </TableCell>
                 </TableRow>
@@ -465,11 +447,5 @@ export default function AutoGenerateBillPage() {
         </Dialog>
     </div>
   );
-
-    
-
-
-
-    
-
-    
+}
+  
