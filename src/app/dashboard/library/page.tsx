@@ -177,12 +177,11 @@ export default function AutoGenerateBillPage() {
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
-      head: [['Book Title / Author', 'Book Title / Author (Sindhi)', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+      head: [['Book Title / Author', 'Qty', 'Unit Price', 'Discount %', 'Total']],
       body: entries.map(entry => {
         const { totalAmount } = calculateRow(entry);
         return [
           entry.bookTitle,
-          entry.bookTitleSindhi,
           entry.quantity,
           entry.unitPrice.toFixed(2),
           `${entry.discountPercent}%`,
@@ -190,7 +189,7 @@ export default function AutoGenerateBillPage() {
         ];
       }),
       startY: 30,
-      foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
+      foot: [['', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
       footStyles: {
         fillColor: [230, 230, 230],
         textColor: 20,
@@ -253,11 +252,7 @@ export default function AutoGenerateBillPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="bookTitle">Book Title / Author</Label>
-              <Input id="bookTitle" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g., History of Sindh" />
-            </div>
-             <div className="space-y-2">
-              <Label htmlFor="bookTitleSindhi" className="text-right w-full block" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
-              <Input id="bookTitleSindhi" value={bookTitleSindhi} onChange={e => setBookTitleSindhi(e.target.value)} placeholder="e.g., سنڌ جي تاريخ" className="text-right" dir="rtl" />
+              <Input id="bookTitle" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g., History of Sindh" dir="auto" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="purchaserName">Purchaser Name</Label>
@@ -413,10 +408,6 @@ export default function AutoGenerateBillPage() {
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-bookTitle" className="text-right">Title/Author</Label>
                         <Input id="edit-bookTitle" value={editedEntry.bookTitle} onChange={(e) => setEditedEntry(p => ({...p, bookTitle: e.target.value}))} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="edit-bookTitleSindhi" className="text-right" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
-                        <Input id="edit-bookTitleSindhi" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3 text-right" dir="rtl" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
