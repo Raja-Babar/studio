@@ -3,10 +3,10 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal, CalendarOff } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal, CalendarOff, ChevronDown, ChevronUp } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -123,11 +123,22 @@ function AdminDashboard() {
   const [editedTitle, setEditedTitle] = useState('');
   const [editedStatus, setEditedStatus] = useState('');
 
-  const recentScanningActivity = useMemo(() => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const RECORDS_TO_SHOW = 5;
+
+  const sortedScanningRecords = useMemo(() => {
     return scanningRecords
-      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())
-      .slice(0, 5);
+      .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
   }, [scanningRecords]);
+
+  const visibleScanningActivity = useMemo(() => {
+    if (isExpanded) {
+      return sortedScanningRecords;
+    }
+    return sortedScanningRecords.slice(0, RECORDS_TO_SHOW);
+  }, [isExpanded, sortedScanningRecords]);
+
+  const hasMoreRecords = sortedScanningRecords.length > RECORDS_TO_SHOW;
 
   const stats = [
     { title: 'Total Employees', value: totalEmployees.toString(), icon: Users, href: '/dashboard/user-management', subtext: "+5.1% from last month" },
@@ -207,8 +218,8 @@ function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentScanningActivity.length > 0 ? (
-                recentScanningActivity.map((record) => (
+              {visibleScanningActivity.length > 0 ? (
+                visibleScanningActivity.map((record) => (
                   <TableRow key={record.book_id}>
                     <TableCell className="font-medium">{record.title}</TableCell>
                     <TableCell>
@@ -243,6 +254,14 @@ function AdminDashboard() {
             </TableBody>
           </Table>
         </CardContent>
+        {hasMoreRecords && (
+            <CardFooter className="justify-center border-t pt-4">
+                <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)}>
+                    {isExpanded ? 'See Less' : 'See More'}
+                    {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                </Button>
+            </CardFooter>
+        )}
       </Card>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -484,3 +503,4 @@ function EmployeeDashboard() {
     </div>
   );
 }
+
