@@ -258,7 +258,10 @@ export default function AutoGenerateBillPage() {
         <CardContent>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="bookTitle">Book Title / Author</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="bookTitle">Book Title / Author</Label>
+                <Label htmlFor="bookTitleSindhi" className="font-sindhi text-lg" dir="rtl">ڪتاب جو عنوان / ليکڪ</Label>
+              </div>
               <Input
                 id="bookTitle"
                 value={bookTitle}
@@ -268,7 +271,6 @@ export default function AutoGenerateBillPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="bookTitleSindhi" className="font-sindhi text-lg">ڪتاب جو عنوان / ليکڪ</Label>
               <Input
                 id="bookTitleSindhi"
                 value={bookTitleSindhi}
@@ -281,11 +283,11 @@ export default function AutoGenerateBillPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="purchaserName">Purchaser Name</Label>
+                <Label htmlFor="purchaserNameSindhi" className="font-sindhi text-lg" dir="rtl">خريدار جو نالو</Label>
               </div>
               <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
             </div>
              <div className="space-y-2">
-              <Label htmlFor="purchaserNameSindhi" className="font-sindhi text-lg">خريدار جو نالو</Label>
               <Input
                 id="purchaserNameSindhi"
                 value={purchaserNameSindhi}
