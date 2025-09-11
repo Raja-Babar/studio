@@ -36,10 +36,19 @@ type BillEntry = {
   discountPercent: number;
 };
 
+type GeneratedBill = {
+    id: string;
+    purchaserName: string;
+    date: string;
+    totalAmount: number;
+    entries: BillEntry[];
+};
+
 export default function AutoGenerateBillPage() {
   const { toast } = useToast();
   const [billEntries, setBillEntries] = useState<BillEntry[]>([]);
-  const [nextId, setNextId] = useState(1);
+  const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>([]);
+  const [nextEntryId, setNextEntryId] = useState(1);
 
   const [newEntry, setNewEntry] = useState({
     bookTitle: '',
@@ -67,7 +76,7 @@ export default function AutoGenerateBillPage() {
     }
 
     const newBillEntry: BillEntry = {
-      id: nextId,
+      id: nextEntryId,
       bookTitle,
       purchaserName,
       date: new Date().toLocaleDateString('en-US'),
@@ -77,7 +86,7 @@ export default function AutoGenerateBillPage() {
     };
 
     setBillEntries(prev => [...prev, newBillEntry]);
-    setNextId(prev => prev + 1);
+    setNextEntryId(prev => prev + 1);
 
     // Reset form
     setNewEntry({
@@ -114,26 +123,16 @@ export default function AutoGenerateBillPage() {
     return acc + totalAmount;
   }, 0);
 
-  const handleExportPDF = () => {
-    if (billEntries.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Export Failed',
-        description: 'There are no entries to export.',
-      });
-      return;
-    }
-
+  const generateAndSavePDF = (bill: GeneratedBill) => {
     const doc = new jsPDF();
-    const purchaserName = billEntries.length > 0 ? billEntries[0].purchaserName : 'Customer';
-    const billDate = new Date().toLocaleDateString('en-US');
+    const { id, purchaserName, date, totalAmount, entries } = bill;
 
-    doc.text(`Bill for ${purchaserName}`, 14, 16);
-    doc.text(`Date: ${billDate}`, 14, 22);
+    doc.text(`Bill for ${purchaserName} (ID: ${id})`, 14, 16);
+    doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
       head: [['Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
-      body: billEntries.map(entry => {
+      body: entries.map(entry => {
         const { totalAmount } = calculateRow(entry);
         return [
           entry.bookTitle,
@@ -144,7 +143,7 @@ export default function AutoGenerateBillPage() {
         ];
       }),
       startY: 30,
-      foot: [['', '', '', 'Overall Total (Rs.)', overallTotal.toFixed(2)]],
+      foot: [['', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
       footStyles: {
         fillColor: [230, 230, 230],
         textColor: 20,
@@ -152,7 +151,41 @@ export default function AutoGenerateBillPage() {
       },
     });
 
-    doc.save(`bill_${purchaserName.replace(/\s+/g, '_')}_${billDate}.pdf`);
+    doc.save(`bill_${purchaserName.replace(/\s+/g, '_')}_${id}.pdf`);
+  };
+  
+
+  const handleExportPDF = () => {
+    if (billEntries.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Export Failed',
+        description: 'There are no entries to export.',
+      });
+      return;
+    }
+
+    const billDate = new Date().toLocaleDateString('en-US');
+    const purchaserName = billEntries.length > 0 ? billEntries[0].purchaserName : 'Customer';
+    const newBill: GeneratedBill = {
+        id: `BILL-${Date.now()}`,
+        purchaserName,
+        date: billDate,
+        totalAmount: overallTotal,
+        entries: [...billEntries],
+    };
+
+    setGeneratedBills(prev => [newBill, ...prev]);
+    generateAndSavePDF(newBill);
+
+    // Clear current bill
+    setBillEntries([]);
+    setNextEntryId(1);
+    
+    toast({
+        title: 'Bill Generated',
+        description: `Bill ${newBill.id} has been exported and recorded.`,
+    });
   };
 
   return (
@@ -247,7 +280,7 @@ export default function AutoGenerateBillPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center h-24">
-                    No entries added to the bill yet.
+                    No entries added to the bill yet. Start by adding a new entry above.
                   </TableCell>
                 </TableRow>
               )}
@@ -263,6 +296,51 @@ export default function AutoGenerateBillPage() {
             </CardFooter>
         )}
       </Card>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle>Generated Bills History</CardTitle>
+            <CardDescription>A record of all previously generated bills.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>Bill ID</TableHead>
+                        <TableHead>Purchaser Name</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Total Amount (Rs.)</TableHead>
+                        <TableHead><span className="sr-only">Actions</span></TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {generatedBills.length > 0 ? (
+                        generatedBills.map(bill => (
+                            <TableRow key={bill.id}>
+                                <TableCell className="font-medium">{bill.id}</TableCell>
+                                <TableCell>{bill.purchaserName}</TableCell>
+                                <TableCell>{bill.date}</TableCell>
+                                <TableCell className="font-semibold">{bill.totalAmount.toFixed(2)}</TableCell>
+                                <TableCell className="text-right">
+                                    <Button variant="ghost" size="sm" onClick={() => generateAndSavePDF(bill)}>
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Re-Download
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={5} className="h-24 text-center">
+                                No bills have been generated yet.
+                            </TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+
+    
