@@ -474,7 +474,7 @@ export default function EmployeeReportsPage() {
                                     </Badge>
                                 </TableCell>
                                 <TableCell>{report.type}</TableCell>
-                                <TableCell className="font-semibold text-foreground">{report.quantity}</TableCell>
+                                <TableCell className="font-semibold text-foreground">{isOnLeave ? 0 : report.quantity}</TableCell>
                                 <TableCell className="text-right">
                                     {user?.role === 'Admin' && (
                                     <DropdownMenu>
