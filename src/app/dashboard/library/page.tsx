@@ -342,7 +342,4 @@ export default function AutoGenerateBillPage() {
       </Card>
     </div>
   );
-
-    
-
-    
+}
