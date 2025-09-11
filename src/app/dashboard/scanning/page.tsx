@@ -244,7 +244,7 @@ export default function ScanningPage() {
   return (
     <div className="space-y-6">
        <div>
-            <h1 className="text-3xl font-bold tracking-tight">I.T &amp; Scanning-Section</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Digitization Progress</h1>
             <p className="text-muted-foreground mt-2">Monitor the book scanning and digitization workflow.</p>
        </div>
 
