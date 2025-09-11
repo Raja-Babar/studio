@@ -2,7 +2,7 @@
 // src/app/dashboard/attendance/page.tsx
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { useMemo, useState, useEffect } from 'react';
@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
 
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
@@ -352,10 +353,7 @@ export default function AttendancePage() {
                     <CardHeader>
                         <CardTitle>{employeeName}'s Attendance</CardTitle>
                         <CardDescription>
-                            Summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>: 
-                            <span className="font-semibold text-green-500"> {summary.Present}</span> Present, 
-                            <span className="font-semibold text-red-500"> {summary.Absent}</span> Absent, 
-                            <span className="font-semibold text-gray-500"> {summary.Leave}</span> Leave
+                            Daily records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -423,6 +421,24 @@ export default function AttendancePage() {
                             </TableBody>
                         </Table>
                     </CardContent>
+                    <CardFooter className="flex-col items-start gap-2 pt-4">
+                        <Separator />
+                        <h3 className="font-semibold text-lg mt-2">Monthly Summary</h3>
+                        <div className="flex justify-start gap-8 text-sm">
+                            <div>
+                                <span className="font-semibold text-green-500">{summary.Present}</span>
+                                <span className="text-muted-foreground ml-2">Present</span>
+                            </div>
+                            <div>
+                                <span className="font-semibold text-red-500">{summary.Absent}</span>
+                                <span className="text-muted-foreground ml-2">Absent</span>
+                            </div>
+                            <div>
+                                <span className="font-semibold text-gray-500">{summary.Leave}</span>
+                                <span className="text-muted-foreground ml-2">On Leave</span>
+                            </div>
+                        </div>
+                    </CardFooter>
                 </Card>
             ))
         ) : (
@@ -476,3 +492,6 @@ export default function AttendancePage() {
   );
 }
 
+
+
+    
