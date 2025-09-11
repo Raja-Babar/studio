@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -21,11 +21,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Trash2, Download, Edit } from 'lucide-react';
+import { PlusCircle, Trash2, Download, Edit, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { translateBookTitle } from './actions';
+import { useDebouncedCallback } from 'use-debounce';
 
 
 type BillEntry = {
@@ -59,6 +61,8 @@ export default function AutoGenerateBillPage() {
   const [quantity, setQuantity] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
   const [discountPercent, setDiscountPercent] = useState('0');
+  
+  const [isTranslating, setIsTranslating] = useState(false);
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<BillEntry | null>(null);
@@ -70,6 +74,31 @@ export default function AutoGenerateBillPage() {
     unitPrice: '',
     discountPercent: '',
   });
+
+  const handleTranslation = useDebouncedCallback(async (text: string) => {
+    if (!text.trim()) {
+      setBookTitleSindhi('');
+      return;
+    }
+    setIsTranslating(true);
+    const result = await translateBookTitle(text);
+    if (result.success) {
+      setBookTitleSindhi(result.translatedText || '');
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Translation Failed',
+        description: result.error,
+      });
+    }
+    setIsTranslating(false);
+  }, 500);
+
+  const handleBookTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setBookTitle(text);
+    handleTranslation(text);
+  };
 
   const handleAddEntry = () => {
     const qty = parseFloat(quantity);
@@ -180,8 +209,9 @@ export default function AutoGenerateBillPage() {
       head: [['Book Title / Author', 'Qty', 'Unit Price', 'Discount %', 'Total']],
       body: entries.map(entry => {
         const { totalAmount } = calculateRow(entry);
+        const titleDisplay = `${entry.bookTitle}${entry.bookTitleSindhi ? `\n${entry.bookTitleSindhi}` : ''}`;
         return [
-          entry.bookTitle,
+          titleDisplay,
           entry.quantity,
           entry.unitPrice.toFixed(2),
           `${entry.discountPercent}%`,
@@ -250,9 +280,13 @@ export default function AutoGenerateBillPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="bookTitle">Book Title / Author</Label>
-              <Input id="bookTitle" value={bookTitle} onChange={e => setBookTitle(e.target.value)} placeholder="e.g., History of Sindh" dir="auto" />
+            <div className="space-y-2 col-span-1 md:col-span-2">
+                <Label htmlFor="bookTitle">Book Title / Author</Label>
+                <div className="flex gap-2 items-center">
+                    <Input id="bookTitle" value={bookTitle} onChange={handleBookTitleChange} placeholder="e.g., History of Sindh" dir="auto" />
+                    {isTranslating && <Loader2 className="animate-spin h-5 w-5" />}
+                    <Input id="bookTitleSindhi" value={bookTitleSindhi} onChange={e => setBookTitleSindhi(e.target.value)} placeholder="سنڌ جي تاريخ" dir="rtl" />
+                </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="purchaserName">Purchaser Name</Label>
@@ -311,7 +345,10 @@ export default function AutoGenerateBillPage() {
                   const { discountedPrice, totalAmount } = calculateRow(entry);
                   return (
                     <TableRow key={entry.id}>
-                      <TableCell className="font-medium">{entry.bookTitle}</TableCell>
+                      <TableCell className="font-medium" dir="auto">
+                        {entry.bookTitle}
+                        {entry.bookTitleSindhi && <div className="text-sm text-muted-foreground" dir="rtl">{entry.bookTitleSindhi}</div>}
+                      </TableCell>
                       <TableCell>{entry.date}</TableCell>
                       <TableCell>{entry.purchaserName}</TableCell>
                       <TableCell>{entry.quantity}</TableCell>
@@ -409,6 +446,10 @@ export default function AutoGenerateBillPage() {
                         <Label htmlFor="edit-bookTitle" className="text-right">Title/Author</Label>
                         <Input id="edit-bookTitle" value={editedEntry.bookTitle} onChange={(e) => setEditedEntry(p => ({...p, bookTitle: e.target.value}))} className="col-span-3" />
                     </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-bookTitleSindhi" className="text-right">Title (Sindhi)</Label>
+                        <Input id="edit-bookTitleSindhi" dir="rtl" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3" />
+                    </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
                         <Input id="edit-purchaserName" value={editedEntry.purchaserName} onChange={(e) => setEditedEntry(p => ({...p, purchaserName: e.target.value}))} className="col-span-3" />
@@ -436,5 +477,3 @@ export default function AutoGenerateBillPage() {
   );
 }
   
-
-    
