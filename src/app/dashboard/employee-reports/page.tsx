@@ -7,6 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import {
   Table,
@@ -17,7 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Download, FilePlus, Edit, Trash2, Calendar as CalendarIcon, Search } from 'lucide-react';
+import { MoreHorizontal, Download, FilePlus, Edit, Trash2, Calendar as CalendarIcon, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -57,7 +58,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
-import type { EmployeeReport, AttendanceRecord } from '@/context/auth-provider';
+import type { EmployeeReport } from '@/context/auth-provider';
 import { Checkbox } from '@/components/ui/checkbox';
 
 
@@ -118,7 +119,8 @@ export default function EmployeeReportsPage() {
     const [editedType, setEditedType] = useState('');
     const [editedQuantity, setEditedQuantity] = useState('');
     const [selectedReportIds, setSelectedReportIds] = useState<string[]>([]);
-
+    const [expandedEmployees, setExpandedEmployees] = useState<string[]>([]);
+    const REPORTS_TO_SHOW = 5;
 
     const employeeReports = useMemo(() => {
         if (user?.role === 'Employee') {
@@ -137,7 +139,7 @@ export default function EmployeeReportsPage() {
     }, [selectedDate, employeeReports]);
 
      const reportsByEmployee = useMemo(() => {
-        const grouped: { [key: string]: { employeeName: string, reports: CombinedRecord[], summary: { byStage: { [key: string]: number } } } } = {};
+        const grouped: { [key: string]: { employeeId: string, employeeName: string, reports: CombinedRecord[], summary: { byStage: { [key: string]: number } } } } = {};
         const allUsers = getUsers().filter(u => u.role === 'Employee');
 
         const start = startOfMonth(selectedDate);
@@ -148,6 +150,7 @@ export default function EmployeeReportsPage() {
 
         usersToDisplay.forEach(emp => {
             const employeeData = {
+                employeeId: emp.id,
                 employeeName: emp.name,
                 reports: [] as CombinedRecord[],
                 summary: { byStage: {} },
@@ -357,6 +360,15 @@ export default function EmployeeReportsPage() {
         });
     };
 
+     const handleDeleteSelected = () => {
+        selectedReportIds.forEach(id => deleteEmployeeReport(id));
+        toast({
+            title: `${selectedReportIds.length} Report(s) Deleted`,
+            description: 'The selected reports have been successfully deleted.',
+        });
+        setSelectedReportIds([]);
+    };
+
     const handleSelectAll = (checked: boolean, reports: CombinedRecord[]) => {
         if (checked) {
             const allReportIds = reports.filter(r => !r.isLeaveRecord).map(r => r.id!);
@@ -372,6 +384,14 @@ export default function EmployeeReportsPage() {
         } else {
             setSelectedReportIds(prev => prev.filter(id => id !== reportId));
         }
+    };
+
+    const toggleEmployeeExpansion = (employeeId: string) => {
+        setExpandedEmployees(prev =>
+            prev.includes(employeeId)
+                ? prev.filter(id => id !== employeeId)
+                : [...prev, employeeId]
+        );
     };
 
   return (
@@ -494,12 +514,15 @@ export default function EmployeeReportsPage() {
       )}
 
       {reportsByEmployee.length > 0 ? (
-        reportsByEmployee.map(({ employeeName, reports: employeeCombinedRecords, summary }) => {
+        reportsByEmployee.map(({ employeeId, employeeName, reports: employeeCombinedRecords, summary }) => {
             const selectableReports = employeeCombinedRecords.filter(r => !r.isLeaveRecord);
             const isAllSelected = selectableReports.length > 0 && selectedReportIds.length === selectableReports.length;
+            const isExpanded = expandedEmployees.includes(employeeId);
+            const visibleRecords = isExpanded ? employeeCombinedRecords : employeeCombinedRecords.slice(0, REPORTS_TO_SHOW);
+            const hasMoreRecords = employeeCombinedRecords.length > REPORTS_TO_SHOW;
 
             return (
-                <Card key={employeeName}>
+                <Card key={employeeId}>
                     <CardHeader>
                         <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
                         <CardDescription>
@@ -508,7 +531,31 @@ export default function EmployeeReportsPage() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <div>
-                            <h3 className="text-base font-semibold mb-2">Submitted Reports</h3>
+                            <div className="flex items-center justify-between mb-2">
+                                <h3 className="text-base font-semibold">Submitted Reports</h3>
+                                {user?.role === 'Admin' && selectedReportIds.length > 0 && (
+                                     <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" size="sm">
+                                                <Trash2 className="mr-2 h-4 w-4" />
+                                                Delete Selected ({selectedReportIds.length})
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Delete Selected Reports</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Are you sure you want to delete {selectedReportIds.length} selected report(s)? This action cannot be undone.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={handleDeleteSelected}>Delete</AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                )}
+                            </div>
                             <Table>
                                 <TableHeader>
                                 <TableRow>
@@ -535,7 +582,7 @@ export default function EmployeeReportsPage() {
                                 </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                {employeeCombinedRecords.map((report) => {
+                                {visibleRecords.map((report) => {
                                     const attendanceRecord = attendanceRecords.find(
                                         (r) =>
                                           r.employeeId === report.employeeId &&
@@ -618,6 +665,14 @@ export default function EmployeeReportsPage() {
                                 })}
                                 </TableBody>
                             </Table>
+                            {hasMoreRecords && (
+                                <div className="pt-4 text-center">
+                                    <Button variant="ghost" onClick={() => toggleEmployeeExpansion(employeeId)}>
+                                        {isExpanded ? 'See Less' : 'See More'}
+                                        {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                                    </Button>
+                                </div>
+                            )}
                         </div>
 
                         {Object.keys(summary.byStage).length > 0 && (
