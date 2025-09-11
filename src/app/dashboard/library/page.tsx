@@ -257,7 +257,10 @@ export default function AutoGenerateBillPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="purchaserName">Purchaser Name</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="purchaserName">Purchaser Name</Label>
+                <span className="text-sm text-muted-foreground" dir="rtl">خريدار جو نالو</span>
+              </div>
               <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
             </div>
             <div className="space-y-2">
