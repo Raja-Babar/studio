@@ -58,6 +58,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { EmployeeReport, AttendanceRecord } from '@/context/auth-provider';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
@@ -116,6 +117,7 @@ export default function EmployeeReportsPage() {
     const [editedStage, setEditedStage] = useState('');
     const [editedType, setEditedType] = useState('');
     const [editedQuantity, setEditedQuantity] = useState('');
+    const [selectedReportIds, setSelectedReportIds] = useState<string[]>([]);
 
 
     const employeeReports = useMemo(() => {
@@ -170,6 +172,8 @@ export default function EmployeeReportsPage() {
                         employeeName: ar.name,
                         submittedDate: ar.date,
                         isLeaveRecord: true,
+                        // @ts-expect-error
+                        submittedTime: '--:--',
                     });
                 }
             });
@@ -353,6 +357,22 @@ export default function EmployeeReportsPage() {
         });
     };
 
+    const handleSelectAll = (checked: boolean, reports: CombinedRecord[]) => {
+        if (checked) {
+            const allReportIds = reports.filter(r => !r.isLeaveRecord).map(r => r.id!);
+            setSelectedReportIds(allReportIds);
+        } else {
+            setSelectedReportIds([]);
+        }
+    };
+
+    const handleSelectRow = (checked: boolean, reportId: string) => {
+        if (checked) {
+            setSelectedReportIds(prev => [...prev, reportId]);
+        } else {
+            setSelectedReportIds(prev => prev.filter(id => id !== reportId));
+        }
+    };
 
   return (
     <div className="space-y-6">
@@ -474,133 +494,157 @@ export default function EmployeeReportsPage() {
       )}
 
       {reportsByEmployee.length > 0 ? (
-        reportsByEmployee.map(({ employeeName, reports: employeeCombinedRecords, summary }) => (
-            <Card key={employeeName}>
-                <CardHeader>
-                    <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
-                    <CardDescription>
-                        Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div>
-                        <h3 className="text-base font-semibold mb-2">Submitted Reports</h3>
-                        <Table>
-                            <TableHeader>
-                            <TableRow>
-                                <TableHead>Date Submitted</TableHead>
-                                <TableHead>Time Submitted</TableHead>
-                                <TableHead>Report Stage</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Quantity</TableHead>
-                                <TableHead>Attendance Status</TableHead>
-                                {user?.role === 'Admin' && (
-                                <TableHead>
-                                    <span className="sr-only">Actions</span>
-                                </TableHead>
-                                )}
-                            </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                            {employeeCombinedRecords.map((report) => {
-                                const attendanceRecord = attendanceRecords.find(
-                                    (r) =>
-                                      r.employeeId === report.employeeId &&
-                                      r.date === report.submittedDate
-                                );
-                                const attendanceStatus = report.isLeaveRecord ? 'Leave' : attendanceRecord?.status || 'Not Marked';
+        reportsByEmployee.map(({ employeeName, reports: employeeCombinedRecords, summary }) => {
+            const selectableReports = employeeCombinedRecords.filter(r => !r.isLeaveRecord);
+            const isAllSelected = selectableReports.length > 0 && selectedReportIds.length === selectableReports.length;
 
-                                return (
-                                <TableRow key={report.id}>
-                                  <TableCell>
-                                      {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
-                                  </TableCell>
-                                  <TableCell>{report.isLeaveRecord ? '-' : (report as EmployeeReport).submittedTime || '--:--'}</TableCell>
-                                  <TableCell>
-                                    <Badge className={cn(getStageBadgeClass(report.stage))}>
-                                        {report.isLeaveRecord ? '-' : report.stage}
-                                    </Badge>
-                                  </TableCell>
-                                  <TableCell>{report.isLeaveRecord ? '-' : report.type}</TableCell>
-                                  <TableCell className="font-semibold text-foreground">{report.isLeaveRecord ? '-' : report.quantity}</TableCell>
-                                  <TableCell>
-                                      <Badge variant={getAttendanceStatusBadgeClass(attendanceStatus)}>
-                                          {attendanceStatus}
-                                      </Badge>
-                                  </TableCell>
-                                  <TableCell className="text-right">
-                                      {user?.role === 'Admin' && !report.isLeaveRecord && (
-                                      <DropdownMenu>
-                                          <DropdownMenuTrigger asChild>
-                                          <Button
-                                              aria-haspopup="true"
-                                              size="icon"
-                                              variant="ghost"
-                                          >
-                                              <MoreHorizontal className="h-4 w-4" />
-                                              <span className="sr-only">Toggle menu</span>
-                                          </Button>
-                                          </DropdownMenuTrigger>
-                                          <DropdownMenuContent align="end">
-                                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                          <DropdownMenuItem onClick={() => handleEditClick(report as EmployeeReport)}>
-                                              <Edit className="mr-2 h-4 w-4" /> Edit
-                                          </DropdownMenuItem>
-                                          <AlertDialog>
-                                              <AlertDialogTrigger asChild>
-                                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                      <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                                                      <span className="text-destructive">Delete</span>
-                                                  </DropdownMenuItem>
-                                              </AlertDialogTrigger>
-                                              <AlertDialogContent>
-                                                  <AlertDialogHeader>
-                                                      <AlertDialogTitle>Delete Report</AlertDialogTitle>
-                                                      <AlertDialogDescription>
-                                                          Are you sure you want to delete this report? This action cannot be undone.
-                                                      </AlertDialogDescription>
-                                                  </AlertDialogHeader>
-                                                  <AlertDialogFooter>
-                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                      <AlertDialogAction onClick={() => handleDeleteReport(report.id!)}>Delete</AlertDialogAction>
-                                                  </AlertDialogFooter>
-                                              </AlertDialogContent>
-                                          </AlertDialog>
-                                          </DropdownMenuContent>
-                                      </DropdownMenu>
-                                      )}
-                                  </TableCell>
-                                </TableRow>
-                                );
-                            })}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {Object.keys(summary.byStage).length > 0 && (
+            return (
+                <Card key={employeeName}>
+                    <CardHeader>
+                        <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
+                        <CardDescription>
+                            Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
                         <div>
-                            <h3 className="text-base font-semibold mb-2">Monthly Summary by Stage</h3>
+                            <h3 className="text-base font-semibold mb-2">Submitted Reports</h3>
                             <Table>
-                            <TableHeader>
+                                <TableHeader>
                                 <TableRow>
-                                <TableHead>Stage</TableHead>
-                                <TableHead className="text-right">Quantity</TableHead>
+                                    {user?.role === 'Admin' && (
+                                        <TableHead className="w-[50px]">
+                                            <Checkbox
+                                                checked={isAllSelected}
+                                                onCheckedChange={(checked) => handleSelectAll(Boolean(checked), selectableReports)}
+                                                aria-label="Select all"
+                                            />
+                                        </TableHead>
+                                    )}
+                                    <TableHead>Date Submitted</TableHead>
+                                    <TableHead>Time Submitted</TableHead>
+                                    <TableHead>Report Stage</TableHead>
+                                    <TableHead>Type</TableHead>
+                                    <TableHead>Quantity</TableHead>
+                                    <TableHead>Attendance Status</TableHead>
+                                    {user?.role === 'Admin' && (
+                                    <TableHead>
+                                        <span className="sr-only">Actions</span>
+                                    </TableHead>
+                                    )}
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {Object.entries(summary.byStage).map(([stage, quantity]) => (
-                                <TableRow key={stage}>
-                                    <TableCell>{stage}</TableCell>
-                                    <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
+                                </TableHeader>
+                                <TableBody>
+                                {employeeCombinedRecords.map((report) => {
+                                    const attendanceRecord = attendanceRecords.find(
+                                        (r) =>
+                                          r.employeeId === report.employeeId &&
+                                          r.date === report.submittedDate
+                                    );
+                                    const attendanceStatus = report.isLeaveRecord ? 'Leave' : attendanceRecord?.status || 'Not Marked';
+
+                                    return (
+                                    <TableRow key={report.id}>
+                                        {user?.role === 'Admin' && (
+                                            <TableCell>
+                                                <Checkbox
+                                                    checked={selectedReportIds.includes(report.id!)}
+                                                    onCheckedChange={(checked) => handleSelectRow(Boolean(checked), report.id!)}
+                                                    aria-label={`Select report ${report.id}`}
+                                                    disabled={report.isLeaveRecord}
+                                                />
+                                            </TableCell>
+                                        )}
+                                      <TableCell>
+                                          {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
+                                      </TableCell>
+                                      <TableCell>{report.isLeaveRecord ? '-' : (report as EmployeeReport).submittedTime || '--:--'}</TableCell>
+                                      <TableCell>
+                                        <Badge className={cn(getStageBadgeClass(report.stage))}>
+                                            {report.isLeaveRecord ? '-' : report.stage}
+                                        </Badge>
+                                      </TableCell>
+                                      <TableCell>{report.isLeaveRecord ? '-' : report.type}</TableCell>
+                                      <TableCell className="font-semibold text-foreground">{report.isLeaveRecord ? '-' : report.quantity}</TableCell>
+                                      <TableCell>
+                                          <Badge variant={getAttendanceStatusBadgeClass(attendanceStatus)}>
+                                              {attendanceStatus}
+                                          </Badge>
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                          {user?.role === 'Admin' && !report.isLeaveRecord && (
+                                          <DropdownMenu>
+                                              <DropdownMenuTrigger asChild>
+                                              <Button
+                                                  aria-haspopup="true"
+                                                  size="icon"
+                                                  variant="ghost"
+                                              >
+                                                  <MoreHorizontal className="h-4 w-4" />
+                                                  <span className="sr-only">Toggle menu</span>
+                                              </Button>
+                                              </DropdownMenuTrigger>
+                                              <DropdownMenuContent align="end">
+                                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                              <DropdownMenuItem onClick={() => handleEditClick(report as EmployeeReport)}>
+                                                  <Edit className="mr-2 h-4 w-4" /> Edit
+                                              </DropdownMenuItem>
+                                              <AlertDialog>
+                                                  <AlertDialogTrigger asChild>
+                                                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                          <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                                          <span className="text-destructive">Delete</span>
+                                                      </DropdownMenuItem>
+                                                  </AlertDialogTrigger>
+                                                  <AlertDialogContent>
+                                                      <AlertDialogHeader>
+                                                          <AlertDialogTitle>Delete Report</AlertDialogTitle>
+                                                          <AlertDialogDescription>
+                                                              Are you sure you want to delete this report? This action cannot be undone.
+                                                          </AlertDialogDescription>
+                                                      </AlertDialogHeader>
+                                                      <AlertDialogFooter>
+                                                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                          <AlertDialogAction onClick={() => handleDeleteReport(report.id!)}>Delete</AlertDialogAction>
+                                                      </AlertDialogFooter>
+                                                  </AlertDialogContent>
+                                              </AlertDialog>
+                                              </DropdownMenuContent>
+                                          </DropdownMenu>
+                                          )}
+                                      </TableCell>
+                                    </TableRow>
+                                    );
+                                })}
+                                </TableBody>
                             </Table>
                         </div>
-                    )}
-                </CardContent>
-            </Card>
-        ))
+
+                        {Object.keys(summary.byStage).length > 0 && (
+                            <div>
+                                <h3 className="text-base font-semibold mb-2">Monthly Summary by Stage</h3>
+                                <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                    <TableHead>Stage</TableHead>
+                                    <TableHead className="text-right">Quantity</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {Object.entries(summary.byStage).map(([stage, quantity]) => (
+                                    <TableRow key={stage}>
+                                        <TableCell>{stage}</TableCell>
+                                        <TableCell className="text-right">{quantity.toLocaleString()}</TableCell>
+                                    </TableRow>
+                                    ))}
+                                </TableBody>
+                                </Table>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )
+        })
       ) : (
         <Card>
             <CardContent className="text-center text-muted-foreground pt-8">
