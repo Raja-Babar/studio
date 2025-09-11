@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -48,7 +47,7 @@ const administrationItems = [
 ];
 
 const libraryItems = [
-    { href: '/dashboard/library', icon: Library, label: 'Books Sell Bill' },
+    { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
 ];
 
 const appFileItems = [
