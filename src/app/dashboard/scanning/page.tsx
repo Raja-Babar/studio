@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, Calendar as CalendarIcon } from 'lucide-react';
+import { MoreHorizontal, Search } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -38,11 +38,23 @@ import { Input } from '@/components/ui/input';
 
 type ScanningRecord = {
   book_id: string;
-  title: string;
+  file_name: string;
+  file_name_sindhi: string;
+  title_english: string;
+  title_sindhi: string;
+  author_english: string;
+  author_sindhi: string;
+  year: string;
+  language: string;
+  link: string;
   status: string;
-  scanner: string | null;
-  qc_by: string | null;
-  updated_at: string;
+  scanned_by: string | null;
+  assigned_to: string | null;
+  source: string;
+  created_time: string;
+  last_edited_time: string;
+  last_edited_by: string | null;
+  month: string;
 };
 
 const initialScanningRecords: ScanningRecord[] = JSON.parse(scanningProgressRecordsJSON);
@@ -89,11 +101,12 @@ export default function ScanningPage() {
 
   const filteredRecords = useMemo(() => {
     return scanningRecords.filter(record =>
-      record.title.toLowerCase().includes(searchTerm.toLowerCase())
+      record.title_english.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [scanningRecords, searchTerm]);
 
   const formatDateTime = (isoString: string) => {
+    if (!isoString) return 'N/A';
     const date = new Date(isoString);
     return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
   }
@@ -108,11 +121,11 @@ export default function ScanningPage() {
     if (selectedRecord) {
       const updatedRecords = scanningRecords.map(record => 
         record.book_id === selectedRecord.book_id
-        ? { ...record, status: editedStatus, updated_at: new Date().toISOString() }
+        ? { ...record, status: editedStatus, last_edited_time: new Date().toISOString() }
         : record
       );
       setScanningRecords(updatedRecords);
-      toast({ title: 'Status Updated', description: `Status for "${selectedRecord.title}" has been updated.` });
+      toast({ title: 'Status Updated', description: `Status for "${selectedRecord.title_english}" has been updated.` });
       setIsEditDialogOpen(false);
       setSelectedRecord(null);
     }
@@ -121,7 +134,7 @@ export default function ScanningPage() {
   return (
     <div className="space-y-6">
        <div>
-            <h1 className="text-3xl font-bold tracking-tight">I.T & Scanning</h1>
+            <h1 className="text-3xl font-bold tracking-tight">I.T &amp; Scanning</h1>
             <p className="text-muted-foreground mt-2">Monitor the book scanning and digitization workflow.</p>
        </div>
 
@@ -152,14 +165,22 @@ export default function ScanningPage() {
                  <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="hidden w-[100px] sm:table-cell">
-                                Book ID
-                            </TableHead>
-                            <TableHead>Title</TableHead>
+                            <TableHead>File Name | فائيل نالو</TableHead>
+                            <TableHead>Title (English)</TableHead>
+                            <TableHead>Title (Sindhi)</TableHead>
+                            <TableHead>Author (English)</TableHead>
+                            <TableHead>Author (Sindhi)</TableHead>
+                            <TableHead>Year</TableHead>
+                            <TableHead>Language</TableHead>
+                            <TableHead>Link</TableHead>
                             <TableHead>Status</TableHead>
-                            <TableHead className="hidden md:table-cell">Scanner</TableHead>
-                            <TableHead className="hidden md:table-cell">QC By</TableHead>
-                            <TableHead className="hidden lg:table-cell">Last Updated</TableHead>
+                            <TableHead>Scanned By</TableHead>
+                            <TableHead>Assigned To</TableHead>
+                            <TableHead>Source</TableHead>
+                            <TableHead>Created time</TableHead>
+                            <TableHead>Last edited time</TableHead>
+                            <TableHead>Last edited by</TableHead>
+                            <TableHead>Month</TableHead>
                             <TableHead>
                                 <span className="sr-only">Actions</span>
                             </TableHead>
@@ -168,16 +189,26 @@ export default function ScanningPage() {
                     <TableBody>
                         {filteredRecords.map((record) => (
                             <TableRow key={record.book_id}>
-                                <TableCell className="hidden sm:table-cell font-medium">{record.book_id}</TableCell>
-                                <TableCell className="font-medium">{record.title}</TableCell>
+                                <TableCell className="font-medium">{record.file_name} | {record.file_name_sindhi}</TableCell>
+                                <TableCell>{record.title_english}</TableCell>
+                                <TableCell>{record.title_sindhi}</TableCell>
+                                <TableCell>{record.author_english}</TableCell>
+                                <TableCell>{record.author_sindhi}</TableCell>
+                                <TableCell>{record.year}</TableCell>
+                                <TableCell>{record.language}</TableCell>
+                                <TableCell><a href={record.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Link</a></TableCell>
                                 <TableCell>
                                      <Badge className={cn(getStatusClasses(record.status))}>
                                         {record.status}
                                     </Badge>
                                 </TableCell>
-                                <TableCell className="hidden md:table-cell">{record.scanner || 'N/A'}</TableCell>
-                                <TableCell className="hidden md:table-cell">{record.qc_by || 'N/A'}</TableCell>
-                                <TableCell className="hidden lg:table-cell">{formatDateTime(record.updated_at)}</TableCell>
+                                <TableCell>{record.scanned_by || 'N/A'}</TableCell>
+                                <TableCell>{record.assigned_to || 'N/A'}</TableCell>
+                                <TableCell>{record.source}</TableCell>
+                                <TableCell>{formatDateTime(record.created_time)}</TableCell>
+                                <TableCell>{formatDateTime(record.last_edited_time)}</TableCell>
+                                <TableCell>{record.last_edited_by || 'N/A'}</TableCell>
+                                <TableCell>{record.month}</TableCell>
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -210,7 +241,7 @@ export default function ScanningPage() {
                 <DialogHeader>
                     <DialogTitle>Edit Book Status</DialogTitle>
                     <DialogDescription>
-                        Update the scanning status for <span className="font-semibold">{selectedRecord?.title}</span>.
+                        Update the scanning status for <span className="font-semibold">{selectedRecord?.title_english}</span>.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -239,3 +270,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
