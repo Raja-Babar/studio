@@ -475,67 +475,70 @@ export default function EmployeeReportsPage() {
                                       r.date === report.submittedDate
                                 );
                                 const attendanceStatus = attendanceRecord?.status || 'Not Marked';
+                                const isOnLeave = attendanceStatus === 'Leave';
 
                                 return (
                                 <TableRow key={report.id}>
-                                <TableCell>
-                                    {new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
-                                </TableCell>
-                                <TableCell>{report.submittedTime || '--:--'}</TableCell>
-                                <TableCell>
-                                    <Badge className={cn(getStageBadgeClass(report.stage))}>
-                                        {report.stage}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{report.type}</TableCell>
-                                <TableCell className="font-semibold text-foreground">{report.quantity}</TableCell>
-                                <TableCell>
-                                    <Badge variant={getAttendanceStatusBadgeClass(attendanceStatus)}>
-                                        {attendanceStatus}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    {user?.role === 'Admin' && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                        <Button
-                                            aria-haspopup="true"
-                                            size="icon"
-                                            variant="ghost"
-                                        >
-                                            <MoreHorizontal className="h-4 w-4" />
-                                            <span className="sr-only">Toggle menu</span>
-                                        </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end">
-                                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                        <DropdownMenuItem onClick={() => handleEditClick(report)}>
-                                            <Edit className="mr-2 h-4 w-4" /> Edit
-                                        </DropdownMenuItem>
-                                        <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                                                    <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                                                    <span className="text-destructive">Delete</span>
-                                                </DropdownMenuItem>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Delete Report</AlertDialogTitle>
-                                                    <AlertDialogDescription>
-                                                        Are you sure you want to delete this report? This action cannot be undone.
-                                                    </AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                    )}
-                                </TableCell>
+                                  <TableCell>
+                                      {isOnLeave ? '' : new Date(report.submittedDate + 'T00:00:00').toLocaleDateString()}
+                                  </TableCell>
+                                  <TableCell>{isOnLeave ? '' : report.submittedTime || '--:--'}</TableCell>
+                                  <TableCell>
+                                      {!isOnLeave && (
+                                          <Badge className={cn(getStageBadgeClass(report.stage))}>
+                                              {report.stage}
+                                          </Badge>
+                                      )}
+                                  </TableCell>
+                                  <TableCell>{isOnLeave ? '' : report.type}</TableCell>
+                                  <TableCell className="font-semibold text-foreground">{isOnLeave ? '' : report.quantity}</TableCell>
+                                  <TableCell>
+                                      <Badge variant={getAttendanceStatusBadgeClass(attendanceStatus)}>
+                                          {attendanceStatus}
+                                      </Badge>
+                                  </TableCell>
+                                  <TableCell className="text-right">
+                                      {user?.role === 'Admin' && (
+                                      <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                          <Button
+                                              aria-haspopup="true"
+                                              size="icon"
+                                              variant="ghost"
+                                          >
+                                              <MoreHorizontal className="h-4 w-4" />
+                                              <span className="sr-only">Toggle menu</span>
+                                          </Button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent align="end">
+                                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                          <DropdownMenuItem onClick={() => handleEditClick(report)}>
+                                              <Edit className="mr-2 h-4 w-4" /> Edit
+                                          </DropdownMenuItem>
+                                          <AlertDialog>
+                                              <AlertDialogTrigger asChild>
+                                                  <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                      <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                                      <span className="text-destructive">Delete</span>
+                                                  </DropdownMenuItem>
+                                              </AlertDialogTrigger>
+                                              <AlertDialogContent>
+                                                  <AlertDialogHeader>
+                                                      <AlertDialogTitle>Delete Report</AlertDialogTitle>
+                                                      <AlertDialogDescription>
+                                                          Are you sure you want to delete this report? This action cannot be undone.
+                                                      </AlertDialogDescription>
+                                                  </AlertDialogHeader>
+                                                  <AlertDialogFooter>
+                                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                      <AlertDialogAction onClick={() => handleDeleteReport(report.id)}>Delete</AlertDialogAction>
+                                                  </AlertDialogFooter>
+                                              </AlertDialogContent>
+                                          </AlertDialog>
+                                          </DropdownMenuContent>
+                                      </DropdownMenu>
+                                      )}
+                                  </TableCell>
                                 </TableRow>
                                 );
                             })}
