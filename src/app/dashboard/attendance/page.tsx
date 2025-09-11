@@ -424,10 +424,13 @@ export default function AttendancePage() {
                     <CardFooter className="flex-col items-start gap-2 pt-4">
                         <Separator />
                         <h3 className="font-semibold text-lg mt-2">Monthly Summary</h3>
-                        <p className="text-sm text-muted-foreground">
-                            Present: <span className="font-semibold text-green-500">{summary.Present}</span>, 
-                            Absent: <span className="font-semibold text-destructive">{summary.Absent}</span>, 
-                            On Leave: <span className="font-semibold text-primary">{summary.Leave}</span>
+                        <p className="text-sm text-muted-foreground space-x-4">
+                            <span className="text-green-500">Present:</span>
+                            <span className="font-semibold text-foreground">{summary.Present}</span>
+                            <span className="text-destructive">Absent:</span>
+                            <span className="font-semibold text-foreground">{summary.Absent}</span>
+                            <span className="text-primary">On Leave:</span>
+                            <span className="font-semibold text-foreground">{summary.Leave}</span>
                         </p>
                     </CardFooter>
                 </Card>
@@ -482,3 +485,4 @@ export default function AttendancePage() {
     </div>
   );
 }
+
