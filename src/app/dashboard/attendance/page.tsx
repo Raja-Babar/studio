@@ -28,16 +28,16 @@ import { Separator } from '@/components/ui/separator';
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
 
-const getStatusVariant = (status: AttendanceStatus) => {
+const getStatusClasses = (status: AttendanceStatus) => {
   switch (status) {
     case 'Present':
-      return 'default';
+      return 'bg-green-500 text-white hover:bg-green-500/80';
     case 'Absent':
-      return 'destructive';
+      return 'bg-destructive text-destructive-foreground hover:bg-destructive/80';
     case 'Leave':
-      return 'secondary';
+      return 'bg-primary text-primary-foreground hover:bg-primary/80';
     default:
-      return 'outline';
+      return 'border-border';
   }
 };
 
@@ -374,7 +374,7 @@ export default function AttendancePage() {
                                         <TableCell>{record.timeIn}</TableCell>
                                         <TableCell>{record.timeOut}</TableCell>
                                         <TableCell>
-                                            <Badge variant={getStatusVariant(record.status as AttendanceStatus)}>
+                                            <Badge className={cn(getStatusClasses(record.status as AttendanceStatus))}>
                                                 {record.status}
                                             </Badge>
                                         </TableCell>
@@ -486,3 +486,5 @@ export default function AttendancePage() {
   );
 }
 
+
+    
