@@ -264,7 +264,10 @@ export default function AutoGenerateBillPage() {
               <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="quantity">Quantity Sold</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="quantity">Quantity Sold</Label>
+                <span className="text-sm text-muted-foreground" dir="rtl">وڪرو ٿيل مقدار</span>
+              </div>
               <Input id="quantity" type="number" value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="e.g., 2" />
             </div>
             <div className="space-y-2">
