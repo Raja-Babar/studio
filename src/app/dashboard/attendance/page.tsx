@@ -9,7 +9,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search, Globe, CalendarOff, Clock } from 'lucide-react';
+import { Download, MoreHorizontal, Edit, Trash2, Calendar as CalendarIcon, Search, Globe, CalendarOff, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -56,6 +56,9 @@ export default function AttendancePage() {
   const [currentIp, setCurrentIp] = useState<string | null>(null);
   const [ipError, setIpError] = useState<string | null>(null);
   const [ipInput, setIpInput] = useState(requiredIp);
+
+  const [expandedEmployees, setExpandedEmployees] = useState<string[]>([]);
+  const RECORDS_TO_SHOW = 5;
 
   const isEmployee = user?.role === 'Employee';
 
@@ -105,7 +108,7 @@ export default function AttendancePage() {
       const month = selectedDate.getMonth();
       const year = selectedDate.getFullYear();
       
-      const grouped: { [key: string]: { employeeName: string, records: AttendanceRecord[], summary: { Present: number, Absent: number, Leave: number } } } = {};
+      const grouped: { [key: string]: { employeeId: string, employeeName: string, records: AttendanceRecord[], summary: { Present: number, Absent: number, Leave: number } } } = {};
       const allUsers = getUsers().filter(u => u.role === 'Employee');
 
       const usersToDisplay = isEmployee ? allUsers.filter(u => u.id === user?.id) : allUsers;
@@ -124,6 +127,7 @@ export default function AttendancePage() {
           });
 
           grouped[emp.id] = {
+              employeeId: emp.id,
               employeeName: emp.name,
               records: userRecordsForMonth.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
               summary: summary
@@ -270,6 +274,14 @@ export default function AttendancePage() {
     setRequiredIp(ipInput);
     toast({ title: 'IP Address Set', description: `Attendance is now restricted to ${ipInput || 'any IP'}.` });
   };
+  
+  const toggleEmployeeExpansion = (employeeId: string) => {
+    setExpandedEmployees(prev =>
+        prev.includes(employeeId)
+            ? prev.filter(id => id !== employeeId)
+            : [...prev, employeeId]
+    );
+  };
 
 
   return (
@@ -378,8 +390,13 @@ export default function AttendancePage() {
 
       <div className="grid gap-6">
         {recordsByEmployee.length > 0 ? (
-            recordsByEmployee.map((employeeData) => (
-                <Card key={employeeData.employeeName}>
+            recordsByEmployee.map((employeeData) => {
+              const isExpanded = expandedEmployees.includes(employeeData.employeeId);
+              const visibleRecords = isExpanded ? employeeData.records : employeeData.records.slice(0, RECORDS_TO_SHOW);
+              const hasMoreRecords = employeeData.records.length > RECORDS_TO_SHOW;
+
+              return (
+                <Card key={employeeData.employeeId}>
                     <CardHeader className="flex flex-row items-start justify-between">
                         <div>
                             <CardTitle>{employeeData.employeeName}'s Attendance</CardTitle>
@@ -405,7 +422,7 @@ export default function AttendancePage() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {employeeData.records.map((record) => (
+                                {visibleRecords.map((record) => (
                                     <TableRow key={`${record.employeeId}-${record.date}`}>
                                         <TableCell>{new Date(record.date + 'T00:00:00').toLocaleDateString()}</TableCell>
                                         <TableCell>{record.timeIn}</TableCell>
@@ -457,6 +474,14 @@ export default function AttendancePage() {
                                 ))}
                             </TableBody>
                         </Table>
+                         {hasMoreRecords && (
+                            <div className="pt-4 text-center">
+                                <Button variant="ghost" onClick={() => toggleEmployeeExpansion(employeeData.employeeId)}>
+                                    {isExpanded ? 'See Less' : 'See More'}
+                                    {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                                </Button>
+                            </div>
+                        )}
                     </CardContent>
                     <CardFooter className="flex-col items-start gap-2 pt-4">
                         <Separator />
@@ -471,7 +496,8 @@ export default function AttendancePage() {
                         </p>
                     </CardFooter>
                 </Card>
-            ))
+              )
+            })
         ) : (
              <Card>
                 <CardContent className="text-center text-muted-foreground pt-8">
