@@ -34,6 +34,7 @@ type BillEntry = {
   bookTitleSindhi: string;
   date: string;
   purchaserName: string;
+  purchaserNameSindhi: string;
   quantity: number;
   unitPrice: number;
   discountPercent: number;
@@ -56,6 +57,7 @@ export default function AutoGenerateBillPage() {
   const [bookTitle, setBookTitle] = useState('');
   const [bookTitleSindhi, setBookTitleSindhi] = useState('');
   const [purchaserName, setPurchaserName] = useState('');
+  const [purchaserNameSindhi, setPurchaserNameSindhi] = useState('');
   const [quantity, setQuantity] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
   const [discountPercent, setDiscountPercent] = useState('0');
@@ -66,6 +68,7 @@ export default function AutoGenerateBillPage() {
     bookTitle: '',
     bookTitleSindhi: '',
     purchaserName: '',
+    purchaserNameSindhi: '',
     quantity: '',
     unitPrice: '',
     discountPercent: '',
@@ -90,6 +93,7 @@ export default function AutoGenerateBillPage() {
       bookTitle,
       bookTitleSindhi,
       purchaserName,
+      purchaserNameSindhi,
       date: new Date().toLocaleDateString('en-US'),
       quantity: qty,
       unitPrice: price,
@@ -103,6 +107,7 @@ export default function AutoGenerateBillPage() {
     setBookTitle('');
     setBookTitleSindhi('');
     setPurchaserName('');
+    setPurchaserNameSindhi('');
     setQuantity('');
     setUnitPrice('');
     setDiscountPercent('0');
@@ -127,6 +132,7 @@ export default function AutoGenerateBillPage() {
       bookTitle: entry.bookTitle,
       bookTitleSindhi: entry.bookTitleSindhi,
       purchaserName: entry.purchaserName,
+      purchaserNameSindhi: entry.purchaserNameSindhi,
       quantity: entry.quantity.toString(),
       unitPrice: entry.unitPrice.toString(),
       discountPercent: entry.discountPercent.toString(),
@@ -142,6 +148,7 @@ export default function AutoGenerateBillPage() {
                 bookTitle: editedEntry.bookTitle,
                 bookTitleSindhi: editedEntry.bookTitleSindhi,
                 purchaserName: editedEntry.purchaserName,
+                purchaserNameSindhi: editedEntry.purchaserNameSindhi,
                 quantity: parseFloat(editedEntry.quantity),
                 unitPrice: parseFloat(editedEntry.unitPrice),
                 discountPercent: parseFloat(editedEntry.discountPercent),
@@ -274,9 +281,19 @@ export default function AutoGenerateBillPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="purchaserName">Purchaser Name</Label>
-                <span className="font-sindhi text-lg" dir="rtl">خريدار جو نالو</span>
               </div>
               <Input id="purchaserName" value={purchaserName} onChange={e => setPurchaserName(e.target.value)} placeholder="e.g., Ali Khan" />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="purchaserNameSindhi" className="font-sindhi text-lg">خريدار جو نالو</Label>
+              <Input
+                id="purchaserNameSindhi"
+                value={purchaserNameSindhi}
+                onChange={(e) => setPurchaserNameSindhi(e.target.value)}
+                placeholder="مثال طور، علي خان"
+                className="font-sindhi"
+                dir="rtl"
+              />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -345,7 +362,10 @@ export default function AutoGenerateBillPage() {
                         {entry.bookTitleSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.bookTitleSindhi}</div>}
                       </TableCell>
                       <TableCell>{entry.date}</TableCell>
-                      <TableCell>{entry.purchaserName}</TableCell>
+                      <TableCell>
+                        {entry.purchaserName}
+                        {entry.purchaserNameSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.purchaserNameSindhi}</div>}
+                        </TableCell>
                       <TableCell>{entry.quantity}</TableCell>
                       <TableCell>{entry.unitPrice.toFixed(2)}</TableCell>
                       <TableCell>{entry.discountPercent}%</TableCell>
@@ -450,6 +470,10 @@ export default function AutoGenerateBillPage() {
                         <Input id="edit-purchaserName" value={editedEntry.purchaserName} onChange={(e) => setEditedEntry(p => ({...p, purchaserName: e.target.value}))} className="col-span-3" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-purchaserNameSindhi" className="text-right font-sindhi">خريدار جو نالو</Label>
+                        <Input id="edit-purchaserNameSindhi" value={editedEntry.purchaserNameSindhi} onChange={(e) => setEditedEntry(p => ({...p, purchaserNameSindhi: e.target.value}))} className="col-span-3 font-sindhi" dir="rtl" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-quantity" className="text-right">Quantity</Label>
                         <Input id="edit-quantity" type="number" value={editedEntry.quantity} onChange={(e) => setEditedEntry(p => ({...p, quantity: e.target.value}))} className="col-span-3" />
                     </div>
@@ -470,6 +494,8 @@ export default function AutoGenerateBillPage() {
         </Dialog>
     </div>
   );
+
+    
 
     
 
