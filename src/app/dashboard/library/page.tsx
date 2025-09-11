@@ -32,6 +32,7 @@ type BillEntry = {
   id: number;
   bookTitle: string;
   bookTitleSindhi: string;
+  language: string;
   date: string;
   purchaserName: string;
   quantity: number;
@@ -56,6 +57,7 @@ export default function AutoGenerateBillPage() {
   const [newEntry, setNewEntry] = useState({
     bookTitle: '',
     bookTitleSindhi: '',
+    language: '',
     purchaserName: '',
     quantity: '',
     unitPrice: '',
@@ -67,6 +69,7 @@ export default function AutoGenerateBillPage() {
   const [editedEntry, setEditedEntry] = useState({
     bookTitle: '',
     bookTitleSindhi: '',
+    language: '',
     purchaserName: '',
     quantity: '',
     unitPrice: '',
@@ -79,9 +82,9 @@ export default function AutoGenerateBillPage() {
   };
 
   const handleAddEntry = () => {
-    const { bookTitle, bookTitleSindhi, purchaserName, quantity, unitPrice, discountPercent } = newEntry;
+    const { bookTitle, bookTitleSindhi, language, purchaserName, quantity, unitPrice, discountPercent } = newEntry;
 
-    if (!bookTitle || !purchaserName || !quantity || !unitPrice) {
+    if (!bookTitle || !language || !purchaserName || !quantity || !unitPrice) {
       toast({
         variant: 'destructive',
         title: 'Missing Fields',
@@ -94,6 +97,7 @@ export default function AutoGenerateBillPage() {
       id: nextEntryId,
       bookTitle,
       bookTitleSindhi,
+      language,
       purchaserName,
       date: new Date().toLocaleDateString('en-US'),
       quantity: parseFloat(quantity),
@@ -108,6 +112,7 @@ export default function AutoGenerateBillPage() {
     setNewEntry({
       bookTitle: '',
       bookTitleSindhi: '',
+      language: '',
       purchaserName: '',
       quantity: '',
       unitPrice: '',
@@ -133,6 +138,7 @@ export default function AutoGenerateBillPage() {
     setEditedEntry({
       bookTitle: entry.bookTitle,
       bookTitleSindhi: entry.bookTitleSindhi,
+      language: entry.language,
       purchaserName: entry.purchaserName,
       quantity: entry.quantity.toString(),
       unitPrice: entry.unitPrice.toString(),
@@ -148,6 +154,7 @@ export default function AutoGenerateBillPage() {
                 ...entry,
                 bookTitle: editedEntry.bookTitle,
                 bookTitleSindhi: editedEntry.bookTitleSindhi,
+                language: editedEntry.language,
                 purchaserName: editedEntry.purchaserName,
                 quantity: parseFloat(editedEntry.quantity),
                 unitPrice: parseFloat(editedEntry.unitPrice),
@@ -184,12 +191,13 @@ export default function AutoGenerateBillPage() {
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
-      head: [['Book Title / Author', 'Book Title / Author (Sindhi)', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+      head: [['Book Title / Author', 'Book Title / Author (Sindhi)', 'Language', 'Qty', 'Unit Price', 'Discount %', 'Total']],
       body: entries.map(entry => {
         const { totalAmount } = calculateRow(entry);
         return [
           entry.bookTitle,
           entry.bookTitleSindhi,
+          entry.language,
           entry.quantity,
           entry.unitPrice.toFixed(2),
           `${entry.discountPercent}%`,
@@ -197,7 +205,7 @@ export default function AutoGenerateBillPage() {
         ];
       }),
       startY: 30,
-      foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
+      foot: [['', '', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
       footStyles: {
         fillColor: [230, 230, 230],
         textColor: 20,
@@ -245,7 +253,7 @@ export default function AutoGenerateBillPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Auto-Generate Bill</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Auto-Generate-Bill</h1>
         <p className="text-muted-foreground mt-2">Create and manage bills for book sales.</p>
       </div>
 
@@ -265,6 +273,10 @@ export default function AutoGenerateBillPage() {
              <div className="space-y-2">
                 <Label htmlFor="purchaserName">Purchaser Name</Label>
                 <Input id="purchaserName" name="purchaserName" value={newEntry.purchaserName} onChange={handleInputChange} placeholder="e.g., Ali Khan" />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="language">Language</Label>
+                <Input id="language" name="language" value={newEntry.language} onChange={handleInputChange} placeholder="e.g., English" />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="quantity">Quantity</Label>
@@ -303,6 +315,7 @@ export default function AutoGenerateBillPage() {
               <TableRow>
                 <TableHead>Book Title / Author</TableHead>
                 <TableHead className="text-right">Book Title / Author (Sindhi)</TableHead>
+                <TableHead>Language</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead>Purchaser Name</TableHead>
                 <TableHead>Quantity Sold</TableHead>
@@ -321,6 +334,7 @@ export default function AutoGenerateBillPage() {
                     <TableRow key={entry.id}>
                       <TableCell className="font-medium">{entry.bookTitle}</TableCell>
                       <TableCell className="font-medium text-right" dir="rtl">{entry.bookTitleSindhi}</TableCell>
+                      <TableCell>{entry.language}</TableCell>
                       <TableCell>{entry.date}</TableCell>
                       <TableCell>{entry.purchaserName}</TableCell>
                       <TableCell>{entry.quantity}</TableCell>
@@ -343,7 +357,7 @@ export default function AutoGenerateBillPage() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={10} className="text-center h-24">
+                  <TableCell colSpan={11} className="text-center h-24">
                     No entries added to the bill yet. Start by adding a new entry above.
                   </TableCell>
                 </TableRow>
@@ -423,6 +437,10 @@ export default function AutoGenerateBillPage() {
                         <Input id="edit-bookTitleSindhi" value={editedEntry.bookTitleSindhi} onChange={(e) => setEditedEntry(p => ({...p, bookTitleSindhi: e.target.value}))} className="col-span-3 text-right" dir="rtl" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-language" className="text-right">Language</Label>
+                        <Input id="edit-language" value={editedEntry.language} onChange={(e) => setEditedEntry(p => ({...p, language: e.target.value}))} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="edit-purchaserName" className="text-right">Purchaser</Label>
                         <Input id="edit-purchaserName" value={editedEntry.purchaserName} onChange={(e) => setEditedEntry(p => ({...p, purchaserName: e.target.value}))} className="col-span-3" />
                     </div>
@@ -450,3 +468,8 @@ export default function AutoGenerateBillPage() {
 
     
 
+
+
+    
+
+    
