@@ -94,11 +94,19 @@ export default function PettyCashPage() {
       const storedOpeningBalance = localStorage.getItem('pettyCashOpeningBalance');
       const storedNextId = localStorage.getItem('pettyCashNextId');
       const storedGeneratedLedgers = localStorage.getItem('pettyCashGeneratedLedgers');
+      const storedCurrentMonthYear = localStorage.getItem('pettyCashCurrentMonthYear');
 
       if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
       if (storedOpeningBalance) setOpeningBalance(JSON.parse(storedOpeningBalance));
       if (storedNextId) setNextId(JSON.parse(storedNextId));
       if (storedGeneratedLedgers) setGeneratedLedgers(JSON.parse(storedGeneratedLedgers));
+      if (storedCurrentMonthYear) {
+          const currentMonth = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+          if (storedCurrentMonthYear !== currentMonth) {
+              // It's a new month, but let's not reset here to avoid complexity.
+              // The reset will happen on the first transaction of the new month.
+          }
+      }
     } catch (error) {
       console.error("Failed to load petty cash data from localStorage", error);
       toast({ variant: 'destructive', title: 'Load Error', description: 'Could not load saved petty cash data.' });
@@ -112,10 +120,11 @@ export default function PettyCashPage() {
       localStorage.setItem('pettyCashOpeningBalance', JSON.stringify(openingBalance));
       localStorage.setItem('pettyCashNextId', JSON.stringify(nextId));
       localStorage.setItem('pettyCashGeneratedLedgers', JSON.stringify(generatedLedgers));
+      localStorage.setItem('pettyCashCurrentMonthYear', monthYear);
     } catch (error) {
       console.error("Failed to save petty cash data to localStorage", error);
     }
-  }, [transactions, openingBalance, nextId, generatedLedgers]);
+  }, [transactions, openingBalance, nextId, generatedLedgers, monthYear]);
 
 
   const handleAddTransaction = () => {
@@ -138,6 +147,23 @@ export default function PettyCashPage() {
         description: 'A transaction can only be a debit or a credit, not both.',
       });
       return;
+    }
+
+    const transactionMonthYear = new Date(newDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+    const currentLedgerMonthYear = localStorage.getItem('pettyCashCurrentMonthYear') || monthYear;
+
+    if (transactionMonthYear !== currentLedgerMonthYear && transactions.length > 0) {
+        // Generate and save the ledger for the previous month automatically
+        const closingBalanceForPrevMonth = totals.closingBalance;
+        handleExportPDF(true); // silent = true
+
+        // Reset for the new month
+        setTransactions([]);
+        setOpeningBalance(closingBalanceForPrevMonth);
+        toast({
+            title: 'New Month Started',
+            description: `The ledger for ${currentLedgerMonthYear} has been automatically saved. Starting a new ledger for ${transactionMonthYear} with opening balance of ${closingBalanceForPrevMonth.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
+        });
     }
 
     const newTransaction: Transaction = {
@@ -315,19 +341,23 @@ export default function PettyCashPage() {
       return doc;
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = (silent = false) => {
     if (transactions.length === 0) {
-      toast({
-        variant: 'destructive',
-        title: 'Export Failed',
-        description: 'Cannot export an empty ledger.',
-      });
-      return;
+        if (!silent) {
+            toast({
+                variant: 'destructive',
+                title: 'Export Failed',
+                description: 'Cannot export an empty ledger.',
+            });
+        }
+        return;
     }
+    
+    const currentMonthYear = localStorage.getItem('pettyCashCurrentMonthYear') || monthYear;
     
     const newGeneratedLedger: GeneratedLedger = {
         id: `LGR-${Date.now()}`,
-        monthYear: monthYear,
+        monthYear: currentMonthYear,
         openingBalance: openingBalance,
         closingBalance: totals.closingBalance,
         totalDebit: totals.totalDebit,
@@ -335,16 +365,21 @@ export default function PettyCashPage() {
         transactions: [...transactions],
     };
 
-    const doc = generatePdfForLedger(newGeneratedLedger);
-    doc.save(`petty_cash_ledger_${monthYear.replace(/\s+/g, '_')}.pdf`);
+    if (!silent) {
+        const doc = generatePdfForLedger(newGeneratedLedger);
+        doc.save(`petty_cash_ledger_${currentMonthYear.replace(/\s+/g, '_')}.pdf`);
+    }
 
     setGeneratedLedgers(prev => [newGeneratedLedger, ...prev].sort((a,b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime()));
     
-    toast({
-        title: 'Ledger Exported & Saved',
-        description: `The ledger for ${monthYear} has been exported and recorded in history.`,
-    });
+    if (!silent) {
+        toast({
+            title: 'Ledger Exported & Saved',
+            description: `The ledger for ${currentMonthYear} has been exported and recorded in history.`,
+        });
+    }
   };
+
 
   const handleDownloadHistoricPDF = (ledgerId: string) => {
     const ledgerToDownload = generatedLedgers.find(l => l.id === ledgerId);
@@ -481,11 +516,11 @@ export default function PettyCashPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Petty Cash Ledger</CardTitle>
-            <CardDescription>A record of all transactions for {monthYear}.</CardDescription>
+            <CardDescription>A record of all transactions for {localStorage.getItem('pettyCashCurrentMonthYear') || monthYear}.</CardDescription>
           </div>
-          <Button variant="outline" onClick={handleExportPDF}>
+          <Button variant="outline" onClick={() => handleExportPDF(false)}>
             <Download className="mr-2 h-4 w-4" />
-            Export PDF & Save Record
+            Export PDF &amp; Save Record
           </Button>
         </CardHeader>
         <CardContent>
@@ -509,11 +544,9 @@ export default function PettyCashPage() {
                     <TableCell>{new Date(entry.date + 'T00:00:00').toLocaleDateString()}</TableCell>
                     <TableCell>{entry.description}</TableCell>
                     <TableCell className="text-right text-destructive">
-                      {entry.debit > 0 ? `- ${entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
-                    </TableCell>
+                      {entry.debit > 0 ? `- ${entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}</TableCell>
                     <TableCell className="text-right text-green-500">
-                      {entry.credit > 0 ? `+ ${entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
-                    </TableCell>
+                      {entry.credit > 0 ? `+ ${entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}</TableCell>
                     <TableCell className="text-right font-semibold">{entry.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     <TableCell className="text-right">
                        <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
