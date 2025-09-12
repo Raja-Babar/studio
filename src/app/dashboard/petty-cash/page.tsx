@@ -46,7 +46,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { format } from 'date-fns';
+import { format, getMonth, getYear, subMonths } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
 
@@ -134,7 +134,34 @@ export default function PettyCashPage() {
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   }, [allTransactions, selectedDate]);
   
-  const openingBalance = openingBalances[selectedMonthYear] || 0;
+  const openingBalance = useMemo(() => {
+    const currentMonthKey = format(selectedDate, 'yyyy-MM');
+    const previousMonth = subMonths(selectedDate, 1);
+    const previousMonthKey = format(previousMonth, 'yyyy-MM');
+    const previousMonthYear = format(previousMonth, 'MMMM yyyy');
+
+    const previousMonthLedger = generatedLedgers.find(l => l.monthYear === previousMonthYear);
+    
+    let calculatedOpeningBalance = 0;
+    if (previousMonthLedger) {
+        calculatedOpeningBalance = previousMonthLedger.closingBalance;
+    } else {
+        const prevMonthTransactions = allTransactions.filter(t => {
+            const tDate = new Date(t.date);
+            return format(tDate, 'yyyy-MM') === previousMonthKey;
+        });
+
+        if (prevMonthTransactions.length > 0) {
+            const prevMonthOpening = openingBalances[previousMonthYear] || 0;
+            const prevMonthDebit = prevMonthTransactions.reduce((acc, t) => acc + t.debit, 0);
+            const prevMonthCredit = prevMonthTransactions.reduce((acc, t) => acc + t.credit, 0);
+            calculatedOpeningBalance = prevMonthOpening - prevMonthDebit + prevMonthCredit;
+        }
+    }
+    
+    return openingBalances[selectedMonthYear] ?? calculatedOpeningBalance;
+  }, [selectedDate, openingBalances, generatedLedgers, allTransactions, selectedMonthYear]);
+  
   const setOpeningBalance = (balance: number) => {
     setOpeningBalances(prev => ({...prev, [selectedMonthYear]: balance}));
   };
@@ -142,26 +169,10 @@ export default function PettyCashPage() {
   const handleDateChange = (dateString: string) => {
     const newSelectedDate = new Date(dateString + 'T00:00:00');
     if (!isNaN(newSelectedDate.getTime())) {
-        const previousSelectedMonthYear = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-        const newSelectedMonthYear = newSelectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-
-        if (previousSelectedMonthYear !== newSelectedMonthYear) {
-            handleExportPDF(true); // Silently save the ledger for the previous month
-            const prevMonthTotals = totals; // from memoized state
-
-            setNewDate(dateString); // Update newDate to keep form in sync
-            
-            // Set opening balance for new month
-            setOpeningBalances(prev => ({
-                ...prev,
-                [newSelectedMonthYear]: prev[newSelectedMonthYear] === undefined ? prevMonthTotals.closingBalance : prev[newSelectedMonthYear]
-            }));
-            setSelectedDate(newSelectedDate);
-        } else {
-            setNewDate(dateString);
-        }
+      setSelectedDate(newSelectedDate);
+      setNewDate(dateString);
     } else {
-        setNewDate(dateString);
+      setNewDate(dateString);
     }
   };
 
