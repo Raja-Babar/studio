@@ -1,3 +1,4 @@
+
 // src/app/dashboard/petty-cash/page.tsx
 'use client';
 
@@ -147,7 +148,7 @@ export default function PettyCashPage() {
       credit: creditAmount,
     };
 
-    setTransactions(prev => [...prev, newTransaction]);
+    setTransactions(prev => [...prev, newTransaction].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
     setNextId(prev => prev + 1);
 
     // Reset form
@@ -209,7 +210,7 @@ export default function PettyCashPage() {
                 debit: debitAmount,
                 credit: creditAmount,
             } : t
-        ));
+        ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
         setIsEditDialogOpen(false);
         setSelectedTransaction(null);
         toast({
@@ -245,13 +246,27 @@ export default function PettyCashPage() {
     const netTotal = grandTotalCredit - grandTotalDebit;
     return { grandTotalDebit, grandTotalCredit, netTotal };
   }, [generatedLedgers]);
+
+  const yearlySummary = useMemo(() => {
+    const summary: { [year: string]: { totalDebit: number; totalCredit: number; netTotal: number } } = {};
+    generatedLedgers.forEach(ledger => {
+      const year = new Date(ledger.monthYear).getFullYear().toString();
+      if (!summary[year]) {
+        summary[year] = { totalDebit: 0, totalCredit: 0, netTotal: 0 };
+      }
+      summary[year].totalDebit += ledger.totalDebit;
+      summary[year].totalCredit += ledger.totalCredit;
+      summary[year].netTotal += ledger.totalCredit - ledger.totalDebit;
+    });
+    return Object.entries(summary).map(([year, data]) => ({ year, ...data })).sort((a,b) => parseInt(b.year) - parseInt(a.year));
+  }, [generatedLedgers]);
   
   const generatePdfForLedger = (ledgerData: GeneratedLedger) => {
       const doc = new jsPDF();
       const { monthYear, openingBalance, closingBalance, totalDebit, totalCredit, transactions } = ledgerData;
       
       let runningBalance = openingBalance;
-      const ledgerEntriesForPdf = transactions.map(t => {
+      const ledgerEntriesForPdf = transactions.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime()).map(t => {
         runningBalance = runningBalance - t.debit + t.credit;
         return { ...t, balance: runningBalance };
       });
@@ -309,9 +324,9 @@ export default function PettyCashPage() {
     };
 
     const doc = generatePdfForLedger(newGeneratedLedger);
-    doc.save(`petty_cash_ledger_${monthYear.replace(' ', '_')}.pdf`);
+    doc.save(`petty_cash_ledger_${monthYear.replace(/\s+/g, '_')}.pdf`);
 
-    setGeneratedLedgers(prev => [newGeneratedLedger, ...prev]);
+    setGeneratedLedgers(prev => [newGeneratedLedger, ...prev].sort((a,b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime()));
     
     toast({
         title: 'Ledger Exported & Saved',
@@ -323,7 +338,7 @@ export default function PettyCashPage() {
     const ledgerToDownload = generatedLedgers.find(l => l.id === ledgerId);
     if (ledgerToDownload) {
         const doc = generatePdfForLedger(ledgerToDownload);
-        doc.save(`petty_cash_ledger_${ledgerToDownload.monthYear.replace(' ', '_')}_${ledgerToDownload.id}.pdf`);
+        doc.save(`petty_cash_ledger_${ledgerToDownload.monthYear.replace(/\s+/g, '_')}_${ledgerToDownload.id}.pdf`);
         toast({
             title: 'Historic Ledger Downloaded',
             description: `The ledger for ${ledgerToDownload.monthYear} has been downloaded.`,
@@ -573,6 +588,43 @@ export default function PettyCashPage() {
                 </CardFooter>
             )}
         </Card>
+        
+        {yearlySummary.length > 0 && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Yearly Summary</CardTitle>
+                    <CardDescription>A year-by-year summary of all recorded ledgers.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Year</TableHead>
+                                <TableHead className="text-right">Total Debit (Rs.)</TableHead>
+                                <TableHead className="text-right">Total Credit (Rs.)</TableHead>
+                                <TableHead className="text-right">Net Total (Rs.)</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {yearlySummary.map(summary => (
+                                <TableRow key={summary.year}>
+                                    <TableCell className="font-medium">{summary.year}</TableCell>
+                                    <TableCell className="text-right text-destructive">
+                                        {summary.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </TableCell>
+                                    <TableCell className="text-right text-green-500">
+                                        {summary.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </TableCell>
+                                    <TableCell className={`text-right font-semibold ${summary.netTotal >= 0 ? 'text-green-500' : 'text-destructive'}`}>
+                                        {summary.netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        )}
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogContent className="sm:max-w-md">
