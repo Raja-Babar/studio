@@ -34,12 +34,12 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
-  { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
 ];
 
 const itScanningItems = [
     { href: '/dashboard/scanning', icon: ScanLine, label: 'Digitization Progress' },
     { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
+    { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
 ];
 
 const administrationItems = [
@@ -73,7 +73,7 @@ export function DashboardNav() {
   const isAdmin = user?.role === 'Admin';
   
   const [isItSectionOpen, setIsItSectionOpen] = useState(
-    pathname.startsWith('/dashboard/scanning') || pathname.startsWith('/dashboard/employee-reports')
+    pathname.startsWith('/dashboard/scanning') || pathname.startsWith('/dashboard/employee-reports') || pathname.startsWith('/dashboard/attendance')
   );
   
   const [isAdministrationSectionOpen, setIsAdministrationSectionOpen] = useState(
@@ -264,5 +264,3 @@ export function DashboardNav() {
       </SidebarContent>
   )
 }
-
-    
