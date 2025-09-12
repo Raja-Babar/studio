@@ -35,6 +35,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
+  { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
+  { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
 ];
 
 const itScanningItems = [
@@ -54,8 +56,6 @@ const appFileItems = [
 ];
 
 const publicationItems = [
-  { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
-  { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
   { href: '/dashboard/lib-attendance', icon: CalendarCheck, label: 'Lib-Attendance' },
   { href: '/dashboard/lib-emp-report', icon: FileSignature, label: 'Lib-Emp-Report' },
   { href: '/dashboard/mhpr-lib-database', icon: Database, label: 'MHPR-Lib-Data base' },
@@ -78,7 +78,7 @@ export function DashboardNav() {
   );
   
   const [isPublicationSectionOpen, setIsPublicationSectionOpen] = useState(
-    pathname.startsWith('/dashboard/publications') || pathname.startsWith('/dashboard/library') || pathname.startsWith('/dashboard/lib-attendance') || pathname.startsWith('/dashboard/lib-emp-report') || pathname.startsWith('/dashboard/mhpr-lib-database')
+    pathname.startsWith('/dashboard/lib-attendance') || pathname.startsWith('/dashboard/lib-emp-report') || pathname.startsWith('/dashboard/mhpr-lib-database')
   );
   
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
@@ -116,6 +116,8 @@ export function DashboardNav() {
   if (user?.role === 'Library-Employee') {
     const libraryEmployeeNavItems = [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
+      { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
       ...publicationItems,
     ];
 
