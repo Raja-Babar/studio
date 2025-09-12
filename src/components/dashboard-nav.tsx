@@ -52,11 +52,8 @@ const appFileItems = [
     { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
 ];
 
-const libraryItems = [
-  { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
-];
-
 const publicationItems = [
+  { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
   { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
 ];
 
@@ -84,11 +81,7 @@ export function DashboardNav() {
   );
   
   const [isPublicationSectionOpen, setIsPublicationSectionOpen] = useState(
-    pathname.startsWith('/dashboard/publications')
-  );
-  
-  const [isLibrarySectionOpen, setIsLibrarySectionOpen] = useState(
-    pathname.startsWith('/dashboard/library')
+    pathname.startsWith('/dashboard/publications') || pathname.startsWith('/dashboard/library')
   );
   
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
@@ -198,38 +191,6 @@ export function DashboardNav() {
                 </CollapsibleContent>
             </Collapsible>
 
-            <Collapsible open={isLibrarySectionOpen} onOpenChange={setIsLibrarySectionOpen} className="w-full">
-                <CollapsibleTrigger asChild>
-                    <div className='w-full'>
-                        <SidebarMenuButton className='w-full justify-between' isActive={isLibrarySectionOpen}>
-                            <div className="flex items-center gap-2">
-                                <Library />
-                                <span>Library-Section</span>
-                            </div>
-                            <ChevronDown className={cn('h-4 w-4 transition-transform', isLibrarySectionOpen && 'rotate-180')} />
-                        </SidebarMenuButton>
-                    </div>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="py-1 pl-6">
-                     <SidebarMenu>
-                        {libraryItems.map((item, index) => (
-                            <SidebarMenuItem key={`${item.href}-${index}`}>
-                                <Link href={item.href}>
-                                <SidebarMenuButton
-                                    isActive={pathname.startsWith(item.href)}
-                                    tooltip={item.label}
-                                    className="h-8"
-                                >
-                                    <item.icon />
-                                    <span>{item.label}</span>
-                                </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                        ))}
-                    </SidebarMenu>
-                </CollapsibleContent>
-            </Collapsible>
-            
             <Collapsible open={isPublicationSectionOpen} onOpenChange={setIsPublicationSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
                     <div className='w-full'>
@@ -261,7 +222,7 @@ export function DashboardNav() {
                     </SidebarMenu>
                 </CollapsibleContent>
             </Collapsible>
-
+            
             {otherNavItems.map((item, index) => (
                 <SidebarMenuItem key={`${item.href}-${index}`}>
                     <Link href={item.href}>
