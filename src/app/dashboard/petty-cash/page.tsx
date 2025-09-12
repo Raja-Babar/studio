@@ -92,7 +92,7 @@ export default function PettyCashPage() {
   const [generatedLedgers, setGeneratedLedgers] = useState<GeneratedLedger[]>([]);
   
   const isAccountsRole = user?.role === 'Accounts';
-  const selectedMonthYear = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  const selectedMonthYear = format(selectedDate, 'MMMM yyyy');
 
   // Load from localStorage on initial render
   useEffect(() => {
@@ -135,32 +135,40 @@ export default function PettyCashPage() {
   }, [allTransactions, selectedDate]);
   
   const openingBalance = useMemo(() => {
-    const currentMonthKey = format(selectedDate, 'yyyy-MM');
-    const previousMonth = subMonths(selectedDate, 1);
-    const previousMonthKey = format(previousMonth, 'yyyy-MM');
-    const previousMonthYear = format(previousMonth, 'MMMM yyyy');
-
-    const previousMonthLedger = generatedLedgers.find(l => l.monthYear === previousMonthYear);
+    const currentMonthYear = format(selectedDate, 'MMMM yyyy');
     
-    let calculatedOpeningBalance = 0;
-    if (previousMonthLedger) {
-        calculatedOpeningBalance = previousMonthLedger.closingBalance;
-    } else {
-        const prevMonthTransactions = allTransactions.filter(t => {
-            const tDate = new Date(t.date);
-            return format(tDate, 'yyyy-MM') === previousMonthKey;
-        });
-
-        if (prevMonthTransactions.length > 0) {
-            const prevMonthOpening = openingBalances[previousMonthYear] || 0;
-            const prevMonthDebit = prevMonthTransactions.reduce((acc, t) => acc + t.debit, 0);
-            const prevMonthCredit = prevMonthTransactions.reduce((acc, t) => acc + t.credit, 0);
-            calculatedOpeningBalance = prevMonthOpening - prevMonthDebit + prevMonthCredit;
-        }
+    // 1. Check for a user-overridden balance for the current month
+    if (openingBalances[currentMonthYear] !== undefined) {
+      return openingBalances[currentMonthYear];
     }
     
-    return openingBalances[selectedMonthYear] ?? calculatedOpeningBalance;
-  }, [selectedDate, openingBalances, generatedLedgers, allTransactions, selectedMonthYear]);
+    // 2. Check for a saved ledger from the previous month
+    const previousMonth = subMonths(selectedDate, 1);
+    const previousMonthYear = format(previousMonth, 'MMMM yyyy');
+    const previousMonthLedger = generatedLedgers.find(l => l.monthYear === previousMonthYear);
+    
+    if (previousMonthLedger) {
+      return previousMonthLedger.closingBalance;
+    }
+
+    // 3. If no saved ledger, calculate closing balance from previous month's transactions
+    const prevMonthTransactions = allTransactions.filter(t => {
+        const tDate = new Date(t.date);
+        return format(tDate, 'MMMM yyyy') === previousMonthYear;
+    });
+
+    if (prevMonthTransactions.length > 0) {
+        // Find opening balance for the previous month (recursive or from stored)
+        const prevMonthOpening = openingBalances[previousMonthYear] || 0; // Simplified: assumes 0 if not set
+        const prevMonthDebit = prevMonthTransactions.reduce((acc, t) => acc + t.debit, 0);
+        const prevMonthCredit = prevMonthTransactions.reduce((acc, t) => acc + t.credit, 0);
+        return prevMonthOpening - prevMonthDebit + prevMonthCredit;
+    }
+
+    // 4. Default to 0 if no history
+    return 0;
+
+  }, [selectedDate, openingBalances, generatedLedgers, allTransactions]);
   
   const setOpeningBalance = (balance: number) => {
     setOpeningBalances(prev => ({...prev, [selectedMonthYear]: balance}));
