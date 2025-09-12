@@ -238,6 +238,13 @@ export default function PettyCashPage() {
     const closingBalance = openingBalance - totalDebit + totalCredit;
     return { totalDebit, totalCredit, closingBalance };
   }, [transactions, openingBalance]);
+
+  const grandTotals = useMemo(() => {
+    const grandTotalDebit = generatedLedgers.reduce((acc, ledger) => acc + ledger.totalDebit, 0);
+    const grandTotalCredit = generatedLedgers.reduce((acc, ledger) => acc + ledger.totalCredit, 0);
+    const netTotal = grandTotalCredit - grandTotalDebit;
+    return { grandTotalDebit, grandTotalCredit, netTotal };
+  }, [generatedLedgers]);
   
   const generatePdfForLedger = (ledgerData: GeneratedLedger) => {
       const doc = new jsPDF();
@@ -544,6 +551,27 @@ export default function PettyCashPage() {
                   </TableBody>
               </Table>
           </CardContent>
+             {generatedLedgers.length > 0 && (
+                <CardFooter className="flex-col items-start gap-4 pt-4 border-t">
+                    <h3 className="text-lg font-semibold">Grand Totals</h3>
+                    <div className="w-full max-w-sm space-y-2">
+                         <div className="flex justify-between">
+                            <span className="text-muted-foreground">Total Debit (All Records):</span>
+                            <span className="font-semibold text-destructive">{grandTotals.grandTotalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                         <div className="flex justify-between">
+                            <span className="text-muted-foreground">Total Credit (All Records):</span>
+                            <span className="font-semibold text-green-500">{grandTotals.grandTotalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                         <div className="flex justify-between text-lg font-bold">
+                            <span>Net Total (All Records):</span>
+                            <span className={grandTotals.netTotal >= 0 ? 'text-green-500' : 'text-destructive'}>
+                                {grandTotals.netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </span>
+                        </div>
+                    </div>
+                </CardFooter>
+            )}
         </Card>
 
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
