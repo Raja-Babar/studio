@@ -358,6 +358,43 @@ export default function PettyCashPage() {
     }
   };
 
+  const handleExportMonthlySummaryPDF = () => {
+    if (monthlySummary.length === 0) {
+      toast({ variant: 'destructive', title: 'Export Failed', description: 'No monthly summary data to export.' });
+      return;
+    }
+
+    const doc = new jsPDF();
+    doc.text('Petty Cash Monthly Summary', 14, 16);
+
+    (doc as any).autoTable({
+      head: [['Month', 'Total Debit (Rs.)', 'Total Credit (Rs.)', 'Net Total (Rs.)']],
+      body: monthlySummary.map(summary => [
+        summary.month,
+        summary.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        summary.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        summary.netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      ]),
+      startY: 22,
+      foot: [
+        [
+          'Total',
+          monthlySummaryTotals.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          monthlySummaryTotals.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          monthlySummaryTotals.netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        ],
+      ],
+      footStyles: {
+        fillColor: [230, 230, 230],
+        textColor: 20,
+        fontStyle: 'bold',
+      },
+    });
+
+    doc.save('petty_cash_monthly_summary.pdf');
+    toast({ title: 'Monthly Summary Exported', description: 'The monthly summary has been successfully exported as a PDF.' });
+  };
+
 
   return (
     <div className="space-y-6">
@@ -603,9 +640,15 @@ export default function PettyCashPage() {
         
         {monthlySummary.length > 0 && (
             <Card>
-                <CardHeader>
-                    <CardTitle>Monthly Summary</CardTitle>
-                    <CardDescription>A month-by-month summary of all recorded ledgers.</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Monthly Summary</CardTitle>
+                        <CardDescription>A month-by-month summary of all recorded ledgers.</CardDescription>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={handleExportMonthlySummaryPDF}>
+                        <Download className="mr-2 h-4 w-4" />
+                        Export PDF
+                    </Button>
                 </CardHeader>
                 <CardContent>
                     <Table>
