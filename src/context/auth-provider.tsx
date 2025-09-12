@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { attendanceRecords as defaultAttendanceRecords, employeeReports as defaultEmployeeReports, scanningProgressRecords as defaultScanningProgressRecords } from '@/lib/placeholder-data';
 
-type UserRole = 'Admin' | 'Employee' | 'Library-Employee' | 'I.t & Scanning-Employee';
+type UserRole = 'Admin' | 'Employee' | 'Library-Employee';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
@@ -576,3 +576,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+    

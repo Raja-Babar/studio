@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-type UserRole = 'Admin' | 'Employee' | 'Library-Employee' | 'I.t & Scanning-Employee';
+type UserRole = 'Admin' | 'Employee' | 'Library-Employee';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
@@ -131,8 +131,6 @@ export default function UserManagementPage() {
             return 'secondary';
         case 'Library-Employee':
             return 'default';
-        case 'I.t & Scanning-Employee':
-            return 'outline';
         default:
             return 'secondary';
     }
@@ -296,7 +294,6 @@ export default function UserManagementPage() {
                   <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="Employee">Employee</SelectItem>
                   <SelectItem value="Library-Employee">Library-Employee</SelectItem>
-                  <SelectItem value="I.t & Scanning-Employee">I.t & Scanning-Employee</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -310,3 +307,5 @@ export default function UserManagementPage() {
     </div>
   );
 }
+
+    

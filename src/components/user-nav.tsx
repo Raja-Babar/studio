@@ -38,8 +38,6 @@ export function UserNav() {
             return 'secondary';
         case 'Library-Employee':
             return 'default';
-        case 'I.t & Scanning-Employee':
-            return 'outline';
         default:
             return 'secondary';
     }
@@ -92,3 +90,5 @@ export function UserNav() {
     </DropdownMenu>
   );
 }
+
+    

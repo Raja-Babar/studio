@@ -34,7 +34,7 @@ const formSchema = z.object({
   password: z.string().min(6, {
     message: 'Password must be at least 6 characters.',
   }),
-  role: z.enum(['Admin', 'Employee', 'Library-Employee', 'I.t & Scanning-Employee']),
+  role: z.enum(['Admin', 'Employee', 'Library-Employee']),
 });
 
 export default function SignupPage() {
@@ -143,7 +143,6 @@ export default function SignupPage() {
                           <SelectItem value="Admin">Admin</SelectItem>
                           <SelectItem value="Employee">Employee</SelectItem>
                           <SelectItem value="Library-Employee">Library-Employee</SelectItem>
-                          <SelectItem value="I.t & Scanning-Employee">I.t & Scanning-Employee</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -169,3 +168,5 @@ export default function SignupPage() {
     </main>
   );
 }
+
+    
