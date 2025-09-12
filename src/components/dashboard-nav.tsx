@@ -153,7 +153,7 @@ export function DashboardNav() {
   if (user?.role === 'Accounts') {
     const accountsNavItems = [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      ...administrationItems,
+      { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
     ];
 
     return (
