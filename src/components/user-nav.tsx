@@ -13,11 +13,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/hooks/use-auth';
-import { LogOut, User as UserIcon, Shield } from 'lucide-react';
+import { LogOut, User as UserIcon, Shield, Upload } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useRef } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export function UserNav() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   if (!user) {
     return null;
@@ -43,6 +47,30 @@ export function UserNav() {
     }
   };
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) { // 2MB limit
+        toast({
+          variant: 'destructive',
+          title: 'Upload Failed',
+          description: 'Image size should not exceed 2MB.',
+        });
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result as string;
+        updateUser(user.email, { avatar: dataUrl });
+        toast({
+          title: 'Avatar Updated',
+          description: 'Your profile picture has been updated.',
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -54,7 +82,7 @@ export function UserNav() {
             </p>
            </div>
           <Avatar className="h-9 w-9">
-            <AvatarImage src={`https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
+            <AvatarImage src={user.avatar || `https://avatar.vercel.sh/${user.email}.png`} alt={user.name} />
             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
           </Avatar>
         </Button>
@@ -80,6 +108,17 @@ export function UserNav() {
             <UserIcon className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => fileInputRef.current?.click()}>
+            <Upload className="mr-2 h-4 w-4" />
+            <span>Upload Picture</span>
+             <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/png, image/jpeg, image/gif"
+                onChange={handleImageUpload}
+            />
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={logout}>
@@ -90,7 +129,3 @@ export function UserNav() {
     </DropdownMenu>
   );
 }
-
-    
-
-    

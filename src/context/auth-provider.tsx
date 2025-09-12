@@ -16,6 +16,7 @@ type User = {
   email: string;
   role: UserRole;
   status: UserStatus;
+  avatar?: string;
 };
 
 type StoredUser = User & { passwordHash: string };
@@ -515,13 +516,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUser = async (email: string, data: Partial<Omit<User, 'email'>>): Promise<void> => {
     const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
     if (usersFromStorage[email]) {
+      const updatedUserRecord = { ...usersFromStorage[email], ...data };
       const updatedUsers = {
         ...usersFromStorage,
-        [email]: { ...usersFromStorage[email], ...data }
+        [email]: updatedUserRecord
       };
       syncUsersToStorage(updatedUsers);
+      
       if (user?.email === email) {
-        const { passwordHash: _, ...userToStore } = updatedUsers[email];
+        const { passwordHash: _, ...userToStore } = updatedUserRecord;
         setUser(userToStore);
         localStorage.setItem('user', JSON.stringify(userToStore));
       }

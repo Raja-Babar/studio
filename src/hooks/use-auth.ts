@@ -13,6 +13,7 @@ type User = {
   email: string;
   role: UserRole;
   status: UserStatus;
+  avatar?: string;
 };
 
 type StoredUser = User & { passwordHash: string };
