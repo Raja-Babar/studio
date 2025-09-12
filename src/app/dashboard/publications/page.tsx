@@ -85,8 +85,8 @@ export default function PublicationsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Publications</h1>
-        <p className="text-muted-foreground mt-2">Manage purchase and sale of publications.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Bills-Records</h1>
+        <p className="text-muted-foreground mt-2">Manage and view generated bills.</p>
       </div>
 
        <Card>
