@@ -56,6 +56,7 @@ const publicationItems = [
   { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
   { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
   { href: '/dashboard/lib-attendance', icon: CalendarCheck, label: 'Lib-Attendance' },
+  { href: '/dashboard/lib-emp-report', icon: FileSignature, label: 'Lib-Emp-Report' },
 ];
 
 const otherNavItems = [
@@ -75,7 +76,7 @@ export function DashboardNav() {
   );
   
   const [isPublicationSectionOpen, setIsPublicationSectionOpen] = useState(
-    pathname.startsWith('/dashboard/publications') || pathname.startsWith('/dashboard/library') || pathname.startsWith('/dashboard/lib-attendance')
+    pathname.startsWith('/dashboard/publications') || pathname.startsWith('/dashboard/library') || pathname.startsWith('/dashboard/lib-attendance') || pathname.startsWith('/dashboard/lib-emp-report')
   );
   
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
@@ -316,5 +317,3 @@ export function DashboardNav() {
     </SidebarContent>
   );
 }
-
-    
