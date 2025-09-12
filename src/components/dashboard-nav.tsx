@@ -36,7 +36,6 @@ const mainNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/dashboard/user-management', icon: Users, label: 'User Management' },
   { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
-  { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
 ];
 
 const itScanningItems = [
@@ -56,6 +55,10 @@ const appFileItems = [
 ];
 
 const publicationItems = [
+  { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
+];
+
+const mhpResearchLibraryItems = [
   { href: '/dashboard/lib-attendance', icon: CalendarCheck, label: 'Lib-Attendance' },
   { href: '/dashboard/lib-emp-report', icon: FileSignature, label: 'Lib-Emp-Report' },
   { href: '/dashboard/mhpr-lib-database', icon: Database, label: 'MHPR-Lib-Data base' },
@@ -77,8 +80,12 @@ export function DashboardNav() {
     pathname.startsWith('/dashboard/salaries') || pathname.startsWith('/dashboard/petty-cash')
   );
   
-  const [isPublicationSectionOpen, setIsPublicationSectionOpen] = useState(
+  const [isMhpResearchLibrarySectionOpen, setIsMhpResearchLibrarySectionOpen] = useState(
     pathname.startsWith('/dashboard/lib-attendance') || pathname.startsWith('/dashboard/lib-emp-report') || pathname.startsWith('/dashboard/mhpr-lib-database')
+  );
+
+  const [isPublicationSectionOpen, setIsPublicationSectionOpen] = useState(
+    pathname.startsWith('/dashboard/publications')
   );
   
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
@@ -118,7 +125,7 @@ export function DashboardNav() {
       { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
       { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
       { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
-      ...publicationItems,
+      ...mhpResearchLibraryItems,
     ];
 
     return (
@@ -222,12 +229,42 @@ export function DashboardNav() {
                 </CollapsibleContent>
             </Collapsible>
 
+            <Collapsible open={isMhpResearchLibrarySectionOpen} onOpenChange={setIsMhpResearchLibrarySectionOpen} className="w-full">
+                <CollapsibleTrigger asChild>
+                    <SidebarMenuButton className='w-full justify-between' isActive={isMhpResearchLibrarySectionOpen}>
+                        <div className="flex items-center gap-2">
+                             <Library />
+                             <span>MHP- Research library</span>
+                        </div>
+                        <ChevronDown className={cn('h-4 w-4 transition-transform', isMhpResearchLibrarySectionOpen && 'rotate-180')} />
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-1 pl-6">
+                     <SidebarMenu className="flex flex-col gap-y-2">
+                        {mhpResearchLibraryItems.map((item, index) => (
+                            <SidebarMenuItem key={`${item.href}-${index}`}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith(item.href)}
+                                    tooltip={item.label}
+                                    className="justify-start"
+                                >
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
+            
             <Collapsible open={isPublicationSectionOpen} onOpenChange={setIsPublicationSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
                     <SidebarMenuButton className='w-full justify-between' isActive={isPublicationSectionOpen}>
                         <div className="flex items-center gap-2">
-                             <Library />
-                             <span>MHP- Research library</span>
+                            <BookOpen />
+                            <span>Publication section</span>
                         </div>
                         <ChevronDown className={cn('h-4 w-4 transition-transform', isPublicationSectionOpen && 'rotate-180')} />
                     </SidebarMenuButton>
@@ -251,7 +288,7 @@ export function DashboardNav() {
                     </SidebarMenu>
                 </CollapsibleContent>
             </Collapsible>
-            
+
             {otherNavItems.map((item, index) => (
                 <SidebarMenuItem key={`${item.href}-${index}`}>
                     <Link href={item.href}>
