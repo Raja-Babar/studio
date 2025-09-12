@@ -200,7 +200,7 @@ export default function PettyCashPage() {
     const doc = new jsPDF();
     
     doc.text(`Petty Cash Ledger - ${monthYear}`, 14, 16);
-    doc.text(`Opening Balance: ${openingBalance.toFixed(2)}`, 14, 22);
+    doc.text(`Opening Balance: ${openingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 14, 22);
 
     (doc as any).autoTable({
       head: [['S.No', 'Date', 'Items/Expenditures', 'Amount Debit', 'Amount Credit', 'Balance']],
@@ -208,17 +208,17 @@ export default function PettyCashPage() {
         index + 1,
         entry.date,
         entry.description,
-        entry.debit > 0 ? entry.debit.toFixed(2) : '-',
-        entry.credit > 0 ? entry.credit.toFixed(2) : '-',
-        entry.balance.toFixed(2),
+        entry.debit > 0 ? entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-',
+        entry.credit > 0 ? entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-',
+        entry.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
       ]),
       startY: 30,
       foot: [
         [
           '', '', 'Totals / Closing Balance',
-          totals.totalDebit.toFixed(2),
-          totals.totalCredit.toFixed(2),
-          totals.closingBalance.toFixed(2),
+          totals.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          totals.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          totals.closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
         ],
       ],
       footStyles: {
@@ -344,12 +344,12 @@ export default function PettyCashPage() {
                     <TableCell>{new Date(entry.date + 'T00:00:00').toLocaleDateString()}</TableCell>
                     <TableCell>{entry.description}</TableCell>
                     <TableCell className="text-right text-destructive">
-                      {entry.debit > 0 ? `- ${entry.debit.toFixed(2)}` : '-'}
+                      {entry.debit > 0 ? `- ${entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
                     </TableCell>
                     <TableCell className="text-right text-green-500">
-                      {entry.credit > 0 ? `+ ${entry.credit.toFixed(2)}` : '-'}
+                      {entry.credit > 0 ? `+ ${entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}
                     </TableCell>
-                    <TableCell className="text-right font-semibold">{entry.balance.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-semibold">{entry.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     <TableCell className="text-right">
                        <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
                           <Edit className="h-4 w-4" />
@@ -393,15 +393,15 @@ export default function PettyCashPage() {
                 <div className="w-full max-w-sm space-y-2">
                     <div className="flex justify-between">
                         <span className="text-muted-foreground">Total Debit:</span>
-                        <span className="font-semibold text-destructive">{totals.totalDebit.toFixed(2)}</span>
+                        <span className="font-semibold text-destructive">{totals.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                      <div className="flex justify-between">
                         <span className="text-muted-foreground">Total Credit:</span>
-                        <span className="font-semibold text-green-500">{totals.totalCredit.toFixed(2)}</span>
+                        <span className="font-semibold text-green-500">{totals.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                      <div className="flex justify-between text-lg font-bold">
                         <span>Closing Balance:</span>
-                        <span className="text-primary">{totals.closingBalance.toFixed(2)}</span>
+                        <span className="text-primary">{totals.closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                     </div>
                 </div>
             </CardFooter>
