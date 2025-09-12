@@ -197,7 +197,7 @@ export function DashboardNav() {
                         <SidebarMenuButton className='w-full justify-between' isActive={isPublicationSectionOpen}>
                             <div className="flex items-center gap-2">
                                 <Library />
-                                <span>Library_&_Publication-Section</span>
+                                <span>Library & Publication-Section</span>
                             </div>
                             <ChevronDown className={cn('h-4 w-4 transition-transform', isPublicationSectionOpen && 'rotate-180')} />
                         </SidebarMenuButton>
