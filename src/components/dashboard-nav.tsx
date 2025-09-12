@@ -54,8 +54,8 @@ const appFileItems = [
 
 const otherNavItems = [
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
-  { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
   { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
+  { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
 ];
 
 const employeeNavItems = [
