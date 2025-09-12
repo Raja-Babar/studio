@@ -247,18 +247,18 @@ export default function PettyCashPage() {
     return { grandTotalDebit, grandTotalCredit, netTotal };
   }, [generatedLedgers]);
 
-  const yearlySummary = useMemo(() => {
-    const summary: { [year: string]: { totalDebit: number; totalCredit: number; netTotal: number } } = {};
+  const monthlySummary = useMemo(() => {
+    const summary: { [month: string]: { totalDebit: number; totalCredit: number; netTotal: number } } = {};
     generatedLedgers.forEach(ledger => {
-      const year = new Date(ledger.monthYear).getFullYear().toString();
-      if (!summary[year]) {
-        summary[year] = { totalDebit: 0, totalCredit: 0, netTotal: 0 };
+      const month = ledger.monthYear;
+      if (!summary[month]) {
+        summary[month] = { totalDebit: 0, totalCredit: 0, netTotal: 0 };
       }
-      summary[year].totalDebit += ledger.totalDebit;
-      summary[year].totalCredit += ledger.totalCredit;
-      summary[year].netTotal += ledger.totalCredit - ledger.totalDebit;
+      summary[month].totalDebit += ledger.totalDebit;
+      summary[month].totalCredit += ledger.totalCredit;
+      summary[month].netTotal += ledger.totalCredit - ledger.totalDebit;
     });
-    return Object.entries(summary).map(([year, data]) => ({ year, ...data })).sort((a,b) => parseInt(b.year) - parseInt(a.year));
+    return Object.entries(summary).map(([month, data]) => ({ month, ...data })).sort((a,b) => new Date(b.month).getTime() - new Date(a.month).getTime());
   }, [generatedLedgers]);
   
   const generatePdfForLedger = (ledgerData: GeneratedLedger) => {
@@ -589,26 +589,26 @@ export default function PettyCashPage() {
             )}
         </Card>
         
-        {yearlySummary.length > 0 && (
+        {monthlySummary.length > 0 && (
             <Card>
                 <CardHeader>
-                    <CardTitle>Yearly Summary</CardTitle>
-                    <CardDescription>A year-by-year summary of all recorded ledgers.</CardDescription>
+                    <CardTitle>Monthly Summary</CardTitle>
+                    <CardDescription>A month-by-month summary of all recorded ledgers.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Year</TableHead>
+                                <TableHead>Month</TableHead>
                                 <TableHead className="text-right">Total Debit (Rs.)</TableHead>
                                 <TableHead className="text-right">Total Credit (Rs.)</TableHead>
                                 <TableHead className="text-right">Net Total (Rs.)</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {yearlySummary.map(summary => (
-                                <TableRow key={summary.year}>
-                                    <TableCell className="font-medium">{summary.year}</TableCell>
+                            {monthlySummary.map(summary => (
+                                <TableRow key={summary.month}>
+                                    <TableCell className="font-medium">{summary.month}</TableCell>
                                     <TableCell className="text-right text-destructive">
                                         {summary.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                     </TableCell>
