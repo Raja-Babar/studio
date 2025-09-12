@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -131,7 +132,7 @@ export function DashboardNav() {
                     <SidebarMenuButton className='w-full justify-between' isActive={isItSectionOpen}>
                         <div className="flex items-center gap-2">
                             <ScanLine />
-                            <span>I.T & Scanning-Section</span>
+                            <span>I.T &amp; Scanning-Section</span>
                         </div>
                         <ChevronDown className={cn('h-4 w-4 transition-transform', isItSectionOpen && 'rotate-180')} />
                     </SidebarMenuButton>
@@ -191,7 +192,7 @@ export function DashboardNav() {
                     <SidebarMenuButton className='w-full justify-between' isActive={isPublicationSectionOpen}>
                         <div className="flex items-center gap-2">
                             <Library />
-                            <span>Library & Publication-Section</span>
+                            <span>Library &amp; Publication-Section</span>
                         </div>
                         <ChevronDown className={cn('h-4 w-4 transition-transform', isPublicationSectionOpen && 'rotate-180')} />
                     </SidebarMenuButton>
@@ -263,3 +264,5 @@ export function DashboardNav() {
       </SidebarContent>
   )
 }
+
+    

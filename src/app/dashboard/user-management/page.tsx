@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-type UserRole = 'Admin' | 'Employee' | 'Library-Employee';
+type UserRole = 'Admin' | 'I.T & Scanning-Employee' | 'Library-Employee';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
@@ -38,7 +38,7 @@ export default function UserManagementPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editedName, setEditedName] = useState('');
-  const [editedRole, setEditedRole] = useState<UserRole>('Employee');
+  const [editedRole, setEditedRole] = useState<UserRole>('I.T & Scanning-Employee');
 
   const allUsers = useMemo(() => {
     return getUsers();
@@ -127,7 +127,7 @@ export default function UserManagementPage() {
     switch (role) {
         case 'Admin':
             return 'destructive';
-        case 'Employee':
+        case 'I.T & Scanning-Employee':
             return 'secondary';
         case 'Library-Employee':
             return 'default';
@@ -230,12 +230,12 @@ export default function UserManagementPage() {
                         </>
                       ) : (
                         <>
-                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)}>
+                          <Button variant="ghost" size="icon" onClick={() => handleEditClick(u)} disabled={u.email === 'admin@example.com'}>
                             <Edit className="h-4 w-4" />
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon" disabled={user.email === u.email}>
+                              <Button variant="ghost" size="icon" disabled={user.email === u.email || u.email === 'admin@example.com'}>
                                   <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </AlertDialogTrigger>
@@ -292,7 +292,7 @@ export default function UserManagementPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Admin">Admin</SelectItem>
-                  <SelectItem value="Employee">Employee</SelectItem>
+                  <SelectItem value="I.T & Scanning-Employee">I.T & Scanning-Employee</SelectItem>
                   <SelectItem value="Library-Employee">Library-Employee</SelectItem>
                 </SelectContent>
               </Select>
@@ -307,5 +307,3 @@ export default function UserManagementPage() {
     </div>
   );
 }
-
-    

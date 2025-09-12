@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { attendanceRecords as defaultAttendanceRecords, employeeReports as defaultEmployeeReports, scanningProgressRecords as defaultScanningProgressRecords } from '@/lib/placeholder-data';
 
-type UserRole = 'Admin' | 'Employee' | 'Library-Employee';
+type UserRole = 'Admin' | 'I.T & Scanning-Employee' | 'Library-Employee';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
@@ -101,7 +101,7 @@ const simpleHash = async (text: string): Promise<string> => {
 
 const getDefaultUsers = async (): Promise<{ [email: string]: StoredUser }> => ({
   'admin@example.com': { id: 'EMP001', name: 'Ali Khan', email: 'admin@example.com', role: 'Admin', status: 'Approved', passwordHash: await simpleHash('admin123') },
-  'employee@example.com': { id: 'EMP101', name: 'Employee User', email: 'employee@example.com', role: 'Employee', status: 'Approved', passwordHash: await simpleHash('emp123') },
+  'employee@example.com': { id: 'EMP101', name: 'Employee User', email: 'employee@example.com', role: 'I.T & Scanning-Employee', status: 'Approved', passwordHash: await simpleHash('emp123') },
   'supervisor@example.com': { id: 'EMP000', name: 'Supervisor', email: 'supervisor@example.com', role: 'Admin', status: 'Approved', passwordHash: await simpleHash('super123') },
 });
 
@@ -576,5 +576,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+    
 
     

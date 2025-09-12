@@ -34,7 +34,7 @@ export function UserNav() {
     switch (role) {
         case 'Admin':
             return 'destructive';
-        case 'Employee':
+        case 'I.T & Scanning-Employee':
             return 'secondary';
         case 'Library-Employee':
             return 'default';
@@ -90,5 +90,7 @@ export function UserNav() {
     </DropdownMenu>
   );
 }
+
+    
 
     

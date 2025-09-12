@@ -103,7 +103,7 @@ const getStageBadgeClass = (stage: string) => {
 function AdminDashboard() {
   const { getUsers } = useAuth();
   const { toast } = useToast();
-  const totalEmployees = getUsers().length;
+  const totalEmployees = getUsers().filter(u => u.role !== 'Admin').length;
   const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>(() => {
     try {
         const storedRecords = localStorage.getItem('scanningProgressRecords');
@@ -337,7 +337,7 @@ function EmployeeDashboard() {
   const isOnLeave = todaysRecord?.status === 'Leave';
 
   const userReports = useMemo(() => {
-    if (user?.role === 'Employee') {
+    if (user?.role === 'I.T & Scanning-Employee') {
         return employeeReports.filter(report => report.employeeId === user.id).slice(0, 5); // Show latest 5
     }
     return [];
@@ -503,4 +503,3 @@ function EmployeeDashboard() {
     </div>
   );
 }
-

@@ -60,7 +60,7 @@ export default function AttendancePage() {
   const [expandedEmployees, setExpandedEmployees] = useState<string[]>([]);
   const RECORDS_TO_SHOW = 5;
 
-  const isEmployee = user?.role === 'Employee';
+  const isEmployee = user?.role === 'I.T & Scanning-Employee';
 
   useEffect(() => {
     setIpInput(requiredIp);
@@ -109,7 +109,7 @@ export default function AttendancePage() {
       const year = selectedDate.getFullYear();
       
       const grouped: { [key: string]: { employeeId: string, employeeName: string, records: AttendanceRecord[], summary: { Present: number, Absent: number, Leave: number } } } = {};
-      const allUsers = getUsers().filter(u => u.role === 'Employee');
+      const allUsers = getUsers().filter(u => u.role === 'I.T & Scanning-Employee');
 
       const usersToDisplay = isEmployee ? allUsers.filter(u => u.id === user?.id) : allUsers;
 
@@ -549,4 +549,6 @@ export default function AttendancePage() {
   );
 }
     
+    
+
     

@@ -4,7 +4,7 @@
 import { useContext } from 'react';
 import { AuthContext, AttendanceRecord, EmployeeReport, ScanningRecord } from '@/context/auth-provider';
 
-type UserRole = 'Admin' | 'Employee' | 'Library-Employee';
+type UserRole = 'Admin' | 'I.T & Scanning-Employee' | 'Library-Employee';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
@@ -49,5 +49,7 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
+    
 
     

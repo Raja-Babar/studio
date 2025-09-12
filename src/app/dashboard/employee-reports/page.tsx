@@ -124,7 +124,7 @@ export default function EmployeeReportsPage() {
     const REPORTS_TO_SHOW = 1;
 
     const employeeReports = useMemo(() => {
-        if (user?.role === 'Employee') {
+        if (user?.role === 'I.T & Scanning-Employee') {
             return reports.filter(report => report.employeeId === user.id);
         }
         return reports;
@@ -141,13 +141,13 @@ export default function EmployeeReportsPage() {
 
      const reportsByEmployee = useMemo(() => {
         const grouped: { [key: string]: { employeeId: string, employeeName: string, reports: CombinedRecord[], summary: { byStage: { [key: string]: number } } } } = {};
-        const allUsers = getUsers().filter(u => u.role === 'Employee');
+        const allUsers = getUsers().filter(u => u.role === 'I.T & Scanning-Employee');
 
         const start = startOfMonth(selectedDate);
         const end = endOfMonth(selectedDate);
         const allDaysInMonth = eachDayOfInterval({ start, end });
 
-        const usersToDisplay = user?.role === 'Employee' ? allUsers.filter(u => u.id === user.id) : allUsers;
+        const usersToDisplay = user?.role === 'I.T & Scanning-Employee' ? allUsers.filter(u => u.id === user.id) : allUsers;
 
         usersToDisplay.forEach(emp => {
             const employeeData = {
@@ -499,7 +499,7 @@ export default function EmployeeReportsPage() {
         </div>
       </div>
 
-      {user?.role === 'Employee' && (
+      {user?.role === 'I.T & Scanning-Employee' && (
         <Card>
             <CardHeader>
                 <CardTitle>Submit a New Report</CardTitle>
@@ -581,7 +581,7 @@ export default function EmployeeReportsPage() {
                 <Card key={employeeId}>
                     <CardHeader className="flex flex-row items-start justify-between">
                         <div>
-                            <CardTitle>{employeeName}'s Reports & Summary</CardTitle>
+                            <CardTitle>{employeeName}'s Reports &amp; Summary</CardTitle>
                             <CardDescription>
                                 Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
                             </CardDescription>
@@ -824,3 +824,5 @@ export default function EmployeeReportsPage() {
     </div>
   );
 }
+
+    
