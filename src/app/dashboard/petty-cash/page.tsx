@@ -21,10 +21,30 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Trash2, Download } from 'lucide-react';
+import { PlusCircle, Trash2, Download, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 
 type Transaction = {
   id: number;
@@ -44,6 +64,13 @@ export default function PettyCashPage() {
   const [newDescription, setNewDescription] = useState('');
   const [newDebit, setNewDebit] = useState('');
   const [newCredit, setNewCredit] = useState('');
+  
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
+  const [editedDate, setEditedDate] = useState('');
+  const [editedDescription, setEditedDescription] = useState('');
+  const [editedDebit, setEditedDebit] = useState('');
+  const [editedCredit, setEditedCredit] = useState('');
 
   const handleAddTransaction = () => {
     const debitAmount = parseFloat(newDebit) || 0;
@@ -96,6 +123,57 @@ export default function PettyCashPage() {
       description: 'The selected transaction has been removed.',
     });
   };
+
+  const handleEditClick = (transaction: Transaction) => {
+    setSelectedTransaction(transaction);
+    setEditedDate(transaction.date);
+    setEditedDescription(transaction.description);
+    setEditedDebit(transaction.debit > 0 ? String(transaction.debit) : '');
+    setEditedCredit(transaction.credit > 0 ? String(transaction.credit) : '');
+    setIsEditDialogOpen(true);
+  };
+  
+  const handleUpdateTransaction = () => {
+      if (selectedTransaction) {
+        const debitAmount = parseFloat(editedDebit) || 0;
+        const creditAmount = parseFloat(editedCredit) || 0;
+
+        if (!editedDescription || (debitAmount <= 0 && creditAmount <= 0)) {
+          toast({
+            variant: 'destructive',
+            title: 'Invalid Input',
+            description: 'Please provide a description and a valid debit or credit amount.',
+          });
+          return;
+        }
+
+        if (debitAmount > 0 && creditAmount > 0) {
+          toast({
+            variant: 'destructive',
+            title: 'Invalid Input',
+            description: 'A transaction can only be a debit or a credit, not both.',
+          });
+          return;
+        }
+
+        setTransactions(prev => prev.map(t =>
+            t.id === selectedTransaction.id ? {
+                ...t,
+                date: editedDate,
+                description: editedDescription,
+                debit: debitAmount,
+                credit: creditAmount,
+            } : t
+        ));
+        setIsEditDialogOpen(false);
+        setSelectedTransaction(null);
+        toast({
+            title: 'Transaction Updated',
+            description: 'The transaction has been successfully updated.',
+        });
+    }
+  };
+
 
   const ledger = useMemo(() => {
     let runningBalance = openingBalance;
@@ -254,7 +332,7 @@ export default function PettyCashPage() {
                 <TableHead className="text-right">Amount Debit (Rs.)</TableHead>
                 <TableHead className="text-right">Amount Credit (Rs.)</TableHead>
                 <TableHead className="text-right">Balance (Rs.)</TableHead>
-                <TableHead><span className="sr-only">Actions</span></TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -272,10 +350,30 @@ export default function PettyCashPage() {
                     </TableCell>
                     <TableCell className="text-right font-semibold">{entry.balance.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="icon" onClick={() => handleDeleteTransaction(entry.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                        <span className="sr-only">Delete</span>
-                      </Button>
+                       <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
+                          <Edit className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                       </Button>
+                       <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                              <Button variant="ghost" size="icon">
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                                <span className="sr-only">Delete</span>
+                              </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                      Are you sure you want to delete this transaction? This action cannot be undone.
+                                  </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteTransaction(entry.id)}>Delete</AlertDialogAction>
+                              </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                     </TableCell>
                   </TableRow>
                 ))
@@ -308,6 +406,39 @@ export default function PettyCashPage() {
             </CardFooter>
         )}
       </Card>
+      
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Edit Transaction</DialogTitle>
+                    <DialogDescription>
+                        Make changes to the transaction here. Click save when you're done.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-date" className="text-right">Date</Label>
+                        <Input id="edit-date" type="date" value={editedDate} onChange={(e) => setEditedDate(e.target.value)} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-description" className="text-right">Description</Label>
+                        <Input id="edit-description" value={editedDescription} onChange={(e) => setEditedDescription(e.target.value)} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-debit" className="text-right">Debit</Label>
+                        <Input id="edit-debit" type="number" value={editedDebit} onChange={(e) => setEditedDebit(e.target.value)} className="col-span-3" disabled={!!editedCredit} />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-credit" className="text-right">Credit</Label>
+                        <Input id="edit-credit" type="number" value={editedCredit} onChange={(e) => setEditedCredit(e.target.value)} className="col-span-3" disabled={!!editedDebit} />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
+                    <Button type="submit" onClick={handleUpdateTransaction}>Save changes</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     </div>
   );
 }
