@@ -150,6 +150,34 @@ export function DashboardNav() {
     );
   }
 
+  if (user?.role === 'Accounts') {
+    const accountsNavItems = [
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      ...administrationItems,
+    ];
+
+    return (
+      <SidebarContent className="p-2">
+        <SidebarMenu className="flex flex-col gap-y-4">
+            {accountsNavItems.map((item, index) => (
+                <SidebarMenuItem key={`${item.href}-${index}`}>
+                <Link href={item.href}>
+                    <SidebarMenuButton
+                    isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
+                    tooltip={item.label}
+                    className="justify-start"
+                    >
+                    <item.icon />
+                    <span>{item.label}</span>
+                    </SidebarMenuButton>
+                </Link>
+                </SidebarMenuItem>
+            ))}
+        </SidebarMenu>
+      </SidebarContent>
+    );
+  }
+
   if (user?.role === 'Admin') {
     return (
       <SidebarContent className="p-2">

@@ -42,6 +42,8 @@ export function UserNav() {
             return 'secondary';
         case 'Library-Employee':
             return 'default';
+        case 'Accounts':
+            return 'default';
         default:
             return 'secondary';
     }

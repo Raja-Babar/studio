@@ -1,4 +1,3 @@
-
 // src/app/dashboard/user-management/page.tsx
 'use client';
 
@@ -19,7 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-type UserRole = 'Admin' | 'I.T & Scanning-Employee' | 'Library-Employee';
+type UserRole = 'Admin' | 'I.T & Scanning-Employee' | 'Library-Employee' | 'Accounts';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
@@ -132,6 +131,8 @@ export default function UserManagementPage() {
         case 'I.T & Scanning-Employee':
             return 'secondary';
         case 'Library-Employee':
+            return 'default';
+        case 'Accounts':
             return 'default';
         default:
             return 'secondary';
@@ -302,6 +303,7 @@ export default function UserManagementPage() {
                   <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="I.T & Scanning-Employee">I.T & Scanning-Employee</SelectItem>
                   <SelectItem value="Library-Employee">Library-Employee</SelectItem>
+                  <SelectItem value="Accounts">Accounts</SelectItem>
                 </SelectContent>
               </Select>
             </div>
