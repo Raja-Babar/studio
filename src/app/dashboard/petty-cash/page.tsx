@@ -120,7 +120,7 @@ export default function PettyCashPage() {
     doc.text(`Opening Balance: ${openingBalance.toFixed(2)}`, 14, 22);
 
     (doc as any).autoTable({
-      head: [['S.No', 'Date', 'Items/Expenditures', 'Amount Debit', 'Cash Paid/Credit', 'Balance']],
+      head: [['S.No', 'Date', 'Items/Expenditures', 'Amount Debit', 'Amount Credit', 'Balance']],
       body: ledger.map((entry, index) => [
         index + 1,
         entry.date,
@@ -248,7 +248,7 @@ export default function PettyCashPage() {
                 <TableHead>Date</TableHead>
                 <TableHead>Items/Expenditures</TableHead>
                 <TableHead className="text-right">Amount Debit (Rs.)</TableHead>
-                <TableHead className="text-right">Cash Paid/Credit (Rs.)</TableHead>
+                <TableHead className="text-right">Amount Credit (Rs.)</TableHead>
                 <TableHead className="text-right">Balance (Rs.)</TableHead>
                 <TableHead><span className="sr-only">Actions</span></TableHead>
               </TableRow>
