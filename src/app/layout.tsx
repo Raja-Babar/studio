@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/context/auth-provider';
 
 export const metadata: Metadata = {
-  title: 'Panhwar Portal',
+  title: 'MHPISSJ-Portal',
   description: 'M.H. Panhwar Institute App',
 };
 

@@ -39,8 +39,8 @@ export default function DashboardLayout({
       <Sidebar>
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-            <Image src="https://sindh.org/assets/img/logo1.jpg" alt="Panhwar Portal Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
-            <span className="text-lg font-semibold">Panhwar Portal</span>
+            <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
+            <span className="text-lg font-semibold">MHPISSJ-Portal</span>
           </div>
           <DashboardNav />
         </div>

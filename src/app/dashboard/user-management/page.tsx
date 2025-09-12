@@ -59,13 +59,13 @@ export default function UserManagementPage() {
   
   const handleExport = () => {
     const doc = new jsPDF();
-    doc.text('Panhwar Portal Users Report', 14, 16);
+    doc.text('MHPISSJ-Portal Users Report', 14, 16);
     (doc as any).autoTable({
         head: [['ID', 'Employee Name', 'Role', 'Email', 'Status']],
         body: filteredUsers.map(u => [u.id, u.name, u.role, u.email, u.status]),
         startY: 20
     });
-    doc.save('panhwar_portal_users.pdf');
+    doc.save('mhpissj_portal_users.pdf');
     toast({ title: 'Success', description: 'User data exported successfully as PDF.' });
   };
 
