@@ -136,6 +136,16 @@ export default function PettyCashPage() {
     setOpeningBalances(prev => ({...prev, [selectedMonthYear]: balance}));
   };
 
+  const handleDateChange = (dateString: string) => {
+    setNewDate(dateString);
+    // The date from the input is YYYY-MM-DD, which is treated as UTC.
+    // Adding T00:00:00 ensures it's parsed correctly in the local time zone.
+    const newSelectedDate = new Date(dateString + 'T00:00:00');
+    if (!isNaN(newSelectedDate.getTime())) {
+        setSelectedDate(newSelectedDate);
+    }
+  };
+
 
   const handleAddTransaction = () => {
     const debitAmount = parseFloat(newDebit) || 0;
@@ -159,7 +169,7 @@ export default function PettyCashPage() {
       return;
     }
     
-    const transactionDate = new Date(newDate);
+    const transactionDate = new Date(newDate + 'T00:00:00');
     const transactionMonthYear = transactionDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
     if (transactionMonthYear !== selectedMonthYear) {
@@ -472,7 +482,7 @@ export default function PettyCashPage() {
                   id="newDate"
                   type="date"
                   value={newDate}
-                  onChange={e => setNewDate(e.target.value)}
+                  onChange={e => handleDateChange(e.target.value)}
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
@@ -539,7 +549,12 @@ export default function PettyCashPage() {
                 <Calendar
                   mode="single"
                   selected={selectedDate}
-                  onSelect={(date) => date && setSelectedDate(date)}
+                  onSelect={(date) => {
+                    if (date) {
+                      setSelectedDate(date);
+                      setNewDate(format(date, 'yyyy-MM-dd'));
+                    }
+                  }}
                   initialFocus
                 />
               </PopoverContent>
