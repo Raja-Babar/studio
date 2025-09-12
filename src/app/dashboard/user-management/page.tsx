@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-type UserRole = 'Admin' | 'Employee';
+type UserRole = 'Admin' | 'Employee' | 'Library-Employee' | 'I.t & Scanning-Employee';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
@@ -123,6 +123,21 @@ export default function UserManagementPage() {
     }
   };
 
+  const getRoleBadgeVariant = (role: UserRole) => {
+    switch (role) {
+        case 'Admin':
+            return 'destructive';
+        case 'Employee':
+            return 'secondary';
+        case 'Library-Employee':
+            return 'default';
+        case 'I.t & Scanning-Employee':
+            return 'outline';
+        default:
+            return 'secondary';
+    }
+  };
+
 
   if (user?.role !== 'Admin') {
     return null;
@@ -177,7 +192,7 @@ export default function UserManagementPage() {
                   <TableCell>{u.id}</TableCell>
                   <TableCell className="font-medium">{u.name}</TableCell>
                   <TableCell>
-                    <Badge variant={u.role === 'Admin' ? 'destructive' : 'secondary'}>
+                    <Badge variant={getRoleBadgeVariant(u.role)}>
                       {u.role}
                     </Badge>
                   </TableCell>
@@ -273,13 +288,15 @@ export default function UserManagementPage() {
               <Label htmlFor="role" className="text-right">
                 Role
               </Label>
-               <Select onValueChange={(value) => setEditedRole(value as 'Admin' | 'Employee')} defaultValue={editedRole}>
+               <Select onValueChange={(value) => setEditedRole(value as UserRole)} defaultValue={editedRole}>
                 <SelectTrigger className="col-span-3">
                   <SelectValue placeholder="Select a role" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Admin">Admin</SelectItem>
                   <SelectItem value="Employee">Employee</SelectItem>
+                  <SelectItem value="Library-Employee">Library-Employee</SelectItem>
+                  <SelectItem value="I.t & Scanning-Employee">I.t & Scanning-Employee</SelectItem>
                 </SelectContent>
               </Select>
             </div>

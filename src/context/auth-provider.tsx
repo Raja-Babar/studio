@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { attendanceRecords as defaultAttendanceRecords, employeeReports as defaultEmployeeReports, scanningProgressRecords as defaultScanningProgressRecords } from '@/lib/placeholder-data';
 
-type UserRole = 'Admin' | 'Employee';
+type UserRole = 'Admin' | 'Employee' | 'Library-Employee' | 'I.t & Scanning-Employee';
 type UserStatus = 'Approved' | 'Pending';
 
 type User = {
