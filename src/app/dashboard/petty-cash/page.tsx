@@ -21,7 +21,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { PlusCircle, Trash2, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
@@ -31,8 +30,8 @@ type Transaction = {
   id: number;
   date: string;
   description: string;
-  type: 'debit' | 'credit';
-  amount: number;
+  debit: number; // Expense
+  credit: number; // Received
 };
 
 export default function PettyCashPage() {
@@ -43,16 +42,27 @@ export default function PettyCashPage() {
 
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newDescription, setNewDescription] = useState('');
-  const [newAmount, setNewAmount] = useState('');
-  const [newType, setNewType] = useState<'debit' | 'credit'>('debit');
+  const [newDebit, setNewDebit] = useState('');
+  const [newCredit, setNewCredit] = useState('');
 
   const handleAddTransaction = () => {
-    const amount = parseFloat(newAmount);
-    if (!newDescription || isNaN(amount) || amount <= 0) {
+    const debitAmount = parseFloat(newDebit) || 0;
+    const creditAmount = parseFloat(newCredit) || 0;
+
+    if (!newDescription || (debitAmount <= 0 && creditAmount <= 0)) {
       toast({
         variant: 'destructive',
         title: 'Invalid Input',
-        description: 'Please fill in all fields with valid data.',
+        description: 'Please provide a description and a valid debit or credit amount.',
+      });
+      return;
+    }
+    
+    if (debitAmount > 0 && creditAmount > 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Invalid Input',
+        description: 'A transaction can only be a debit or a credit, not both.',
       });
       return;
     }
@@ -61,8 +71,8 @@ export default function PettyCashPage() {
       id: nextId,
       date: newDate,
       description: newDescription,
-      type: newType,
-      amount: amount,
+      debit: debitAmount,
+      credit: creditAmount,
     };
 
     setTransactions(prev => [...prev, newTransaction]);
@@ -70,10 +80,12 @@ export default function PettyCashPage() {
 
     // Reset form
     setNewDescription('');
-    setNewAmount('');
+    setNewDebit('');
+    setNewCredit('');
+    
     toast({
       title: 'Transaction Added',
-      description: `A new ${newType} of ${amount} has been recorded.`,
+      description: `The transaction for "${newDescription}" has been recorded.`,
     });
   };
 
@@ -88,11 +100,7 @@ export default function PettyCashPage() {
   const ledger = useMemo(() => {
     let runningBalance = openingBalance;
     const ledgerEntries = transactions.map(t => {
-      if (t.type === 'debit') {
-        runningBalance -= t.amount;
-      } else {
-        runningBalance += t.amount;
-      }
+      runningBalance = runningBalance - t.debit + t.credit;
       return {
         ...t,
         balance: runningBalance,
@@ -102,12 +110,8 @@ export default function PettyCashPage() {
   }, [transactions, openingBalance]);
 
   const totals = useMemo(() => {
-    const totalDebit = transactions
-      .filter(t => t.type === 'debit')
-      .reduce((acc, t) => acc + t.amount, 0);
-    const totalCredit = transactions
-      .filter(t => t.type === 'credit')
-      .reduce((acc, t) => acc + t.amount, 0);
+    const totalDebit = transactions.reduce((acc, t) => acc + t.debit, 0);
+    const totalCredit = transactions.reduce((acc, t) => acc + t.credit, 0);
     const closingBalance = openingBalance - totalDebit + totalCredit;
     return { totalDebit, totalCredit, closingBalance };
   }, [transactions, openingBalance]);
@@ -125,8 +129,8 @@ export default function PettyCashPage() {
         index + 1,
         entry.date,
         entry.description,
-        entry.type === 'debit' ? entry.amount.toFixed(2) : '-',
-        entry.type === 'credit' ? entry.amount.toFixed(2) : '-',
+        entry.debit > 0 ? entry.debit.toFixed(2) : '-',
+        entry.credit > 0 ? entry.credit.toFixed(2) : '-',
         entry.balance.toFixed(2),
       ]),
       startY: 30,
@@ -179,7 +183,7 @@ export default function PettyCashPage() {
           <CardTitle>Add New Transaction</CardTitle>
         </CardHeader>
         <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
               <div className="space-y-2">
                 <Label htmlFor="newDate">Date</Label>
                 <Input
@@ -199,26 +203,26 @@ export default function PettyCashPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newAmount">Amount (Rs.)</Label>
+                <Label htmlFor="newDebit">Amount Debit (Rs.)</Label>
                 <Input
-                  id="newAmount"
+                  id="newDebit"
                   type="number"
-                  value={newAmount}
-                  onChange={e => setNewAmount(e.target.value)}
-                  placeholder="e.g., 50.00"
+                  value={newDebit}
+                  onChange={e => setNewDebit(e.target.value)}
+                  placeholder="Expense amount"
+                  disabled={!!newCredit}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="newType">Type</Label>
-                <Select value={newType} onValueChange={(value) => setNewType(value as 'debit' | 'credit')}>
-                    <SelectTrigger id="newType">
-                        <SelectValue placeholder="Select Type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="debit">Debit (Expense)</SelectItem>
-                        <SelectItem value="credit">Credit (Received)</SelectItem>
-                    </SelectContent>
-                </Select>
+                <Label htmlFor="newCredit">Amount Credit (Rs.)</Label>
+                <Input
+                  id="newCredit"
+                  type="number"
+                  value={newCredit}
+                  onChange={e => setNewCredit(e.target.value)}
+                  placeholder="Received amount"
+                  disabled={!!newDebit}
+                />
               </div>
             </div>
         </CardContent>
@@ -261,10 +265,10 @@ export default function PettyCashPage() {
                     <TableCell>{new Date(entry.date + 'T00:00:00').toLocaleDateString()}</TableCell>
                     <TableCell>{entry.description}</TableCell>
                     <TableCell className="text-right text-destructive">
-                      {entry.type === 'debit' ? `- ${entry.amount.toFixed(2)}` : '-'}
+                      {entry.debit > 0 ? `- ${entry.debit.toFixed(2)}` : '-'}
                     </TableCell>
                     <TableCell className="text-right text-green-500">
-                      {entry.type === 'credit' ? `+ ${entry.amount.toFixed(2)}` : '-'}
+                      {entry.credit > 0 ? `+ ${entry.credit.toFixed(2)}` : '-'}
                     </TableCell>
                     <TableCell className="text-right font-semibold">{entry.balance.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
