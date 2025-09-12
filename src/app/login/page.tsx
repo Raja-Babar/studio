@@ -76,7 +76,7 @@ export default function LoginPage() {
               <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={80} height={80} className="h-20 w-20 rounded-full" />
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight">MHPISSJ-Portal</CardTitle>
-            <CardDescription>M.H. Panhwar Institute App</CardDescription>
+            <CardDescription className="text-primary">M.H. Panhwar Institute App</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
