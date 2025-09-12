@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -21,7 +22,6 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
-import { BookCopy } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const formSchema = z.object({
@@ -79,8 +79,8 @@ export default function SignupPage() {
       <div className="w-full max-w-md">
         <Card className="shadow-2xl">
           <CardHeader className="text-center">
-             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
-                <BookCopy className="h-8 w-8 text-primary" />
+             <div className="mx-auto mb-4">
+                <Image src="https://sindh.org/assets/img/logo1.jpg" alt="Panhwar Portal Logo" width={80} height={80} className="h-20 w-20 rounded-full" />
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight">Create an Account</CardTitle>
             <CardDescription>Enter your details to get started.</CardDescription>
