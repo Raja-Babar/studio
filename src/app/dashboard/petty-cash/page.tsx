@@ -1,4 +1,3 @@
-
 // src/app/dashboard/petty-cash/page.tsx
 'use client';
 
@@ -22,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, Trash2, Download, Edit } from 'lucide-react';
+import { PlusCircle, Trash2, Download, Edit, Calendar as CalendarIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -45,6 +44,10 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 
 type Transaction = {
@@ -67,9 +70,10 @@ type GeneratedLedger = {
 
 export default function PettyCashPage() {
   const { toast } = useToast();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [openingBalance, setOpeningBalance] = useState<number>(0);
+  const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
+  const [openingBalances, setOpeningBalances] = useState<{ [monthYear: string]: number }>({});
   const [nextId, setNextId] = useState(1);
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const [newDate, setNewDate] = useState(new Date().toISOString().split('T')[0]);
   const [newDescription, setNewDescription] = useState('');
@@ -85,28 +89,21 @@ export default function PettyCashPage() {
 
   const [generatedLedgers, setGeneratedLedgers] = useState<GeneratedLedger[]>([]);
   
-  const monthYear = new Date(newDate || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  const selectedMonthYear = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
   // Load from localStorage on initial render
   useEffect(() => {
     try {
-      const storedTransactions = localStorage.getItem('pettyCashTransactions');
-      const storedOpeningBalance = localStorage.getItem('pettyCashOpeningBalance');
+      const storedTransactions = localStorage.getItem('pettyCashAllTransactions');
+      const storedOpeningBalances = localStorage.getItem('pettyCashOpeningBalances');
       const storedNextId = localStorage.getItem('pettyCashNextId');
       const storedGeneratedLedgers = localStorage.getItem('pettyCashGeneratedLedgers');
-      const storedCurrentMonthYear = localStorage.getItem('pettyCashCurrentMonthYear');
 
-      if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
-      if (storedOpeningBalance) setOpeningBalance(JSON.parse(storedOpeningBalance));
+      if (storedTransactions) setAllTransactions(JSON.parse(storedTransactions));
+      if (storedOpeningBalances) setOpeningBalances(JSON.parse(storedOpeningBalances));
       if (storedNextId) setNextId(JSON.parse(storedNextId));
       if (storedGeneratedLedgers) setGeneratedLedgers(JSON.parse(storedGeneratedLedgers));
-      if (storedCurrentMonthYear) {
-          const currentMonth = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-          if (storedCurrentMonthYear !== currentMonth) {
-              // It's a new month, but let's not reset here to avoid complexity.
-              // The reset will happen on the first transaction of the new month.
-          }
-      }
+      
     } catch (error) {
       console.error("Failed to load petty cash data from localStorage", error);
       toast({ variant: 'destructive', title: 'Load Error', description: 'Could not load saved petty cash data.' });
@@ -116,15 +113,28 @@ export default function PettyCashPage() {
   // Save to localStorage whenever data changes
   useEffect(() => {
     try {
-      localStorage.setItem('pettyCashTransactions', JSON.stringify(transactions));
-      localStorage.setItem('pettyCashOpeningBalance', JSON.stringify(openingBalance));
+      localStorage.setItem('pettyCashAllTransactions', JSON.stringify(allTransactions));
+      localStorage.setItem('pettyCashOpeningBalances', JSON.stringify(openingBalances));
       localStorage.setItem('pettyCashNextId', JSON.stringify(nextId));
       localStorage.setItem('pettyCashGeneratedLedgers', JSON.stringify(generatedLedgers));
-      localStorage.setItem('pettyCashCurrentMonthYear', monthYear);
     } catch (error) {
       console.error("Failed to save petty cash data to localStorage", error);
     }
-  }, [transactions, openingBalance, nextId, generatedLedgers, monthYear]);
+  }, [allTransactions, openingBalances, nextId, generatedLedgers]);
+  
+  const currentMonthTransactions = useMemo(() => {
+    return allTransactions
+      .filter(t => {
+        const tDate = new Date(t.date);
+        return tDate.getFullYear() === selectedDate.getFullYear() && tDate.getMonth() === selectedDate.getMonth();
+      })
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }, [allTransactions, selectedDate]);
+  
+  const openingBalance = openingBalances[selectedMonthYear] || 0;
+  const setOpeningBalance = (balance: number) => {
+    setOpeningBalances(prev => ({...prev, [selectedMonthYear]: balance}));
+  };
 
 
   const handleAddTransaction = () => {
@@ -148,22 +158,17 @@ export default function PettyCashPage() {
       });
       return;
     }
+    
+    const transactionDate = new Date(newDate);
+    const transactionMonthYear = transactionDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
-    const transactionMonthYear = new Date(newDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-    const currentLedgerMonthYear = localStorage.getItem('pettyCashCurrentMonthYear') || monthYear;
-
-    if (transactionMonthYear !== currentLedgerMonthYear && transactions.length > 0) {
-        // Generate and save the ledger for the previous month automatically
-        const closingBalanceForPrevMonth = totals.closingBalance;
-        handleExportPDF(true); // silent = true
-
-        // Reset for the new month
-        setTransactions([]);
-        setOpeningBalance(closingBalanceForPrevMonth);
-        toast({
-            title: 'New Month Started',
-            description: `The ledger for ${currentLedgerMonthYear} has been automatically saved. Starting a new ledger for ${transactionMonthYear} with opening balance of ${closingBalanceForPrevMonth.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.`,
-        });
+    if (transactionMonthYear !== selectedMonthYear) {
+      toast({
+        variant: 'destructive',
+        title: 'Date Mismatch',
+        description: `The transaction date must be within ${selectedMonthYear}. Please change the selected month to add this transaction.`,
+      });
+      return;
     }
 
     const newTransaction: Transaction = {
@@ -174,7 +179,7 @@ export default function PettyCashPage() {
       credit: creditAmount,
     };
 
-    setTransactions(prev => [...prev, newTransaction].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+    setAllTransactions(prev => [...prev, newTransaction]);
     setNextId(prev => prev + 1);
 
     // Reset form
@@ -189,7 +194,7 @@ export default function PettyCashPage() {
   };
 
   const handleDeleteTransaction = (id: number) => {
-    setTransactions(prev => prev.filter(t => t.id !== id));
+    setAllTransactions(prev => prev.filter(t => t.id !== id));
     toast({
       title: 'Transaction Removed',
       description: 'The selected transaction has been removed.',
@@ -228,7 +233,7 @@ export default function PettyCashPage() {
           return;
         }
 
-        setTransactions(prev => prev.map(t =>
+        setAllTransactions(prev => prev.map(t =>
             t.id === selectedTransaction.id ? {
                 ...t,
                 date: editedDate,
@@ -236,7 +241,7 @@ export default function PettyCashPage() {
                 debit: debitAmount,
                 credit: creditAmount,
             } : t
-        ).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
+        ));
         setIsEditDialogOpen(false);
         setSelectedTransaction(null);
         toast({
@@ -249,7 +254,7 @@ export default function PettyCashPage() {
 
   const ledger = useMemo(() => {
     let runningBalance = openingBalance;
-    const ledgerEntries = transactions.map(t => {
+    const ledgerEntries = currentMonthTransactions.map(t => {
       runningBalance = runningBalance - t.debit + t.credit;
       return {
         ...t,
@@ -257,14 +262,14 @@ export default function PettyCashPage() {
       };
     });
     return ledgerEntries;
-  }, [transactions, openingBalance]);
+  }, [currentMonthTransactions, openingBalance]);
 
   const totals = useMemo(() => {
-    const totalDebit = transactions.reduce((acc, t) => acc + t.debit, 0);
-    const totalCredit = transactions.reduce((acc, t) => acc + t.credit, 0);
+    const totalDebit = currentMonthTransactions.reduce((acc, t) => acc + t.debit, 0);
+    const totalCredit = currentMonthTransactions.reduce((acc, t) => acc + t.credit, 0);
     const closingBalance = openingBalance - totalDebit + totalCredit;
     return { totalDebit, totalCredit, closingBalance };
-  }, [transactions, openingBalance]);
+  }, [currentMonthTransactions, openingBalance]);
 
   const grandTotals = useMemo(() => {
     const grandTotalDebit = generatedLedgers.reduce((acc, ledger) => acc + ledger.totalDebit, 0);
@@ -342,7 +347,7 @@ export default function PettyCashPage() {
   };
 
   const handleExportPDF = (silent = false) => {
-    if (transactions.length === 0) {
+    if (currentMonthTransactions.length === 0) {
         if (!silent) {
             toast({
                 variant: 'destructive',
@@ -353,21 +358,19 @@ export default function PettyCashPage() {
         return;
     }
     
-    const currentMonthYear = localStorage.getItem('pettyCashCurrentMonthYear') || monthYear;
-    
     const newGeneratedLedger: GeneratedLedger = {
         id: `LGR-${Date.now()}`,
-        monthYear: currentMonthYear,
+        monthYear: selectedMonthYear,
         openingBalance: openingBalance,
         closingBalance: totals.closingBalance,
         totalDebit: totals.totalDebit,
         totalCredit: totals.totalCredit,
-        transactions: [...transactions],
+        transactions: [...currentMonthTransactions],
     };
 
     if (!silent) {
         const doc = generatePdfForLedger(newGeneratedLedger);
-        doc.save(`petty_cash_ledger_${currentMonthYear.replace(/\s+/g, '_')}.pdf`);
+        doc.save(`petty_cash_ledger_${selectedMonthYear.replace(/\s+/g, '_')}.pdf`);
     }
 
     setGeneratedLedgers(prev => [newGeneratedLedger, ...prev].sort((a,b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime()));
@@ -375,7 +378,7 @@ export default function PettyCashPage() {
     if (!silent) {
         toast({
             title: 'Ledger Exported & Saved',
-            description: `The ledger for ${currentMonthYear} has been exported and recorded in history.`,
+            description: `The ledger for ${selectedMonthYear} has been exported and recorded in history.`,
         });
     }
   };
@@ -440,7 +443,7 @@ export default function PettyCashPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Opening Balance for {monthYear}</CardTitle>
+          <CardTitle>Opening Balance for {selectedMonthYear}</CardTitle>
           <CardDescription>Set the starting balance for the period.</CardDescription>
         </CardHeader>
         <CardContent>
@@ -513,15 +516,39 @@ export default function PettyCashPage() {
       </Card>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div>
             <CardTitle>Petty Cash Ledger</CardTitle>
-            <CardDescription>A record of all transactions for {localStorage.getItem('pettyCashCurrentMonthYear') || monthYear}.</CardDescription>
+            <CardDescription>A record of all transactions for {selectedMonthYear}.</CardDescription>
           </div>
-          <Button variant="outline" onClick={() => handleExportPDF(false)}>
-            <Download className="mr-2 h-4 w-4" />
-            Export PDF &amp; Save Record
-          </Button>
+          <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full sm:w-[280px] justify-start text-left font-normal",
+                    !selectedDate && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={(date) => date && setSelectedDate(date)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <Button variant="outline" onClick={() => handleExportPDF(false)} className="w-full sm:w-auto">
+              <Download className="mr-2 h-4 w-4" />
+              Export PDF &amp; Save Record
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <Table>
@@ -586,7 +613,7 @@ export default function PettyCashPage() {
             </TableBody>
           </Table>
         </CardContent>
-        {transactions.length > 0 && (
+        {currentMonthTransactions.length > 0 && (
             <CardFooter className="flex justify-end pt-4 border-t">
                 <div className="w-full max-w-sm space-y-2">
                     <div className="flex justify-between">
