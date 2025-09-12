@@ -7,6 +7,7 @@ import { SidebarProvider, Sidebar, SidebarInset } from '@/components/ui/sidebar'
 import { DashboardNav } from '@/components/dashboard-nav';
 import { UserNav } from '@/components/user-nav';
 import { ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
 
 export default function DashboardLayout({
   children,
@@ -38,7 +39,7 @@ export default function DashboardLayout({
       <Sidebar>
         <div className="flex h-full flex-col">
           <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-            <ShieldCheck className="h-7 w-7 text-primary" />
+            <Image src="https://sindh.org/assets/img/logo1.jpg" alt="Panhwar Portal Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
             <span className="text-lg font-semibold">Panhwar Portal</span>
           </div>
           <DashboardNav />
