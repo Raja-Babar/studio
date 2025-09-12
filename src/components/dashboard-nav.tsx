@@ -109,6 +109,34 @@ export function DashboardNav() {
     );
   }
 
+  if (user?.role === 'Library-Employee') {
+    const libraryEmployeeNavItems = [
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      ...publicationItems,
+    ];
+
+    return (
+      <SidebarContent className="p-2">
+        <SidebarMenu className="flex flex-col gap-y-4">
+          {libraryEmployeeNavItems.map((item, index) => (
+            <SidebarMenuItem key={`${item.href}-${index}`}>
+              <Link href={item.href}>
+                <SidebarMenuButton
+                  isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
+                  tooltip={item.label}
+                  className="justify-start"
+                >
+                  <item.icon />
+                  <span>{item.label}</span>
+                </SidebarMenuButton>
+              </Link>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+    );
+  }
+
   if (user?.role === 'Admin') {
     return (
       <SidebarContent className="p-2">
