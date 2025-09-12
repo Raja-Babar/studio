@@ -791,7 +791,7 @@ export default function PettyCashPage() {
                           ))
                       ) : (
                           <TableRow>
-                              <TableCell colSpan={5} className="h-24 text-center">
+                              <TableCell colSpan={isAccountsRole ? 4 : 5} className="h-24 text-center">
                                   No ledgers have been generated and saved yet.
                               </TableCell>
                           </TableRow>
