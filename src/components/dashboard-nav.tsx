@@ -52,10 +52,13 @@ const appFileItems = [
     { href: '/dashboard/reporting', icon: FileText, label: 'Reporting' },
 ];
 
-const otherNavItems = [
-  { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
+const publicationItems = [
   { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
   { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
+];
+
+const otherNavItems = [
+  { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
 ];
 
 const employeeNavItems = [
@@ -75,6 +78,10 @@ export function DashboardNav() {
   
   const [isAdministrationSectionOpen, setIsAdministrationSectionOpen] = useState(
     pathname.startsWith('/dashboard/salaries') || pathname.startsWith('/dashboard/petty-cash')
+  );
+  
+  const [isPublicationSectionOpen, setIsPublicationSectionOpen] = useState(
+    pathname.startsWith('/dashboard/library') || pathname.startsWith('/dashboard/publications')
   );
   
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
@@ -197,6 +204,38 @@ export function DashboardNav() {
                     </Link>
                 </SidebarMenuItem>
               ))}
+            
+            <Collapsible open={isPublicationSectionOpen} onOpenChange={setIsPublicationSectionOpen} className="w-full">
+                <CollapsibleTrigger asChild>
+                    <div className='w-full'>
+                        <SidebarMenuButton className='w-full justify-between' isActive={isPublicationSectionOpen}>
+                            <div className="flex items-center gap-2">
+                                <BookOpen />
+                                <span>Publication-Section</span>
+                            </div>
+                            <ChevronDown className={cn('h-4 w-4 transition-transform', isPublicationSectionOpen && 'rotate-180')} />
+                        </SidebarMenuButton>
+                    </div>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-1 pl-6">
+                     <SidebarMenu>
+                        {publicationItems.map((item, index) => (
+                            <SidebarMenuItem key={`${item.href}-${index}`}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith(item.href)}
+                                    tooltip={item.label}
+                                    className="h-8"
+                                >
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
 
             <Collapsible open={isAppFileSectionOpen} onOpenChange={setIsAppFileSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
