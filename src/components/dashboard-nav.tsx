@@ -61,12 +61,6 @@ const otherNavItems = [
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
 ];
 
-const itScanningEmployeeNavItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
-  { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
-];
-
 export function DashboardNav() {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -88,16 +82,21 @@ export function DashboardNav() {
   );
   
   if (user?.role === 'I.T & Scanning-Employee') {
+    const itScanningEmployeeNavItems = [
+        { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+        ...itScanningItems,
+    ];
+
     return (
        <SidebarContent className="p-2">
-          <SidebarMenu className="flex flex-col gap-y-2">
+          <SidebarMenu className="flex flex-col gap-y-4">
               {itScanningEmployeeNavItems.map((item, index) => (
               <SidebarMenuItem key={`${item.href}-${index}`}>
                   <Link href={item.href}>
                   <SidebarMenuButton
                       isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
                       tooltip={item.label}
-                      className="h-auto justify-start"
+                      className="justify-start"
                   >
                       <item.icon />
                       <span>{item.label}</span>
@@ -113,14 +112,14 @@ export function DashboardNav() {
   if (user?.role === 'Admin') {
     return (
       <SidebarContent className="p-2">
-          <SidebarMenu className="flex flex-col gap-y-2">
+          <SidebarMenu className="flex flex-col gap-y-4">
               {mainNavItems.map((item, index) => (
                 <SidebarMenuItem key={`${item.href}-${index}`}>
                     <Link href={item.href}>
                     <SidebarMenuButton
                         isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
                         tooltip={item.label}
-                        className="h-auto justify-start"
+                        className="justify-start"
                     >
                         <item.icon />
                         <span>{item.label}</span>
@@ -131,7 +130,7 @@ export function DashboardNav() {
 
             <Collapsible open={isItSectionOpen} onOpenChange={setIsItSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className='w-full justify-between h-auto' isActive={isItSectionOpen}>
+                    <SidebarMenuButton className='w-full justify-between' isActive={isItSectionOpen}>
                         <div className="flex items-center gap-2">
                             <ScanLine />
                             <span>I.T &amp; Scanning-Section</span>
@@ -147,7 +146,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-auto justify-start"
+                                    className="justify-start"
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -161,7 +160,7 @@ export function DashboardNav() {
             
             <Collapsible open={isAdministrationSectionOpen} onOpenChange={setIsAdministrationSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className='w-full justify-between h-auto' isActive={isAdministrationSectionOpen}>
+                    <SidebarMenuButton className='w-full justify-between' isActive={isAdministrationSectionOpen}>
                         <div className="flex items-center gap-2">
                             <Wallet />
                             <span>Administration-Section</span>
@@ -177,7 +176,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-auto justify-start"
+                                    className="justify-start"
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -191,10 +190,10 @@ export function DashboardNav() {
 
             <Collapsible open={isPublicationSectionOpen} onOpenChange={setIsPublicationSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className='w-full justify-between h-auto' isActive={isPublicationSectionOpen}>
+                    <SidebarMenuButton className='w-full justify-between' isActive={isPublicationSectionOpen}>
                         <div className="flex items-center gap-2">
-                            <Library />
-                            <span>Library &amp; Publication-Section</span>
+                             <Library />
+                             <span>Library &amp; Publication-Section</span>
                         </div>
                         <ChevronDown className={cn('h-4 w-4 transition-transform', isPublicationSectionOpen && 'rotate-180')} />
                     </SidebarMenuButton>
@@ -207,7 +206,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-auto justify-start"
+                                    className="justify-start"
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -225,7 +224,7 @@ export function DashboardNav() {
                     <SidebarMenuButton
                         isActive={pathname.startsWith(item.href)}
                         tooltip={item.label}
-                        className="h-auto justify-start"
+                        className="justify-start"
                     >
                         <item.icon />
                         <span>{item.label}</span>
@@ -236,7 +235,7 @@ export function DashboardNav() {
 
             <Collapsible open={isAppFileSectionOpen} onOpenChange={setIsAppFileSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton className='w-full justify-between h-auto' isActive={isAppFileSectionOpen}>
+                    <SidebarMenuButton className='w-full justify-between' isActive={isAppFileSectionOpen}>
                         <div className="flex items-center gap-2">
                             <File />
                             <span>App File</span>
@@ -252,7 +251,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-auto justify-start"
+                                    className="justify-start"
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -277,7 +276,7 @@ export function DashboardNav() {
                 <SidebarMenuButton
                     isActive={pathname === '/dashboard'}
                     tooltip="Dashboard"
-                    className="h-auto justify-start"
+                    className="justify-start"
                 >
                     <LayoutDashboard />
                     <span>Dashboard</span>
