@@ -24,6 +24,7 @@ import {
   ChevronDown,
   File,
   Library,
+  Database,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
@@ -57,6 +58,7 @@ const publicationItems = [
   { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
   { href: '/dashboard/lib-attendance', icon: CalendarCheck, label: 'Lib-Attendance' },
   { href: '/dashboard/lib-emp-report', icon: FileSignature, label: 'Lib-Emp-Report' },
+  { href: '/dashboard/mhpr-lib-database', icon: Database, label: 'MHPR-Lib-Data base' },
 ];
 
 const otherNavItems = [
@@ -76,7 +78,7 @@ export function DashboardNav() {
   );
   
   const [isPublicationSectionOpen, setIsPublicationSectionOpen] = useState(
-    pathname.startsWith('/dashboard/publications') || pathname.startsWith('/dashboard/library') || pathname.startsWith('/dashboard/lib-attendance') || pathname.startsWith('/dashboard/lib-emp-report')
+    pathname.startsWith('/dashboard/publications') || pathname.startsWith('/dashboard/library') || pathname.startsWith('/dashboard/lib-attendance') || pathname.startsWith('/dashboard/lib-emp-report') || pathname.startsWith('/dashboard/mhpr-lib-database')
   );
   
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
