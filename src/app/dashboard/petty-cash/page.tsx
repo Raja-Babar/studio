@@ -1,7 +1,7 @@
 // src/app/dashboard/petty-cash/page.tsx
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -54,6 +54,16 @@ type Transaction = {
   credit: number; // Received
 };
 
+type GeneratedLedger = {
+    id: string;
+    monthYear: string;
+    openingBalance: number;
+    closingBalance: number;
+    totalDebit: number;
+    totalCredit: number;
+    transactions: Transaction[];
+};
+
 export default function PettyCashPage() {
   const { toast } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -71,8 +81,41 @@ export default function PettyCashPage() {
   const [editedDescription, setEditedDescription] = useState('');
   const [editedDebit, setEditedDebit] = useState('');
   const [editedCredit, setEditedCredit] = useState('');
+
+  const [generatedLedgers, setGeneratedLedgers] = useState<GeneratedLedger[]>([]);
   
-  const monthYear = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+  const monthYear = new Date(newDate || Date.now()).toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+
+  // Load from localStorage on initial render
+  useEffect(() => {
+    try {
+      const storedTransactions = localStorage.getItem('pettyCashTransactions');
+      const storedOpeningBalance = localStorage.getItem('pettyCashOpeningBalance');
+      const storedNextId = localStorage.getItem('pettyCashNextId');
+      const storedGeneratedLedgers = localStorage.getItem('pettyCashGeneratedLedgers');
+
+      if (storedTransactions) setTransactions(JSON.parse(storedTransactions));
+      if (storedOpeningBalance) setOpeningBalance(JSON.parse(storedOpeningBalance));
+      if (storedNextId) setNextId(JSON.parse(storedNextId));
+      if (storedGeneratedLedgers) setGeneratedLedgers(JSON.parse(storedGeneratedLedgers));
+    } catch (error) {
+      console.error("Failed to load petty cash data from localStorage", error);
+      toast({ variant: 'destructive', title: 'Load Error', description: 'Could not load saved petty cash data.' });
+    }
+  }, [toast]);
+
+  // Save to localStorage whenever data changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('pettyCashTransactions', JSON.stringify(transactions));
+      localStorage.setItem('pettyCashOpeningBalance', JSON.stringify(openingBalance));
+      localStorage.setItem('pettyCashNextId', JSON.stringify(nextId));
+      localStorage.setItem('pettyCashGeneratedLedgers', JSON.stringify(generatedLedgers));
+    } catch (error) {
+      console.error("Failed to save petty cash data to localStorage", error);
+    }
+  }, [transactions, openingBalance, nextId, generatedLedgers]);
+
 
   const handleAddTransaction = () => {
     const debitAmount = parseFloat(newDebit) || 0;
@@ -195,41 +238,92 @@ export default function PettyCashPage() {
     const closingBalance = openingBalance - totalDebit + totalCredit;
     return { totalDebit, totalCredit, closingBalance };
   }, [transactions, openingBalance]);
+  
+  const generatePdfForLedger = (ledgerData: GeneratedLedger) => {
+      const doc = new jsPDF();
+      const { monthYear, openingBalance, closingBalance, totalDebit, totalCredit, transactions } = ledgerData;
+      
+      let runningBalance = openingBalance;
+      const ledgerEntriesForPdf = transactions.map(t => {
+        runningBalance = runningBalance - t.debit + t.credit;
+        return { ...t, balance: runningBalance };
+      });
+
+      doc.text(`Petty Cash Ledger - ${monthYear}`, 14, 16);
+      doc.text(`Opening Balance: ${openingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 14, 22);
+
+      (doc as any).autoTable({
+        head: [['S.No', 'Date', 'Items/Expenditures', 'Amount Debit', 'Amount Credit', 'Balance']],
+        body: ledgerEntriesForPdf.map((entry, index) => [
+          index + 1,
+          new Date(entry.date + 'T00:00:00').toLocaleDateString(),
+          entry.description,
+          entry.debit > 0 ? entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-',
+          entry.credit > 0 ? entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-',
+          entry.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+        ]),
+        startY: 30,
+        foot: [
+          [
+            '', '', 'Totals / Closing Balance',
+            totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+            closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+          ],
+        ],
+        footStyles: {
+          fillColor: [230, 230, 230],
+          textColor: 20,
+          fontStyle: 'bold',
+        },
+      });
+
+      return doc;
+  };
 
   const handleExportPDF = () => {
-    const doc = new jsPDF();
+    if (transactions.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Export Failed',
+        description: 'Cannot export an empty ledger.',
+      });
+      return;
+    }
     
-    doc.text(`Petty Cash Ledger - ${monthYear}`, 14, 16);
-    doc.text(`Opening Balance: ${openingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 14, 22);
+    const newGeneratedLedger: GeneratedLedger = {
+        id: `LGR-${Date.now()}`,
+        monthYear: monthYear,
+        openingBalance: openingBalance,
+        closingBalance: totals.closingBalance,
+        totalDebit: totals.totalDebit,
+        totalCredit: totals.totalCredit,
+        transactions: [...transactions],
+    };
 
-    (doc as any).autoTable({
-      head: [['S.No', 'Date', 'Items/Expenditures', 'Amount Debit', 'Amount Credit', 'Balance']],
-      body: ledger.map((entry, index) => [
-        index + 1,
-        entry.date,
-        entry.description,
-        entry.debit > 0 ? entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-',
-        entry.credit > 0 ? entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-',
-        entry.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-      ]),
-      startY: 30,
-      foot: [
-        [
-          '', '', 'Totals / Closing Balance',
-          totals.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-          totals.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-          totals.closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
-        ],
-      ],
-      footStyles: {
-        fillColor: [230, 230, 230],
-        textColor: 20,
-        fontStyle: 'bold',
-      },
-    });
-
+    const doc = generatePdfForLedger(newGeneratedLedger);
     doc.save(`petty_cash_ledger_${monthYear.replace(' ', '_')}.pdf`);
+
+    setGeneratedLedgers(prev => [newGeneratedLedger, ...prev]);
+    
+    toast({
+        title: 'Ledger Exported & Saved',
+        description: `The ledger for ${monthYear} has been exported and recorded in history.`,
+    });
   };
+
+  const handleDownloadHistoricPDF = (ledgerId: string) => {
+    const ledgerToDownload = generatedLedgers.find(l => l.id === ledgerId);
+    if (ledgerToDownload) {
+        const doc = generatePdfForLedger(ledgerToDownload);
+        doc.save(`petty_cash_ledger_${ledgerToDownload.monthYear.replace(' ', '_')}_${ledgerToDownload.id}.pdf`);
+        toast({
+            title: 'Historic Ledger Downloaded',
+            description: `The ledger for ${ledgerToDownload.monthYear} has been downloaded.`,
+        });
+    }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -316,11 +410,11 @@ export default function PettyCashPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Petty Cash Ledger</CardTitle>
-            <CardDescription>A record of all transactions for the current period.</CardDescription>
+            <CardDescription>A record of all transactions for {monthYear}.</CardDescription>
           </div>
           <Button variant="outline" onClick={handleExportPDF}>
             <Download className="mr-2 h-4 w-4" />
-            Export PDF
+            Export PDF & Save Record
           </Button>
         </CardHeader>
         <CardContent>
@@ -381,7 +475,7 @@ export default function PettyCashPage() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center h-24">
-                    No transactions recorded yet.
+                    No transactions recorded yet for this period.
                   </TableCell>
                 </TableRow>
               )}
@@ -408,6 +502,50 @@ export default function PettyCashPage() {
         )}
       </Card>
       
+        <Card>
+          <CardHeader>
+              <CardTitle>Generated Ledgers History</CardTitle>
+              <CardDescription>A record of all previously generated and saved ledgers.</CardDescription>
+          </CardHeader>
+          <CardContent>
+              <Table>
+                  <TableHeader>
+                      <TableRow>
+                          <TableHead>Ledger Period</TableHead>
+                          <TableHead>Opening Balance</TableHead>
+                          <TableHead>Closing Balance</TableHead>
+                          <TableHead>Date Saved</TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                      {generatedLedgers.length > 0 ? (
+                          generatedLedgers.map(ledger => (
+                              <TableRow key={ledger.id}>
+                                  <TableCell className="font-medium">{ledger.monthYear}</TableCell>
+                                  <TableCell>{ledger.openingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                  <TableCell className="font-semibold">{ledger.closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                                  <TableCell>{new Date(parseInt(ledger.id.split('-')[1])).toLocaleDateString()}</TableCell>
+                                  <TableCell className="text-right">
+                                      <Button variant="ghost" size="sm" onClick={() => handleDownloadHistoricPDF(ledger.id)}>
+                                          <Download className="mr-2 h-4 w-4" />
+                                          Download PDF
+                                      </Button>
+                                  </TableCell>
+                              </TableRow>
+                          ))
+                      ) : (
+                          <TableRow>
+                              <TableCell colSpan={5} className="h-24 text-center">
+                                  No ledgers have been generated and saved yet.
+                              </TableCell>
+                          </TableRow>
+                      )}
+                  </TableBody>
+              </Table>
+          </CardContent>
+        </Card>
+
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
