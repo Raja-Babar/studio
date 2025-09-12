@@ -294,7 +294,7 @@ export function DashboardNav() {
                     <SidebarMenuButton className='w-full justify-between' isActive={isEventsProgramSectionOpen}>
                         <div className="flex items-center gap-2">
                             <Calendar />
-                            <span>Events & Program</span>
+                            <span>Event's & Program's</span>
                         </div>
                         <ChevronDown className={cn('h-4 w-4 transition-transform', isEventsProgramSectionOpen && 'rotate-180')} />
                     </SidebarMenuButton>
