@@ -191,20 +191,6 @@ export function DashboardNav() {
                 </CollapsibleContent>
             </Collapsible>
             
-              {otherNavItems.map((item, index) => (
-                <SidebarMenuItem key={`${item.href}-${index}`}>
-                    <Link href={item.href}>
-                    <SidebarMenuButton
-                        isActive={pathname.startsWith(item.href)}
-                        tooltip={item.label}
-                    >
-                        <item.icon />
-                        <span>{item.label}</span>
-                    </SidebarMenuButton>
-                    </Link>
-                </SidebarMenuItem>
-              ))}
-            
             <Collapsible open={isPublicationSectionOpen} onOpenChange={setIsPublicationSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
                     <div className='w-full'>
@@ -236,6 +222,20 @@ export function DashboardNav() {
                     </SidebarMenu>
                 </CollapsibleContent>
             </Collapsible>
+
+            {otherNavItems.map((item, index) => (
+                <SidebarMenuItem key={`${item.href}-${index}`}>
+                    <Link href={item.href}>
+                    <SidebarMenuButton
+                        isActive={pathname.startsWith(item.href)}
+                        tooltip={item.label}
+                    >
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </SidebarMenuButton>
+                    </Link>
+                </SidebarMenuItem>
+            ))}
 
             <Collapsible open={isAppFileSectionOpen} onOpenChange={setIsAppFileSectionOpen} className="w-full">
                 <CollapsibleTrigger asChild>
