@@ -147,7 +147,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-8"
+                                    
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -179,7 +179,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-8"
+                                    
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -211,7 +211,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-8"
+                                    
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
@@ -257,7 +257,7 @@ export function DashboardNav() {
                                 <SidebarMenuButton
                                     isActive={pathname.startsWith(item.href)}
                                     tooltip={item.label}
-                                    className="h-8"
+                                    
                                 >
                                     <item.icon />
                                     <span>{item.label}</span>
