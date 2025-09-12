@@ -91,7 +91,7 @@ export function DashboardNav() {
   if (!isAdmin) {
     return (
        <SidebarContent className="p-2">
-          <SidebarMenu>
+          <SidebarMenu className="gap-2">
               {employeeNavItems.map((item, index) => (
               <SidebarMenuItem key={`${item.href}-${index}`}>
                   <Link href={item.href}>
@@ -112,7 +112,7 @@ export function DashboardNav() {
 
   return (
       <SidebarContent className="p-2">
-          <SidebarMenu>
+          <SidebarMenu className="gap-2">
               {mainNavItems.map((item, index) => (
                 <SidebarMenuItem key={`${item.href}-${index}`}>
                     <Link href={item.href}>
@@ -140,7 +140,7 @@ export function DashboardNav() {
                     </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-1 pl-6">
-                     <SidebarMenu>
+                     <SidebarMenu className="gap-2">
                         {itScanningItems.map((item, index) => (
                             <SidebarMenuItem key={`${item.href}-${index}`}>
                                 <Link href={item.href}>
@@ -172,7 +172,7 @@ export function DashboardNav() {
                     </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-1 pl-6">
-                     <SidebarMenu>
+                     <SidebarMenu className="gap-2">
                         {administrationItems.map((item, index) => (
                             <SidebarMenuItem key={`${item.href}-${index}`}>
                                 <Link href={item.href}>
@@ -204,7 +204,7 @@ export function DashboardNav() {
                     </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-1 pl-6">
-                     <SidebarMenu>
+                     <SidebarMenu className="gap-2">
                         {publicationItems.map((item, index) => (
                             <SidebarMenuItem key={`${item.href}-${index}`}>
                                 <Link href={item.href}>
@@ -250,7 +250,7 @@ export function DashboardNav() {
                     </div>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-1 pl-6">
-                     <SidebarMenu>
+                     <SidebarMenu className="gap-2">
                         {appFileItems.map((item, index) => (
                             <SidebarMenuItem key={`${item.href}-${index}`}>
                                 <Link href={item.href}>
