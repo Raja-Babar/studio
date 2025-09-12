@@ -71,6 +71,8 @@ export default function PettyCashPage() {
   const [editedDescription, setEditedDescription] = useState('');
   const [editedDebit, setEditedDebit] = useState('');
   const [editedCredit, setEditedCredit] = useState('');
+  
+  const monthYear = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
   const handleAddTransaction = () => {
     const debitAmount = parseFloat(newDebit) || 0;
@@ -196,7 +198,6 @@ export default function PettyCashPage() {
 
   const handleExportPDF = () => {
     const doc = new jsPDF();
-    const monthYear = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
     
     doc.text(`Petty Cash Ledger - ${monthYear}`, 14, 16);
     doc.text(`Opening Balance: ${openingBalance.toFixed(2)}`, 14, 22);
@@ -239,7 +240,7 @@ export default function PettyCashPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Opening Balance</CardTitle>
+          <CardTitle>Opening Balance for {monthYear}</CardTitle>
           <CardDescription>Set the starting balance for the period.</CardDescription>
         </CardHeader>
         <CardContent>
