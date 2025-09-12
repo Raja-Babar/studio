@@ -260,6 +260,18 @@ export default function PettyCashPage() {
     });
     return Object.entries(summary).map(([month, data]) => ({ month, ...data })).sort((a,b) => new Date(b.month).getTime() - new Date(a.month).getTime());
   }, [generatedLedgers]);
+
+  const monthlySummaryTotals = useMemo(() => {
+    return monthlySummary.reduce(
+        (acc, summary) => {
+            acc.totalDebit += summary.totalDebit;
+            acc.totalCredit += summary.totalCredit;
+            acc.netTotal += summary.netTotal;
+            return acc;
+        },
+        { totalDebit: 0, totalCredit: 0, netTotal: 0 }
+    );
+  }, [monthlySummary]);
   
   const generatePdfForLedger = (ledgerData: GeneratedLedger) => {
       const doc = new jsPDF();
@@ -620,6 +632,18 @@ export default function PettyCashPage() {
                                     </TableCell>
                                 </TableRow>
                             ))}
+                            <TableRow className="font-bold border-t-2">
+                                <TableCell>Total</TableCell>
+                                <TableCell className="text-right text-destructive">
+                                    {monthlySummaryTotals.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </TableCell>
+                                <TableCell className="text-right text-green-500">
+                                    {monthlySummaryTotals.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </TableCell>
+                                <TableCell className={`text-right ${monthlySummaryTotals.netTotal >= 0 ? 'text-green-500' : 'text-destructive'}`}>
+                                    {monthlySummaryTotals.netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                </TableCell>
+                            </TableRow>
                         </TableBody>
                     </Table>
                 </CardContent>
