@@ -71,7 +71,7 @@ type AuthContextType = {
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
   importUsers: (users: StoredUser[]) => Promise<void>;
   resetUsers: () => Promise<void>;
-  updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
+  updateUser: (email: string, data: Partial<Omit<User, 'email'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
   approveUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
@@ -512,7 +512,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     syncReportsToStorage(defaultEmployeeReports);
   };
 
-  const updateUser = async (email: string, data: Partial<Omit<User, 'email' | 'id'>>): Promise<void> => {
+  const updateUser = async (email: string, data: Partial<Omit<User, 'email'>>): Promise<void> => {
     const usersFromStorage = JSON.parse(localStorage.getItem('users') || '{}');
     if (usersFromStorage[email]) {
       const updatedUsers = {
@@ -576,7 +576,3 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-    
-
-    

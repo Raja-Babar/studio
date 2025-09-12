@@ -26,7 +26,7 @@ type AuthContextType = {
   getUsers: () => Omit<StoredUser, 'passwordHash'>[];
   importUsers: (users: StoredUser[]) => Promise<void>;
   resetUsers: () => Promise<void>;
-  updateUser: (email: string, data: Partial<Omit<User, 'email' | 'id'>>) => Promise<void>;
+  updateUser: (email: string, data: Partial<Omit<User, 'email'>>) => Promise<void>;
   deleteUser: (email: string) => Promise<void>;
   approveUser: (email: string) => Promise<void>;
   attendanceRecords: AttendanceRecord[];
@@ -49,7 +49,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
-    
-
-    

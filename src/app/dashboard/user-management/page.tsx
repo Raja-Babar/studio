@@ -37,6 +37,7 @@ export default function UserManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [editedId, setEditedId] = useState('');
   const [editedName, setEditedName] = useState('');
   const [editedRole, setEditedRole] = useState<UserRole>('I.T & Scanning-Employee');
 
@@ -89,6 +90,7 @@ export default function UserManagementPage() {
 
   const handleEditClick = (userToEdit: User) => {
     setSelectedUser(userToEdit);
+    setEditedId(userToEdit.id);
     setEditedName(userToEdit.name);
     setEditedRole(userToEdit.role);
     setIsEditDialogOpen(true);
@@ -100,7 +102,7 @@ export default function UserManagementPage() {
           toast({ variant: 'destructive', title: 'Update Failed', description: 'Cannot change the role of the primary admin.' });
           return;
       }
-      await updateUser(selectedUser.email, { name: editedName, role: editedRole });
+      await updateUser(selectedUser.email, { id: editedId, name: editedName, role: editedRole });
       toast({ title: 'User Updated', description: 'User information has been updated.' });
       setIsEditDialogOpen(false);
       setSelectedUser(null);
@@ -270,6 +272,12 @@ export default function UserManagementPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="id" className="text-right">
+                ID
+              </Label>
+              <Input id="id" value={editedId} onChange={(e) => setEditedId(e.target.value)} className="col-span-3" />
+            </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">
                 Name
