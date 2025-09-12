@@ -140,23 +140,28 @@ export default function PettyCashPage() {
   };
 
   const handleDateChange = (dateString: string) => {
-    setNewDate(dateString);
     const newSelectedDate = new Date(dateString + 'T00:00:00');
     if (!isNaN(newSelectedDate.getTime())) {
         const previousSelectedMonthYear = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
         const newSelectedMonthYear = newSelectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
-        
+
         if (previousSelectedMonthYear !== newSelectedMonthYear) {
             handleExportPDF(true); // Silently save the ledger for the previous month
             const prevMonthTotals = totals; // from memoized state
+
+            setNewDate(dateString); // Update newDate to keep form in sync
             
             // Set opening balance for new month
             setOpeningBalances(prev => ({
                 ...prev,
                 [newSelectedMonthYear]: prev[newSelectedMonthYear] === undefined ? prevMonthTotals.closingBalance : prev[newSelectedMonthYear]
             }));
+            setSelectedDate(newSelectedDate);
+        } else {
+            setNewDate(dateString);
         }
-        setSelectedDate(newSelectedDate);
+    } else {
+        setNewDate(dateString);
     }
   };
 
@@ -397,7 +402,15 @@ export default function PettyCashPage() {
         doc.save(`petty_cash_ledger_${selectedMonthYear.replace(/\s+/g, '_')}.pdf`);
     }
 
-    setGeneratedLedgers(prev => [newGeneratedLedger, ...prev].sort((a,b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime()));
+    setGeneratedLedgers(prev => {
+        const existingIndex = prev.findIndex(l => l.monthYear === selectedMonthYear);
+        if (existingIndex > -1) {
+            const updatedLedgers = [...prev];
+            updatedLedgers[existingIndex] = newGeneratedLedger;
+            return updatedLedgers;
+        }
+        return [newGeneratedLedger, ...prev].sort((a, b) => new Date(b.monthYear).getTime() - new Date(a.monthYear).getTime());
+    });
     
     if (!silent) {
         toast({
@@ -419,6 +432,37 @@ export default function PettyCashPage() {
         });
     }
   };
+
+  const handleDeleteLedger = (ledgerId: string) => {
+    setGeneratedLedgers(prev => prev.filter(l => l.id !== ledgerId));
+    toast({
+        title: 'Ledger Deleted',
+        description: 'The selected ledger has been removed from history.'
+    });
+  };
+
+  const handleEditLedger = (ledgerId: string) => {
+    const ledgerToEdit = generatedLedgers.find(l => l.id === ledgerId);
+    if (ledgerToEdit) {
+        const ledgerDate = new Date(ledgerToEdit.monthYear);
+        setSelectedDate(ledgerDate);
+        setNewDate(format(ledgerDate, 'yyyy-MM-dd'));
+        setAllTransactions(prev => {
+            const otherTransactions = prev.filter(t => {
+                const tDate = new Date(t.date);
+                return !(tDate.getFullYear() === ledgerDate.getFullYear() && tDate.getMonth() === ledgerDate.getMonth());
+            });
+            return [...otherTransactions, ...ledgerToEdit.transactions];
+        });
+        setOpeningBalances(prev => ({...prev, [ledgerToEdit.monthYear]: ledgerToEdit.openingBalance }));
+        setGeneratedLedgers(prev => prev.filter(l => l.id !== ledgerId));
+        toast({
+            title: 'Ledger Loaded for Editing',
+            description: `The ledger for ${ledgerToEdit.monthYear} is now active for editing.`
+        });
+    }
+  };
+
 
   const handleExportMonthlySummaryPDF = () => {
     if (monthlySummary.length === 0) {
@@ -567,8 +611,8 @@ export default function PettyCashPage() {
                       selected={selectedDate}
                       onSelect={(date) => {
                         if (date) {
-                          setSelectedDate(date);
-                          setNewDate(format(date, 'yyyy-MM-dd'));
+                          const newDateString = format(date, 'yyyy-MM-dd');
+                          handleDateChange(newDateString);
                         }
                       }}
                       initialFocus
@@ -696,8 +740,32 @@ export default function PettyCashPage() {
                                     <TableCell className="text-right">
                                         <Button variant="ghost" size="sm" onClick={() => handleDownloadHistoricPDF(ledger.id)}>
                                             <Download className="mr-2 h-4 w-4" />
-                                            Download PDF
+                                            PDF
                                         </Button>
+                                        <Button variant="ghost" size="sm" onClick={() => handleEditLedger(ledger.id)}>
+                                            <Edit className="mr-2 h-4 w-4" />
+                                            Edit
+                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                                    <Trash2 className="mr-2 h-4 w-4" />
+                                                    Delete
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Delete Ledger</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Are you sure you want to delete the ledger for {ledger.monthYear}? This action cannot be undone.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogAction onClick={() => handleDeleteLedger(ledger.id)}>Delete</AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </TableCell>
                                   )}
                               </TableRow>
