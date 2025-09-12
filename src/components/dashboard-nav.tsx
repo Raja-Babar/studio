@@ -25,6 +25,7 @@ import {
   File,
   Library,
   Database,
+  Calendar,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
@@ -91,6 +92,7 @@ export function DashboardNav() {
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
     pathname.startsWith('/dashboard/report-assistant') || pathname.startsWith('/dashboard/reporting')
   );
+  const [isEventsProgramSectionOpen, setIsEventsProgramSectionOpen] = useState(false);
   
   if (user?.role === 'I.T & Scanning-Employee') {
     const itScanningEmployeeNavItems = [
@@ -123,28 +125,26 @@ export function DashboardNav() {
   if (user?.role === 'Library-Employee') {
     const libraryEmployeeNavItems = [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      { href: '/dashboard/library', icon: Library, label: 'Auto-Generate-Bill' },
-      { href: '/dashboard/publications', icon: BookOpen, label: 'Bills-Records' },
       ...mhpResearchLibraryItems,
     ];
 
     return (
       <SidebarContent className="p-2">
         <SidebarMenu className="flex flex-col gap-y-4">
-          {libraryEmployeeNavItems.map((item, index) => (
-            <SidebarMenuItem key={`${item.href}-${index}`}>
-              <Link href={item.href}>
-                <SidebarMenuButton
-                  isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
-                  tooltip={item.label}
-                  className="justify-start"
-                >
-                  <item.icon />
-                  <span>{item.label}</span>
-                </SidebarMenuButton>
-              </Link>
-            </SidebarMenuItem>
-          ))}
+            {libraryEmployeeNavItems.map((item, index) => (
+                <SidebarMenuItem key={`${item.href}-${index}`}>
+                <Link href={item.href}>
+                    <SidebarMenuButton
+                    isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
+                    tooltip={item.label}
+                    className="justify-start"
+                    >
+                    <item.icon />
+                    <span>{item.label}</span>
+                    </SidebarMenuButton>
+                </Link>
+                </SidebarMenuItem>
+            ))}
         </SidebarMenu>
       </SidebarContent>
     );
@@ -285,6 +285,23 @@ export function DashboardNav() {
                                 </Link>
                             </SidebarMenuItem>
                         ))}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
+
+            <Collapsible open={isEventsProgramSectionOpen} onOpenChange={setIsEventsProgramSectionOpen} className="w-full">
+                <CollapsibleTrigger asChild>
+                    <SidebarMenuButton className='w-full justify-between' isActive={isEventsProgramSectionOpen}>
+                        <div className="flex items-center gap-2">
+                            <Calendar />
+                            <span>Events & Program</span>
+                        </div>
+                        <ChevronDown className={cn('h-4 w-4 transition-transform', isEventsProgramSectionOpen && 'rotate-180')} />
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="py-1 pl-6">
+                     <SidebarMenu className="flex flex-col gap-y-2">
+                        {/* Items for this section will go here */}
                     </SidebarMenu>
                 </CollapsibleContent>
             </Collapsible>
