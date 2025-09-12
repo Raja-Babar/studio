@@ -39,9 +39,12 @@ export default function DashboardLayout({
     <SidebarProvider>
       <Sidebar>
         <div className="flex h-full flex-col">
-          <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-4">
-            <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
-            <span className="text-lg font-semibold">MHPISSJ-Portal</span>
+          <div className="flex h-16 items-center justify-between gap-2 border-b border-sidebar-border px-4">
+            <div className="flex items-center gap-2">
+              <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
+              <span className="text-lg font-semibold">MHPISSJ-Portal</span>
+            </div>
+            <SidebarTrigger className="hidden md:flex" />
           </div>
           <DashboardNav />
         </div>
@@ -51,7 +54,6 @@ export default function DashboardLayout({
           <SidebarTrigger className="md:hidden" />
           <div className="flex items-center gap-4 ml-auto">
             <UserNav />
-            <SidebarTrigger className="hidden md:flex" />
           </div>
         </header>
         <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
