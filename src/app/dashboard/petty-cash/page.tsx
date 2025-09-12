@@ -48,6 +48,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
 
 
 type Transaction = {
@@ -69,6 +70,7 @@ type GeneratedLedger = {
 };
 
 export default function PettyCashPage() {
+  const { user } = useAuth();
   const { toast } = useToast();
   const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
   const [openingBalances, setOpeningBalances] = useState<{ [monthYear: string]: number }>({});
@@ -89,6 +91,7 @@ export default function PettyCashPage() {
 
   const [generatedLedgers, setGeneratedLedgers] = useState<GeneratedLedger[]>([]);
   
+  const isAccountsRole = user?.role === 'Accounts';
   const selectedMonthYear = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
 
   // Load from localStorage on initial render
@@ -138,10 +141,21 @@ export default function PettyCashPage() {
 
   const handleDateChange = (dateString: string) => {
     setNewDate(dateString);
-    // The date from the input is YYYY-MM-DD, which is treated as UTC.
-    // Adding T00:00:00 ensures it's parsed correctly in the local time zone.
     const newSelectedDate = new Date(dateString + 'T00:00:00');
     if (!isNaN(newSelectedDate.getTime())) {
+        const previousSelectedMonthYear = selectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+        const newSelectedMonthYear = newSelectedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+        
+        if (previousSelectedMonthYear !== newSelectedMonthYear) {
+            handleExportPDF(true); // Silently save the ledger for the previous month
+            const prevMonthTotals = totals; // from memoized state
+            
+            // Set opening balance for new month
+            setOpeningBalances(prev => ({
+                ...prev,
+                [newSelectedMonthYear]: prev[newSelectedMonthYear] === undefined ? prevMonthTotals.closingBalance : prev[newSelectedMonthYear]
+            }));
+        }
         setSelectedDate(newSelectedDate);
     }
   };
@@ -451,202 +465,206 @@ export default function PettyCashPage() {
         <p className="text-muted-foreground mt-2">Track and manage petty cash transactions.</p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Opening Balance for {selectedMonthYear}</CardTitle>
-          <CardDescription>Set the starting balance for the period.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-2">
-            <Label htmlFor="openingBalance">Balance (Rs.)</Label>
-            <Input
-              id="openingBalance"
-              type="number"
-              value={openingBalance}
-              onChange={e => setOpeningBalance(parseFloat(e.target.value) || 0)}
-              className="w-48"
-            />
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Add New Transaction</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
-              <div className="space-y-2">
-                <Label htmlFor="newDate">Date</Label>
+      {!isAccountsRole && (
+        <>
+          <Card>
+            <CardHeader>
+              <CardTitle>Opening Balance for {selectedMonthYear}</CardTitle>
+              <CardDescription>Set the starting balance for the period.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="openingBalance">Balance (Rs.)</Label>
                 <Input
-                  id="newDate"
-                  type="date"
-                  value={newDate}
-                  onChange={e => handleDateChange(e.target.value)}
-                />
-              </div>
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="newDescription">Items/Expenditures</Label>
-                <Input
-                  id="newDescription"
-                  value={newDescription}
-                  onChange={e => setNewDescription(e.target.value)}
-                  placeholder="e.g., Office Supplies"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="newDebit">Amount Debit (Rs.)</Label>
-                <Input
-                  id="newDebit"
+                  id="openingBalance"
                   type="number"
-                  value={newDebit}
-                  onChange={e => setNewDebit(e.target.value)}
-                  placeholder="Expense amount"
-                  disabled={!!newCredit}
+                  value={openingBalance}
+                  onChange={e => setOpeningBalance(parseFloat(e.target.value) || 0)}
+                  className="w-48"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="newCredit">Amount Credit (Rs.)</Label>
-                <Input
-                  id="newCredit"
-                  type="number"
-                  value={newCredit}
-                  onChange={e => setNewCredit(e.target.value)}
-                  placeholder="Received amount"
-                  disabled={!!newDebit}
-                />
-              </div>
-            </div>
-        </CardContent>
-        <CardFooter>
-            <Button onClick={handleAddTransaction}>
-              <PlusCircle className="mr-2" /> Add Transaction
-            </Button>
-        </CardFooter>
-      </Card>
-
-      <Card>
-        <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <CardTitle>Petty Cash Ledger</CardTitle>
-            <CardDescription>A record of all transactions for {selectedMonthYear}.</CardDescription>
-          </div>
-          <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full sm:w-[280px] justify-start text-left font-normal",
-                    !selectedDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setSelectedDate(date);
-                      setNewDate(format(date, 'yyyy-MM-dd'));
-                    }
-                  }}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-            <Button variant="outline" onClick={() => handleExportPDF(false)} className="w-full sm:w-auto">
-              <Download className="mr-2 h-4 w-4" />
-              Export PDF &amp; Save Record
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>S.No</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Items/Expenditures</TableHead>
-                <TableHead className="text-right">Amount Debit (Rs.)</TableHead>
-                <TableHead className="text-right">Amount Credit (Rs.)</TableHead>
-                <TableHead className="text-right">Balance (Rs.)</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {ledger.length > 0 ? (
-                ledger.map((entry, index) => (
-                  <TableRow key={entry.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{new Date(entry.date + 'T00:00:00').toLocaleDateString()}</TableCell>
-                    <TableCell>{entry.description}</TableCell>
-                    <TableCell className="text-right text-destructive">
-                      {entry.debit > 0 ? `- ${entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}</TableCell>
-                    <TableCell className="text-right text-green-500">
-                      {entry.credit > 0 ? `+ ${entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}</TableCell>
-                    <TableCell className="text-right font-semibold">{entry.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                    <TableCell className="text-right">
-                       <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
-                          <Edit className="h-4 w-4" />
-                          <span className="sr-only">Edit</span>
-                       </Button>
-                       <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                                <span className="sr-only">Delete</span>
-                              </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                              <AlertDialogHeader>
-                                  <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
-                                  <AlertDialogDescription>
-                                      Are you sure you want to delete this transaction? This action cannot be undone.
-                                  </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteTransaction(entry.id)}>Delete</AlertDialogAction>
-                              </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center h-24">
-                    No transactions recorded yet for this period.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-        {currentMonthTransactions.length > 0 && (
-            <CardFooter className="flex justify-end pt-4 border-t">
-                <div className="w-full max-w-sm space-y-2">
-                    <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Debit:</span>
-                        <span className="font-semibold text-destructive">{totals.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </div>
-                     <div className="flex justify-between">
-                        <span className="text-muted-foreground">Total Credit:</span>
-                        <span className="font-semibold text-green-500">{totals.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </div>
-                     <div className="flex justify-between text-lg font-bold">
-                        <span>Closing Balance:</span>
-                        <span className="text-primary">{totals.closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                    </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Transaction</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                  <div className="space-y-2">
+                    <Label htmlFor="newDate">Date</Label>
+                    <Input
+                      id="newDate"
+                      type="date"
+                      value={newDate}
+                      onChange={e => handleDateChange(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <Label htmlFor="newDescription">Items/Expenditures</Label>
+                    <Input
+                      id="newDescription"
+                      value={newDescription}
+                      onChange={e => setNewDescription(e.target.value)}
+                      placeholder="e.g., Office Supplies"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="newDebit">Amount Debit (Rs.)</Label>
+                    <Input
+                      id="newDebit"
+                      type="number"
+                      value={newDebit}
+                      onChange={e => setNewDebit(e.target.value)}
+                      placeholder="Expense amount"
+                      disabled={!!newCredit}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="newCredit">Amount Credit (Rs.)</Label>
+                    <Input
+                      id="newCredit"
+                      type="number"
+                      value={newCredit}
+                      onChange={e => setNewCredit(e.target.value)}
+                      placeholder="Received amount"
+                      disabled={!!newDebit}
+                    />
+                  </div>
                 </div>
+            </CardContent>
+            <CardFooter>
+                <Button onClick={handleAddTransaction}>
+                  <PlusCircle className="mr-2" /> Add Transaction
+                </Button>
             </CardFooter>
-        )}
-      </Card>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div>
+                <CardTitle>Petty Cash Ledger</CardTitle>
+                <CardDescription>A record of all transactions for {selectedMonthYear}.</CardDescription>
+              </div>
+              <div className="flex items-center gap-2 w-full md:w-auto flex-col sm:flex-row">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full sm:w-[280px] justify-start text-left font-normal",
+                        !selectedDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => {
+                        if (date) {
+                          setSelectedDate(date);
+                          setNewDate(format(date, 'yyyy-MM-dd'));
+                        }
+                      }}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <Button variant="outline" onClick={() => handleExportPDF(false)} className="w-full sm:w-auto">
+                  <Download className="mr-2 h-4 w-4" />
+                  Export PDF &amp; Save Record
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>S.No</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Items/Expenditures</TableHead>
+                    <TableHead className="text-right">Amount Debit (Rs.)</TableHead>
+                    <TableHead className="text-right">Amount Credit (Rs.)</TableHead>
+                    <TableHead className="text-right">Balance (Rs.)</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ledger.length > 0 ? (
+                    ledger.map((entry, index) => (
+                      <TableRow key={entry.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>{new Date(entry.date + 'T00:00:00').toLocaleDateString()}</TableCell>
+                        <TableCell>{entry.description}</TableCell>
+                        <TableCell className="text-right text-destructive">
+                          {entry.debit > 0 ? `- ${entry.debit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}</TableCell>
+                        <TableCell className="text-right text-green-500">
+                          {entry.credit > 0 ? `+ ${entry.credit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'}</TableCell>
+                        <TableCell className="text-right font-semibold">{entry.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="text-right">
+                           <Button variant="ghost" size="icon" onClick={() => handleEditClick(entry)}>
+                              <Edit className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
+                           </Button>
+                           <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                    <span className="sr-only">Delete</span>
+                                  </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                          Are you sure you want to delete this transaction? This action cannot be undone.
+                                      </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction onClick={() => handleDeleteTransaction(entry.id)}>Delete</AlertDialogAction>
+                                  </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center h-24">
+                        No transactions recorded yet for this period.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+            {currentMonthTransactions.length > 0 && (
+                <CardFooter className="flex justify-end pt-4 border-t">
+                    <div className="w-full max-w-sm space-y-2">
+                        <div className="flex justify-between">
+                            <span className="text-muted-foreground">Total Debit:</span>
+                            <span className="font-semibold text-destructive">{totals.totalDebit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                         <div className="flex justify-between">
+                            <span className="text-muted-foreground">Total Credit:</span>
+                            <span className="font-semibold text-green-500">{totals.totalCredit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                         <div className="flex justify-between text-lg font-bold">
+                            <span>Closing Balance:</span>
+                            <span className="text-primary">{totals.closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                        </div>
+                    </div>
+                </CardFooter>
+            )}
+          </Card>
+        </>
+      )}
       
         <Card>
           <CardHeader>
@@ -661,7 +679,9 @@ export default function PettyCashPage() {
                           <TableHead>Opening Balance</TableHead>
                           <TableHead>Closing Balance</TableHead>
                           <TableHead>Date Saved</TableHead>
-                          <TableHead className="text-right">Actions</TableHead>
+                          {!isAccountsRole && (
+                            <TableHead className="text-right">Actions</TableHead>
+                          )}
                       </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -672,12 +692,14 @@ export default function PettyCashPage() {
                                   <TableCell>{ledger.openingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                                   <TableCell className="font-semibold">{ledger.closingBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                                   <TableCell>{new Date(parseInt(ledger.id.split('-')[1])).toLocaleDateString()}</TableCell>
-                                  <TableCell className="text-right">
-                                      <Button variant="ghost" size="sm" onClick={() => handleDownloadHistoricPDF(ledger.id)}>
-                                          <Download className="mr-2 h-4 w-4" />
-                                          Download PDF
-                                      </Button>
-                                  </TableCell>
+                                  {!isAccountsRole && (
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="sm" onClick={() => handleDownloadHistoricPDF(ledger.id)}>
+                                            <Download className="mr-2 h-4 w-4" />
+                                            Download PDF
+                                        </Button>
+                                    </TableCell>
+                                  )}
                               </TableRow>
                           ))
                       ) : (
@@ -720,10 +742,12 @@ export default function PettyCashPage() {
                         <CardTitle>Monthly Summary</CardTitle>
                         <CardDescription>A month-by-month summary of all recorded ledgers.</CardDescription>
                     </div>
-                    <Button variant="outline" size="sm" onClick={handleExportMonthlySummaryPDF}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Export PDF
-                    </Button>
+                    {!isAccountsRole && (
+                      <Button variant="outline" size="sm" onClick={handleExportMonthlySummaryPDF}>
+                          <Download className="mr-2 h-4 w-4" />
+                          Export PDF
+                      </Button>
+                    )}
                 </CardHeader>
                 <CardContent>
                     <Table>
