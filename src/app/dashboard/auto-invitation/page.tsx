@@ -293,11 +293,11 @@ export default function AutoInvitationPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="time-en">Program Time</Label>
-              <Input id="time-en" type="time" value={programDetails.programTime} onChange={(e) => handleInputChange('programTime', e.target.value)} />
+              <Input id="time-en" type="text" placeholder="e.g., 10:30 AM" value={programDetails.programTime} onChange={(e) => handleInputChange('programTime', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="time-sd" className="font-sindhi text-lg text-right w-full block">ٿيندڙ پروگرام جو وقت</Label>
-                <Input id="time-sd" type="time" className="font-sindhi text-lg" value={programDetails.programTimeSindhi} onChange={(e) => handleInputChange('programTimeSindhi', e.target.value)}/>
+                <Input id="time-sd" type="text" placeholder="مثال طور 10:30 صبح" className="font-sindhi text-lg" dir="rtl" value={programDetails.programTimeSindhi} onChange={(e) => handleInputChange('programTimeSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="address-en">Address</Label>
