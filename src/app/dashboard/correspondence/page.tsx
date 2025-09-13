@@ -97,7 +97,7 @@ export default function CorrespondencePage() {
         const body = rows.map(row => `
             <tr>
                 <td style="padding: 8px; border: 1px solid #ddd;">${row.sno}</td>
-                <td style="padding: 8px; border: 1p'x solid #ddd;">${row.items}</td>
+                <td style="padding: 8px; border: 1px solid #ddd;">${row.items}</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">${row.quantity}</td>
             </tr>
         `).join('');
@@ -150,9 +150,9 @@ export default function CorrespondencePage() {
                 <p>${data.recipientPrefix},</p>
                 <p>${data.recipientName}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;" dir="rtl">${data.recipientNameSindhi}</p>
-                <p>${data.recipientDesignation}</p>
+                <p style="margin-top: 0.5rem;">${data.recipientDesignation}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.recipientDesignationSindhi}</p>
-                <p>${data.departmentAddress}</p>
+                <p style="margin-top: 0.5rem;">${data.departmentAddress}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.departmentAddressSindhi}</p>
             </div>
             <div style="margin-bottom: 1rem;">
@@ -438,9 +438,9 @@ export default function CorrespondencePage() {
                             <p>{recipientPrefix},</p>
                             <p>{recipientName}</p>
                             <p className="font-sindhi text-lg" dir="rtl">{recipientNameSindhi}</p>
-                            <p>{recipientDesignation}</p>
+                            <p className="mt-2">{recipientDesignation}</p>
                             <p className="font-sindhi text-lg">{recipientDesignationSindhi}</p>
-                            <p>{departmentAddress}</p>
+                            <p className="mt-2">{departmentAddress}</p>
                             <p className="font-sindhi text-lg">{departmentAddressSindhi}</p>
                         </div>
                         <div className="mb-4">
