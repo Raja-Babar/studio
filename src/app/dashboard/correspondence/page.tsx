@@ -277,7 +277,7 @@ export default function CorrespondencePage() {
         setTableRows(prev => prev.filter(row => row.id !== id).map((row, index) => ({ ...row, sno: (index + 1).toString() })));
     };
 
-    const generateImage = (letterData: GeneratedLetter | null = null, silent = false) => {
+    const generateImage = async (letterData: GeneratedLetter | null = null, silent = false) => {
         const data = letterData || {
             referenceNo,
             letterHeading, letterHeadingSindhi, recipientPrefix, recipientName, recipientNameSindhi,
@@ -294,51 +294,53 @@ export default function CorrespondencePage() {
         tempRenderDiv.style.position = 'absolute';
         tempRenderDiv.style.left = '-9999px';
         tempRenderDiv.style.width = '794px';
-        tempRenderDiv.className = "bg-white text-black p-8 font-serif";
+        tempRenderDiv.style.backgroundColor = 'white';
+        tempRenderDiv.style.color = 'black';
+        tempRenderDiv.style.padding = '32px';
+        tempRenderDiv.style.fontFamily = 'serif';
         
         tempRenderDiv.innerHTML = `
-            <div class="text-center font-bold text-xl mb-6">
-                <p>${data.letterHeading}</p>
-                <p class="font-sindhi text-2xl">${data.letterHeadingSindhi}</p>
+            <div class="text-center font-bold text-xl mb-6" style="text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1.5rem;">
+                <p>${data.letterHeading.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.5rem;">${data.letterHeadingSindhi.replace(/\n/g, '<br />')}</p>
             </div>
-            <div class="flex justify-between mb-6">
+            <div class="flex justify-between mb-6" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
                 <span>Ref: ${data.referenceNo}</span>
                 <span>Date: ${data.date}</span>
             </div>
-            <div class="mb-4">
+            <div class="mb-4" style="margin-bottom: 1rem;">
                 <p>${data.recipientPrefix},</p>
-                <p class="mt-2 whitespace-pre-wrap">${data.recipientName.replace(/\n/g, '<br />')}</p>
-                <p class="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br />')}</p>
-                <p class="mt-2 whitespace-pre-wrap">${data.recipientDesignation.replace(/\n/g, '<br />')}</p>
-                <p class="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">${data.recipientDesignationSindhi.replace(/\n/g, '<br />')}</p>
-                <p class="mt-2 whitespace-pre-wrap">${data.departmentAddress.replace(/\n/g, '<br />')}</p>
-                <p class="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">${data.departmentAddressSindhi.replace(/\n/g, '<br />')}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientName.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br />')}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientDesignation.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientDesignationSindhi.replace(/\n/g, '<br />')}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.departmentAddress.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.departmentAddressSindhi.replace(/\n/g, '<br />')}</p>
             </div>
-            <div class="mb-4">
-                <p class="font-bold underline">Subject: ${data.subject}</p>
-                ${data.subjectSindhi ? `<p class="font-sindhi text-lg font-bold underline" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : ''}
+            <div class="mb-4" style="margin-bottom: 1rem;">
+                <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
+                ${data.subjectSindhi ? `<p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline;" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : ''}
             </div>
-            <div class="mb-4">
-                <p class="whitespace-pre-wrap">${data.body.replace(/\n/g, '<br />')}</p>
-                <p class="font-sindhi text-lg mt-2 whitespace-pre-wrap" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br />')}</p>
+            <div class="mb-4" style="margin-bottom: 1rem;">
+                <p style="white-space: pre-wrap;">${data.body.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br />')}</p>
             </div>
             ${generateTableHTML(data.tableRows)}
-            <div class="mt-8">
+            <div style="margin-top: 2rem;">
                 <p>${data.closing}</p>
-                <p class="font-sindhi text-lg">${data.closingSindhi}</p>
-                <p class="mt-4">${data.senderName}</p>
-                <p class="font-sindhi text-lg">${data.senderNameSindhi}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.closingSindhi}</p>
+                <p style="margin-top: 1rem;">${data.senderName}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderNameSindhi}</p>
                 <p>${data.senderDesignation}</p>
-                <p class="font-sindhi text-lg">${data.senderDesignationSindhi}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderDesignationSindhi}</p>
             </div>
         `;
         document.body.appendChild(tempRenderDiv);
 
-        html2canvas(tempRenderDiv, { scale: 2 }).then((canvas) => {
-            document.body.removeChild(tempRenderDiv);
-            
+        try {
+            const canvas = await html2canvas(tempRenderDiv, { scale: 2 });
             const imgData = canvas.toDataURL('image/png');
-
+            
             if (!silent) {
                 const pdf = new jsPDF({
                     orientation: 'p',
@@ -371,10 +373,11 @@ export default function CorrespondencePage() {
                     description: 'The historical letter has been downloaded as an image in a PDF.',
                 });
             }
-        }).catch(err => {
-            document.body.removeChild(tempRenderDiv);
+        } catch(err) {
             toast({ variant: 'destructive', title: 'Image Generation Failed', description: 'Could not generate image.' });
-        });
+        } finally {
+             document.body.removeChild(tempRenderDiv);
+        }
     };
 
   const handleDownload = (letter: GeneratedLetter) => {
@@ -592,8 +595,8 @@ export default function CorrespondencePage() {
                 <CardContent>
                     <div ref={letterPreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg font-serif">
                         <div className="text-center font-bold text-xl mb-6">
-                            <p>{letterHeading}</p>
-                            <p className="font-sindhi text-2xl">{letterHeadingSindhi}</p>
+                            <p>{letterHeading.replace(/\n/g, '<br />')}</p>
+                            <p className="font-sindhi text-2xl">{letterHeadingSindhi.replace(/\n/g, '<br />')}</p>
                         </div>
                         <div className="flex justify-between mb-6">
                             <span>Ref: {referenceNo}</span>
@@ -687,3 +690,5 @@ export default function CorrespondencePage() {
     </div>
   );
 }
+
+    
