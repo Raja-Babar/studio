@@ -23,6 +23,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 type AttendanceStatus = 'Present' | 'Absent' | 'Leave' | 'Not Marked';
@@ -110,7 +111,7 @@ export default function LibAttendancePage() {
       const month = selectedDate.getMonth();
       const year = selectedDate.getFullYear();
       
-      const grouped: { [key: string]: { employeeId: string, employeeName: string, records: AttendanceRecord[], summary: { Present: number, Absent: number, Leave: number } } } = {};
+      const grouped: { [key: string]: { employeeId: string, employeeName: string, employeeAvatar?: string, records: AttendanceRecord[], summary: { Present: number, Absent: number, Leave: number } } } = {};
       const allUsers = getUsers().filter(u => u.role === 'Library-Employee');
 
       const usersToDisplay = isEmployee ? allUsers.filter(u => u.id === user?.id) : allUsers;
@@ -131,6 +132,7 @@ export default function LibAttendancePage() {
           grouped[emp.id] = {
               employeeId: emp.id,
               employeeName: emp.name,
+              employeeAvatar: emp.avatar,
               records: userRecordsForMonth.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
               summary: summary
           };
@@ -397,14 +399,27 @@ export default function LibAttendancePage() {
               const visibleRecords = isExpanded ? employeeData.records : employeeData.records.slice(0, RECORDS_TO_SHOW);
               const hasMoreRecords = employeeData.records.length > RECORDS_TO_SHOW;
 
+              const getInitials = (name: string) => {
+                return name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('');
+              };
+
               return (
                 <Card key={employeeData.employeeId}>
                     <CardHeader className="flex flex-row items-start justify-between">
-                        <div>
-                            <CardTitle>{employeeData.employeeName}'s Attendance</CardTitle>
-                            <CardDescription>
-                                Daily records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
-                            </CardDescription>
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-12 w-12 hidden sm:flex">
+                                <AvatarImage src={employeeData.employeeAvatar || `https://avatar.vercel.sh/${employeeData.employeeName}.png`} alt={employeeData.employeeName} />
+                                <AvatarFallback>{getInitials(employeeData.employeeName)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <CardTitle>{employeeData.employeeName}'s Attendance</CardTitle>
+                                <CardDescription>
+                                    Daily records for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+                                </CardDescription>
+                            </div>
                         </div>
                          {!isEmployee && (
                              <Button variant="outline" size="sm" onClick={() => handleExportSinglePDF(employeeData)}>
@@ -550,3 +565,5 @@ export default function LibAttendancePage() {
     </div>
   );
 }
+
+    
