@@ -151,28 +151,50 @@ export function DashboardNav() {
   }
 
   if (user?.role === 'Accounts') {
-    const accountsNavItems = [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
-    ];
-
     return (
       <SidebarContent className="p-2">
         <SidebarMenu className="flex flex-col gap-y-4">
-            {accountsNavItems.map((item, index) => (
-                <SidebarMenuItem key={`${item.href}-${index}`}>
-                <Link href={item.href}>
-                    <SidebarMenuButton
-                    isActive={pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard')}
-                    tooltip={item.label}
-                    className="justify-start"
-                    >
-                    <item.icon />
-                    <span>{item.label}</span>
-                    </SidebarMenuButton>
-                </Link>
-                </SidebarMenuItem>
-            ))}
+          <SidebarMenuItem>
+            <Link href="/dashboard">
+              <SidebarMenuButton
+                isActive={pathname === '/dashboard'}
+                tooltip="Dashboard"
+                className="justify-start"
+              >
+                <LayoutDashboard />
+                <span>Dashboard</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
+          <Collapsible open={isAdministrationSectionOpen} onOpenChange={setIsAdministrationSectionOpen} className="w-full">
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton className='w-full justify-between' isActive={isAdministrationSectionOpen}>
+                <div className="flex items-center gap-2">
+                  <Wallet />
+                  <span>Administration-Section</span>
+                </div>
+                <ChevronDown className={cn('h-4 w-4 transition-transform', isAdministrationSectionOpen && 'rotate-180')} />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="py-1 pl-6">
+              <SidebarMenu className="flex flex-col gap-y-2">
+                {administrationItems.map((item, index) => (
+                  <SidebarMenuItem key={`${item.href}-${index}`}>
+                    <Link href={item.href}>
+                      <SidebarMenuButton
+                        isActive={pathname.startsWith(item.href)}
+                        tooltip={item.label}
+                        className="justify-start"
+                      >
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </SidebarMenuButton>
+                    </Link>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarMenu>
       </SidebarContent>
     );
