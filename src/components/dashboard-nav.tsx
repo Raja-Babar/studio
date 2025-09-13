@@ -47,6 +47,7 @@ const itScanningItems = [
 const administrationItems = [
     { href: '/dashboard/salaries', icon: DollarSign, label: 'Salaries' },
     { href: '/dashboard/petty-cash', icon: Wallet, label: 'Petty Cash' },
+    { href: '/dashboard/correspondence', icon: FileText, label: 'Correspondence with Government Officials' },
 ];
 
 const appFileItems = [
@@ -78,7 +79,7 @@ export function DashboardNav() {
   );
   
   const [isAdministrationSectionOpen, setIsAdministrationSectionOpen] = useState(
-    pathname.startsWith('/dashboard/salaries') || pathname.startsWith('/dashboard/petty-cash')
+    pathname.startsWith('/dashboard/salaries') || pathname.startsWith('/dashboard/petty-cash') || pathname.startsWith('/dashboard/correspondence')
   );
   
   const [isMhpResearchLibrarySectionOpen, setIsMhpResearchLibrarySectionOpen] = useState(
