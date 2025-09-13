@@ -73,7 +73,7 @@ export default function LoginPage() {
         <Card className="shadow-2xl">
           <CardHeader className="text-center">
             <div className="mx-auto mb-4">
-              <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={80} height={80} className="h-20 w-20 rounded-full" />
+              <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={96} height={96} className="h-24 w-24 rounded-full" />
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight">MHPISSJ-Portal</CardTitle>
             <CardDescription className="text-primary">M.H. Panhwar Institute App</CardDescription>
