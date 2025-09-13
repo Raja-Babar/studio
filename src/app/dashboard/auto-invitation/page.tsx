@@ -277,8 +277,8 @@ export default function AutoInvitationPage() {
         <CardContent>
           <form className="space-y-4 max-w-2xl mx-auto">
             <div className="space-y-2">
-              <Label htmlFor="topic-en">Program Topic</Label>
-              <Input id="topic-en" type="text" value={programDetails.programTopic} onChange={(e) => handleInputChange('programTopic', e.target.value)} />
+              <Label htmlFor="topic-en">Program Topic (English / Sindhi)</Label>
+              <Input id="topic-en" type="text" value={programDetails.programTopic} onChange={(e) => handleInputChange('programTopic', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
@@ -301,16 +301,16 @@ export default function AutoInvitationPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address-en">Address</Label>
-              <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} />
+              <Label htmlFor="address-en">Address (English / Sindhi)</Label>
+              <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="address-sd" className="font-sindhi text-lg text-right w-full block">پتو</Label>
               <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl" value={programDetails.addressSindhi} onChange={(e) => handleInputChange('addressSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="organizer-en">Organizer</Label>
-              <Input id="organizer-en" type="text" value={programDetails.organizer} onChange={(e) => handleInputChange('organizer', e.target.value)} />
+              <Label htmlFor="organizer-en">Organizer (English / Sindhi)</Label>
+              <Input id="organizer-en" type="text" value={programDetails.organizer} onChange={(e) => handleInputChange('organizer', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ</Label>
