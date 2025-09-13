@@ -300,13 +300,6 @@ export default function AutoInvitationPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="organizer-en">Organizer</Label>
-                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">منتظم</Label>
-              </div>
-              <Input id="organizer-en" type="text" value={programDetails.organizer} onChange={(e) => handleInputChange('organizer', e.target.value)} dir="auto" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
                 <Label htmlFor="phone-en">Phone No</Label>
                 <Label htmlFor="phone-sd" className="font-sindhi text-lg">فون نمبر</Label>
               </div>
@@ -318,6 +311,13 @@ export default function AutoInvitationPage() {
                   <Label htmlFor="email-sd" className="font-sindhi text-lg">اي ميل</Label>
               </div>
               <Input id="email-en" type="email" value={programDetails.email} onChange={(e) => handleInputChange('email', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="organizer-en">Organizer</Label>
+                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">منتظم</Label>
+              </div>
+              <Input id="organizer-en" type="text" value={programDetails.organizer} onChange={(e) => handleInputChange('organizer', e.target.value)} dir="auto" />
             </div>
              <div className="space-y-2">
               <div className="flex items-center justify-between">
