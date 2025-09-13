@@ -39,14 +39,14 @@ const WhatsappConfigSchema = z.object({
 });
 
 
-export const SendInvitationsInputSchema = z.object({
+const SendInvitationsInputSchema = z.object({
   programDetails: ProgramDetailsSchema,
   contacts: z.array(ContactSchema),
   whatsappConfig: WhatsappConfigSchema,
 });
 export type SendInvitationsInput = z.infer<typeof SendInvitationsInputSchema>;
 
-export const SendInvitationsOutputSchema = z.object({
+const SendInvitationsOutputSchema = z.object({
   success: z.boolean(),
   message: z.string(),
   sentCount: z.number(),
@@ -134,5 +134,4 @@ const sendInvitationsFlow = ai.defineFlow(
     };
   }
 );
-
     

@@ -391,5 +391,3 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
-
-    

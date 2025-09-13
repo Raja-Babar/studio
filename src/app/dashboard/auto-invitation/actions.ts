@@ -20,5 +20,3 @@ export async function sendWhatsAppInvitations(
     return { success: false, error: 'Failed to send invitations. Please try again.' };
   }
 }
-
-    
