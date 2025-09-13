@@ -106,7 +106,7 @@ export default function CorrespondencePage() {
         return `<table style="width: 100%; border-collapse: collapse; margin-top: 1rem; margin-bottom: 1.5rem;">${headers}<tbody>${body}</tbody></table>`;
     };
     
-    const generatePDF = (letterData: GeneratedLetter | null = null, silent = false) => {
+    const generatePDF = async (letterData: GeneratedLetter | null = null, silent = false) => {
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'pt',
@@ -124,18 +124,21 @@ export default function CorrespondencePage() {
             tableRows,
         };
 
-        const tableContent = data.tableRows.length > 0 ? generateTableHTML(data.tableRows) : '';
-
+        const hasTable = data.tableRows.length > 0;
+        
         const sindhiSubjectContent = data.subjectSindhi ? `<p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline; text-align: right;" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : '';
 
-        const tempDiv = document.createElement('div');
-        tempDiv.id = 'pdf-container';
-        tempDiv.style.position = 'absolute';
-        tempDiv.style.left = '-9999px';
-        tempDiv.style.width = '595pt'; // A4 width in points
-        tempDiv.style.padding = '40pt';
-        tempDiv.style.fontFamily = 'serif';
-        tempDiv.innerHTML = `
+        // Create a temporary container for jsPDF
+        const tempContainer = document.createElement('div');
+        tempContainer.style.position = 'absolute';
+        tempContainer.style.left = '-9999px';
+        tempContainer.style.width = '595pt'; // A4 width
+        tempContainer.style.padding = '40pt';
+        tempContainer.style.fontFamily = 'serif';
+        tempContainer.style.lineHeight = '1.5';
+        
+        // This is the content that jsPDF's html() method will render
+        const pdfContentHTML = `
             <div style="text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1.5rem;">
                 <p>${data.letterHeading}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.5rem;">${data.letterHeadingSindhi}</p>
@@ -161,37 +164,67 @@ export default function CorrespondencePage() {
                 <p style="white-space: pre-wrap;">${data.body.replace(/\n/g, '<br />')}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br />')}</p>
             </div>
-            ${tableContent}
-            <div style="margin-top: 2rem;">
-                <p>${data.closing}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.closingSindhi}</p>
-                <p style="margin-top: 1rem;">${data.senderName}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderNameSindhi}</p>
-                <p>${data.senderDesignation}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderDesignationSindhi}</p>
-            </div>
+             ${!hasTable ? `
+                <div style="margin-top: 2rem;">
+                    <p>${data.closing}</p>
+                    <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.closingSindhi}</p>
+                    <p style="margin-top: 1rem;">${data.senderName}</p>
+                    <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderNameSindhi}</p>
+                    <p>${data.senderDesignation}</p>
+                    <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderDesignationSindhi}</p>
+                </div>` : ''}
         `;
-        document.body.appendChild(tempDiv);
         
-        autoTable(doc, {
-            html: '#pdf-container',
-            didDrawPage: () => {
-                // Ensure fonts are embedded
-            },
+        tempContainer.innerHTML = pdfContentHTML;
+        document.body.appendChild(tempContainer);
+
+        await doc.html(tempContainer, {
+            autoPaging: 'text',
+            width: 515, // 595pt A4 width - 80pt padding
+            windowWidth: 515,
+            callback: async (doc) => {
+                if (hasTable) {
+                    const tableHTML = generateTableHTML(data.tableRows);
+                    const tableContainer = document.createElement('div');
+                    tableContainer.innerHTML = tableHTML;
+                    const tableElement = tableContainer.querySelector('table');
+                    
+                    if (tableElement) {
+                        autoTable(doc, { html: tableElement, startY: doc.autoTable.previous.finalY + 10 });
+                    }
+                    
+                    const closingY = doc.autoTable.previous.finalY + 30;
+
+                    doc.setFont('times', 'normal');
+                    doc.setFontSize(12);
+                    doc.text(data.closing, 40, closingY);
+                    doc.text(data.senderName, 40, closingY + 30);
+                    doc.text(data.senderDesignation, 40, closingY + 45);
+                    
+                    doc.addFont('/MB-Lateefi.ttf', 'MB Lateefi', 'normal');
+                    doc.setFont('MB Lateefi');
+                    doc.setFontSize(14); // 1.125rem approx
+                    doc.text(data.closingSindhi, 555, closingY, { align: 'right' });
+                    doc.text(data.senderNameSindhi, 555, closingY + 30, { align: 'right' });
+                    doc.text(data.senderDesignationSindhi, 555, closingY + 45, { align: 'right' });
+                }
+
+                document.body.removeChild(tempContainer);
+                
+                if (!silent) {
+                    doc.save(`Official_Letter_${(data.recipientName || 'Generated').replace(/\s+/g, '_')}.pdf`);
+                }
+            }
         });
 
-        document.body.removeChild(tempDiv);
-
-        if (!silent) {
-            doc.save(`Official_Letter_${(data.recipientName || 'Generated').replace(/\s+/g, '_')}.pdf`);
-        }
-        
         if (!letterData) { // Only add to history if it's a new letter
             setGeneratedLetters(prev => [data, ...prev]);
-            toast({
-                title: 'Letter Saved & Exported',
-                description: 'The letter has been saved to history and exported as a PDF.',
-            });
+            if (!silent) {
+                toast({
+                    title: 'Letter Saved & Exported',
+                    description: 'The letter has been saved to history and exported as a PDF.',
+                });
+            }
         } else if (!silent) {
             toast({
                 title: 'PDF Exported',
@@ -199,6 +232,7 @@ export default function CorrespondencePage() {
             });
         }
     };
+
 
     const handleDeleteLetter = (id: string) => {
         setGeneratedLetters(prev => prev.filter(letter => letter.id !== id));
@@ -519,3 +553,4 @@ export default function CorrespondencePage() {
         </Card>
     </div>
   );
+}
