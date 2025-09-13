@@ -7,12 +7,64 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { format } from 'date-fns';
 import { useAuth } from '@/hooks/use-auth';
 import Image from 'next/image';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
+type Contact = {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+};
 
 export default function AutoInvitationPage() {
   const { appLogo } = useAuth();
+  const { toast } = useToast();
+
+  const [contacts, setContacts] = useState<Contact[]>([]);
+  const [nextContactId, setNextContactId] = useState(1);
+  const [newContactName, setNewContactName] = useState('');
+  const [newContactEmail, setNewContactEmail] = useState('');
+  const [newContactPhone, setNewContactPhone] = useState('');
+
+  const handleAddContact = () => {
+    if (!newContactName || !newContactEmail || !newContactPhone) {
+      toast({
+        variant: 'destructive',
+        title: 'Missing Fields',
+        description: 'Please fill in the name, email, and phone number.',
+      });
+      return;
+    }
+    const newContact: Contact = {
+      id: nextContactId,
+      name: newContactName,
+      email: newContactEmail,
+      phone: newContactPhone,
+    };
+    setContacts(prev => [...prev, newContact]);
+    setNextContactId(prev => prev + 1);
+    setNewContactName('');
+    setNewContactEmail('');
+    setNewContactPhone('');
+    toast({
+      title: 'Contact Added',
+      description: `${newContactName} has been added to the list.`,
+    });
+  };
+
+  const handleDeleteContact = (id: number) => {
+    setContacts(prev => prev.filter(contact => contact.id !== id));
+    toast({
+      title: 'Contact Removed',
+      description: 'The contact has been removed from the list.',
+    });
+  };
+
+
   return (
     <div className="space-y-6">
       <Card>
@@ -26,7 +78,7 @@ export default function AutoInvitationPage() {
           <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4">
+          <form className="space-y-4 max-w-2xl mx-auto">
             <div className="space-y-2">
               <Label htmlFor="topic-en">Program Topic</Label>
               <Input id="topic-en" type="text" />
@@ -88,6 +140,66 @@ export default function AutoInvitationPage() {
         <CardFooter className="flex justify-center">
             <Button>Submit</Button>
         </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Contact List</CardTitle>
+          <CardDescription>Add contacts to send invitations to.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div className="space-y-2">
+              <Label htmlFor="contact-name">Name</Label>
+              <Input id="contact-name" value={newContactName} onChange={e => setNewContactName(e.target.value)} placeholder="e.g., John Doe" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact-email">Email</Label>
+              <Input id="contact-email" type="email" value={newContactEmail} onChange={e => setNewContactEmail(e.target.value)} placeholder="e.g., john@example.com" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact-phone">Phone Number</Label>
+              <Input id="contact-phone" type="tel" value={newContactPhone} onChange={e => setNewContactPhone(e.target.value)} placeholder="e.g., 0300-1234567" />
+            </div>
+            <Button onClick={handleAddContact} className="w-full md:w-auto">
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Contact
+            </Button>
+          </div>
+
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone Number</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {contacts.length > 0 ? (
+                contacts.map(contact => (
+                  <TableRow key={contact.id}>
+                    <TableCell className="font-medium">{contact.name}</TableCell>
+                    <TableCell>{contact.email}</TableCell>
+                    <TableCell>{contact.phone}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteContact(contact.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <span className="sr-only">Delete</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="h-24 text-center">
+                    No contacts added yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
       </Card>
     </div>
   );
