@@ -49,6 +49,7 @@ export default function AutoInvitationPage() {
   const [email, setEmail] = useState('');
   
   const [programTopicSindhi, setProgramTopicSindhi] = useState('');
+  const [programDateSindhi, setProgramDateSindhi] = useState('');
   const [programTimeSindhi, setProgramTimeSindhi] = useState('');
   const [addressSindhi, setAddressSindhi] = useState('');
   const [organizerSindhi, setOrganizerSindhi] = useState('');
@@ -128,6 +129,7 @@ export default function AutoInvitationPage() {
     setPhone('');
     setEmail('');
     setProgramTopicSindhi('');
+    setProgramDateSindhi('');
     setProgramTimeSindhi('');
     setAddressSindhi('');
     setOrganizerSindhi('');
@@ -155,17 +157,21 @@ export default function AutoInvitationPage() {
         </CardHeader>
         <CardContent>
           <form className="space-y-4 max-w-2xl mx-auto">
-             <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="topic-en">Program Topic</Label>
               <Input id="topic-en" type="text" value={programTopic} onChange={(e) => setProgramTopic(e.target.value)} />
             </div>
-             <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
               <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programTopicSindhi} onChange={(e) => setProgramTopicSindhi(e.target.value)}/>
             </div>
-             <div className="space-y-2">
-              <Label htmlFor="date-en">Program Date</Label>
-              <Input id="date-en" type="date" value={programDate} onChange={(e) => setProgramDate(e.target.value)} />
+            <div className="space-y-2">
+                <Label htmlFor="date-en">Program Date</Label>
+                <Input id="date-en" type="date" value={programDate} onChange={(e) => setProgramDate(e.target.value)} />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="date-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جي تاريخ</Label>
+                <Input id="date-sd" type="date" className="font-sindhi" value={programDateSindhi} onChange={(e) => setProgramDateSindhi(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="time-en">Program Time</Label>
@@ -179,7 +185,7 @@ export default function AutoInvitationPage() {
               <Label htmlFor="address-en">Address</Label>
               <Textarea id="address-en" value={address} onChange={(e) => setAddress(e.target.value)} />
             </div>
-             <div className="space-y-2">
+            <div className="space-y-2">
               <Label htmlFor="address-sd" className="font-sindhi text-lg text-right w-full block">پتو</Label>
               <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl" value={addressSindhi} onChange={(e) => setAddressSindhi(e.target.value)}/>
             </div>
@@ -187,7 +193,7 @@ export default function AutoInvitationPage() {
               <Label htmlFor="organizer-en">Organizer</Label>
               <Input id="organizer-en" type="text" value={organizer} onChange={(e) => setOrganizer(e.target.value)} />
             </div>
-             <div className="space-y-2">
+            <div className="space-y-2">
                 <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ</Label>
                 <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={organizerSindhi} onChange={(e) => setOrganizerSindhi(e.target.value)}/>
             </div>
@@ -195,7 +201,7 @@ export default function AutoInvitationPage() {
               <Label htmlFor="phone-en">Phone No</Label>
               <Input id="phone-en" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
             </div>
-             <div className="space-y-2">
+            <div className="space-y-2">
                 <Label htmlFor="phone-sd" className="font-sindhi text-lg text-right w-full block">فون نمبر</Label>
                 <Input id="phone-sd" type="tel" className="font-sindhi text-lg" dir="rtl" value={phoneSindhi} onChange={(e) => setPhoneSindhi(e.target.value)}/>
             </div>
@@ -203,7 +209,7 @@ export default function AutoInvitationPage() {
               <Label htmlFor="email-en">Email</Label>
               <Input id="email-en" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-             <div className="space-y-2">
+            <div className="space-y-2">
                 <Label htmlFor="email-sd" className="font-sindhi text-lg text-right w-full block">اي ميل</Label>
                 <Input id="email-sd" type="email" className="font-sindhi text-lg" dir="rtl" value={emailSindhi} onChange={(e) => setEmailSindhi(e.target.value)}/>
             </div>
@@ -212,6 +218,41 @@ export default function AutoInvitationPage() {
         <CardFooter className="flex justify-center">
             <Button onClick={handleSubmitProgram}>Submit</Button>
         </CardFooter>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle>Program Records</CardTitle>
+            <CardDescription>A list of all submitted program invitations.</CardDescription>
+        </CardHeader>
+        <CardContent>
+             <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Program Topic</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Time</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {submittedPrograms.length > 0 ? (
+                    submittedPrograms.map(program => (
+                      <TableRow key={program.id}>
+                        <TableCell className="font-medium">{program.topic}</TableCell>
+                        <TableCell>{program.date}</TableCell>
+                        <TableCell>{program.time}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="h-24 text-center">
+                        No program records found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+        </CardContent>
       </Card>
 
       <Card>
@@ -297,41 +338,7 @@ export default function AutoInvitationPage() {
           </Table>
         </CardContent>
       </Card>
-      
-      <Card>
-        <CardHeader>
-            <CardTitle>Program Records</CardTitle>
-            <CardDescription>A list of all submitted program invitations.</CardDescription>
-        </CardHeader>
-        <CardContent>
-             <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Program Topic</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Time</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {submittedPrograms.length > 0 ? (
-                    submittedPrograms.map(program => (
-                      <TableRow key={program.id}>
-                        <TableCell className="font-medium">{program.topic}</TableCell>
-                        <TableCell>{program.date}</TableCell>
-                        <TableCell>{program.time}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} className="h-24 text-center">
-                        No program records found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-        </CardContent>
-      </Card>
+
     </div>
   );
 }
