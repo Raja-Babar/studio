@@ -71,10 +71,6 @@ export default function AutoInvitationPage() {
                   <Label htmlFor="time-en">Program Time:</Label>
                   <Input id="time-en" type="time" />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="participants-en">Number of Participants:</Label>
-                  <Input id="participants-en" type="number" />
-                </div>
               </div>
 
               {/* Sindhi Form */}
@@ -94,10 +90,6 @@ export default function AutoInvitationPage() {
                 <div className="space-y-2">
                   <Label htmlFor="time-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جو وقت:</Label>
                   <Input id="time-sd" type="time" className="font-sindhi text-lg"/>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="participants-sd" className="font-sindhi text-lg">شرڪت ڪندڙ ماڻهن جو تعداد:</Label>
-                  <Input id="participants-sd" type="number" className="font-sindhi text-lg"/>
                 </div>
               </div>
             </div>
