@@ -26,6 +26,7 @@ import {
   Library,
   Database,
   Calendar,
+  Send,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
@@ -66,6 +67,10 @@ const mhpResearchLibraryItems = [
   { href: '/dashboard/mhpr-lib-database', icon: Database, label: 'MHPR-Lib-Data base' },
 ];
 
+const eventsProgramItems = [
+  { href: '/dashboard/auto-invitation', icon: Send, label: 'Auto Invitation' },
+];
+
 const otherNavItems = [
   { href: '/dashboard/projects', icon: Briefcase, label: 'Projects' },
 ];
@@ -93,7 +98,9 @@ export function DashboardNav() {
   const [isAppFileSectionOpen, setIsAppFileSectionOpen] = useState(
     pathname.startsWith('/dashboard/report-assistant') || pathname.startsWith('/dashboard/reporting')
   );
-  const [isEventsProgramSectionOpen, setIsEventsProgramSectionOpen] = useState(false);
+  const [isEventsProgramSectionOpen, setIsEventsProgramSectionOpen] = useState(
+    pathname.startsWith('/dashboard/auto-invitation')
+  );
   
   if (user?.role === 'I.T & Scanning-Employee') {
     const itScanningEmployeeNavItems = [
@@ -352,7 +359,20 @@ export function DashboardNav() {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="py-1 pl-6">
                      <SidebarMenu className="flex flex-col gap-y-2">
-                        {/* Items for this section will go here */}
+                        {eventsProgramItems.map((item, index) => (
+                            <SidebarMenuItem key={`${item.href}-${index}`}>
+                                <Link href={item.href}>
+                                <SidebarMenuButton
+                                    isActive={pathname.startsWith(item.href)}
+                                    tooltip={item.label}
+                                    className="justify-start"
+                                >
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </SidebarMenuButton>
+                                </Link>
+                            </SidebarMenuItem>
+                        ))}
                     </SidebarMenu>
                 </CollapsibleContent>
             </Collapsible>
