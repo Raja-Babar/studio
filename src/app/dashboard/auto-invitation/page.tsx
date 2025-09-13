@@ -301,9 +301,7 @@ export default function AutoInvitationPage() {
                 </div>
                 <Input id="time-en" type="time" value={programDetails.programTime} onChange={(e) => handleInputChange('programTime', e.target.value)} />
             </div>
-            <div className="space-y-2">
-                <Input id="time-sd" type="time" className="font-sindhi" dir="rtl" value={programDetails.programTimeSindhi} onChange={(e) => handleInputChange('programTimeSindhi', e.target.value)} />
-            </div>
+
             <div className="space-y-2">
               <Label htmlFor="address-en">Address</Label>
               <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} />
@@ -473,9 +471,5 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
-
-    
-
-    
 
     
