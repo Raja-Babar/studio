@@ -249,7 +249,11 @@ export default function LibEmployeeReportsPage() {
         if (employeeAvatar) {
             const imageData = await getBase64Image(employeeAvatar);
             if (imageData) {
+                doc.saveGraphicsState();
+                doc.circle(14 + 10, finalY + 10, 10);
+                doc.clip();
                 doc.addImage(imageData, 'PNG', 14, finalY, 20, 20);
+                doc.restoreGraphicsState();
                 finalY += 25;
             }
         }
@@ -314,7 +318,11 @@ export default function LibEmployeeReportsPage() {
         if (employeeAvatar) {
             const imageData = await getBase64Image(employeeAvatar);
             if (imageData) {
+                doc.saveGraphicsState();
+                doc.circle(14 + 10, finalY + 10, 10);
+                doc.clip();
                 doc.addImage(imageData, 'PNG', 14, finalY, 20, 20);
+                doc.restoreGraphicsState();
                 finalY += 25; // Move down to leave space after the image
             }
         }
