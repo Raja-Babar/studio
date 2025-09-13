@@ -285,7 +285,10 @@ export default function AutoInvitationPage() {
               <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.programTopicSindhi} onChange={(e) => handleInputChange('programTopicSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
-                <Label htmlFor="date-en">Program Date</Label>
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="date-en">Program Date</Label>
+                    <Label htmlFor="date-sd" className="font-sindhi text-lg">پروگرام جي تاريخ</Label>
+                </div>
                 <Input id="date-en" type="date" value={programDetails.programDate} onChange={(e) => handleInputChange('programDate', e.target.value)} />
             </div>
             
@@ -466,5 +469,3 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
-
-    
