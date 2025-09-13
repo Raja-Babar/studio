@@ -607,7 +607,7 @@ export default function CorrespondencePage() {
                 <CardContent>
                     <div ref={letterPreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg font-serif">
                         <div className="text-right mb-4">
-                          <img src={logo} alt="MHPISSJ-Portal Logo" style={{ width: '80px', height: '80px' }} />
+                          <img src={logo} alt="MHPISSJ-Portal Logo" style={{ width: '80px', height: '80px', display: 'inline-block' }} />
                         </div>
                         <div className="text-center font-bold text-xl mb-6">
                             <p>{letterHeading.replace(/\n/g, '<br />')}</p>
@@ -705,5 +705,3 @@ export default function CorrespondencePage() {
     </div>
   );
 }
-
-    
