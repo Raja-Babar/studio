@@ -18,6 +18,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -171,6 +172,8 @@ export default function AutoGenerateBillPage() {
     const totalAmount = discountedPrice * entry.quantity;
     return { discountedPrice, totalAmount };
   };
+
+  const totalQuantity = billEntries.reduce((acc, entry) => acc + entry.quantity, 0);
   
   const overallTotal = billEntries.reduce((acc, entry) => {
     const { totalAmount } = calculateRow(entry);
@@ -424,6 +427,17 @@ export default function AutoGenerateBillPage() {
                   </TableRow>
                 )}
               </TableBody>
+              {billEntries.length > 0 && (
+                <TableFooter>
+                    <TableRow>
+                        <TableCell colSpan={3} className="font-semibold">Summary</TableCell>
+                        <TableCell className="font-semibold">{totalQuantity}</TableCell>
+                        <TableCell colSpan={3}></TableCell>
+                        <TableCell className="font-bold text-primary">{overallTotal.toFixed(2)}</TableCell>
+                        <TableCell className="print:hidden"></TableCell>
+                    </TableRow>
+                </TableFooter>
+              )}
             </Table>
           </CardContent>
           {billEntries.length > 0 && (
