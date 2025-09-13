@@ -11,6 +11,8 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 
 type TableRowData = {
     id: number;
@@ -21,6 +23,7 @@ type TableRowData = {
 
 type GeneratedLetter = {
     id: string;
+    recipientPrefix: string;
     recipientName: string;
     subject: string;
     date: string;
@@ -49,6 +52,7 @@ export default function CorrespondencePage() {
     const { toast } = useToast();
     const [referenceNo, setReferenceNo] = useState('MHPISSJ/');
     const [letterHeading, setLetterHeading] = useState('');
+    const [recipientPrefix, setRecipientPrefix] = useState('To');
     const [recipientName, setRecipientName] = useState('');
     const [recipientDesignation, setRecipientDesignation] = useState('');
     const [departmentAddress, setDepartmentAddress] = useState('');
@@ -93,7 +97,7 @@ export default function CorrespondencePage() {
         const body = rows.map(row => `
             <tr>
                 <td style="padding: 8px; border: 1px solid #ddd;">${row.sno}</td>
-                <td style="padding: 8px; border: 1px solid #ddd;">${row.items}</td>
+                <td style="padding: 8px; border: 1p'x solid #ddd;">${row.items}</td>
                 <td style="padding: 8px; border: 1px solid #ddd;">${row.quantity}</td>
             </tr>
         `).join('');
@@ -110,7 +114,7 @@ export default function CorrespondencePage() {
         
         const data = letterData || {
             referenceNo,
-            letterHeading, letterHeadingSindhi, recipientName, recipientNameSindhi,
+            letterHeading, letterHeadingSindhi, recipientPrefix, recipientName, recipientNameSindhi,
             recipientDesignation, recipientDesignationSindhi, departmentAddress, departmentAddressSindhi,
             subject, subjectSindhi, body, bodySindhi, closing, closingSindhi,
             senderName, senderNameSindhi, senderDesignation, senderDesignationSindhi,
@@ -120,7 +124,7 @@ export default function CorrespondencePage() {
         };
 
         const bodyTextContent = data.body ? `
-            <div style="margin-bottom: 1rem; white-space: pre-wrap;">
+            <div style="margin-bottom: 1rem;">
                 <p style="white-space: pre-wrap;">${data.body.replace(/\n/g, '<br>')}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br>')}</p>
             </div>` : '';
@@ -143,8 +147,9 @@ export default function CorrespondencePage() {
                 <span>Date: ${data.date}</span>
             </div>
             <div style="margin-bottom: 1rem;">
-                <p style="white-space: pre-wrap;">${data.recipientName.replace(/\n/g, '<br>')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br>')}</p>
+                <p>${data.recipientPrefix},</p>
+                <p>${data.recipientName}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;" dir="rtl">${data.recipientNameSindhi}</p>
                 <p>${data.recipientDesignation}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.recipientDesignationSindhi}</p>
                 <p>${data.departmentAddress}</p>
@@ -264,6 +269,17 @@ export default function CorrespondencePage() {
                             <Label htmlFor="letterHeadingSindhi" className="font-sindhi text-lg float-right">خط جي عنوان</Label>
                             <Input id="letterHeadingSindhi" value={letterHeadingSindhi} onChange={e => setLetterHeadingSindhi(e.target.value)} placeholder="مثال طور، سرڪاري پڌرائي" className="font-sindhi" dir="rtl" />
                         </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Recipient Prefix</Label>
+                        <Select onValueChange={setRecipientPrefix} defaultValue={recipientPrefix}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a prefix" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="To">To</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -419,8 +435,9 @@ export default function CorrespondencePage() {
                             <span>Date: {todayDate}</span>
                         </div>
                         <div className="mb-4">
-                            <p className="whitespace-pre-wrap">{recipientName}</p>
-                            <p className="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">{recipientNameSindhi}</p>
+                            <p>{recipientPrefix},</p>
+                            <p>{recipientName}</p>
+                            <p className="font-sindhi text-lg" dir="rtl">{recipientNameSindhi}</p>
                             <p>{recipientDesignation}</p>
                             <p className="font-sindhi text-lg">{recipientDesignationSindhi}</p>
                             <p>{departmentAddress}</p>
@@ -434,9 +451,9 @@ export default function CorrespondencePage() {
                         </div>
                         
                         {body && (
-                            <div className="mb-4 whitespace-pre-wrap">
-                                <p>{body}</p>
-                                <p className="font-sindhi text-lg mt-2" dir="rtl">{bodySindhi}</p>
+                            <div className="mb-4">
+                                <p className="whitespace-pre-wrap">{body.replace(/\n/g, '<br>')}</p>
+                                <p className="font-sindhi text-lg mt-2 whitespace-pre-wrap" dir="rtl">{bodySindhi.replace(/\n/g, '<br>')}</p>
                             </div>
                         )}
 
