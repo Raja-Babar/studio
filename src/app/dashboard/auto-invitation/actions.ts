@@ -7,8 +7,8 @@ export async function sendWhatsAppInvitations(
   input: SendInvitationsInput
 ): Promise<{ success: boolean; data?: SendInvitationsOutput; error?: string }> {
   try {
-    if (!input.whatsappConfig.apiKey || !input.whatsappConfig.adminPhoneNumber) {
-        return { success: false, error: 'WhatsApp API Key and Admin Phone Number are required.' };
+    if (!input.whatsappConfig.apiKey) {
+        return { success: false, error: 'WhatsApp API Key is required.' };
     }
     if(input.contacts.length === 0) {
         return { success: false, error: 'No contacts provided to send invitations to.'};

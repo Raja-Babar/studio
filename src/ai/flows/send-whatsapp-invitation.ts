@@ -116,7 +116,7 @@ const sendInvitationsFlow = ai.defineFlow(
     // Step 2: "Send" the message to each contact.
     // In a real application, this would involve calling a WhatsApp API.
     // Here, we will just simulate the process.
-    console.log(`Using API Key: ${whatsappConfig.apiKey.substring(0,5)}... and Admin Phone: ${whatsappConfig.adminPhoneNumber}`);
+    console.log(`Using API Key: ${whatsappConfig.apiKey.substring(0,5)}...`);
     console.log("Generated Message:\n", invitationMessage);
 
     let sentCount = 0;

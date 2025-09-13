@@ -312,14 +312,6 @@ export default function AutoInvitationPage() {
                     <CardDescription>Add contacts and configure WhatsApp for sending invitations.</CardDescription>
                 </div>
                 <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                        <Input 
-                            id="whatsapp-number" 
-                            placeholder="Admin's WhatsApp Number" 
-                            value={adminWhatsapp}
-                            onChange={(e) => setAdminWhatsapp(e.target.value)}
-                        />
-                    </div>
                      <div className="flex items-center gap-2">
                         <Input 
                             id="whatsapp-api-key" 
