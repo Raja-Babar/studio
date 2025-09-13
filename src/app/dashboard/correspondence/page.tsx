@@ -268,11 +268,11 @@ export default function CorrespondencePage() {
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="recipientName">Recipient Name</Label>
-                            <Textarea id="recipientName" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="e.g., Dr. John Doe" />
+                            <Input id="recipientName" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="e.g., Dr. John Doe" />
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="recipientNameSindhi" className="font-sindhi text-lg float-right">وصول ڪندڙ جو نالو</Label>
-                            <Textarea id="recipientNameSindhi" value={recipientNameSindhi} onChange={e => setRecipientNameSindhi(e.target.value)} placeholder="مثال طور، ڊاڪٽر جان ڊو" className="font-sindhi" dir="rtl" />
+                            <Input id="recipientNameSindhi" value={recipientNameSindhi} onChange={e => setRecipientNameSindhi(e.target.value)} placeholder="مثال طور، ڊاڪٽر جان ڊو" className="font-sindhi" dir="rtl" />
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
