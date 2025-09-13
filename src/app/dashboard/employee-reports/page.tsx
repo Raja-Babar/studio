@@ -61,6 +61,7 @@ import { format, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { EmployeeReport } from '@/context/auth-provider';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 const reportStages = ["Scanning", "Scanning Q-C", "PDF Pages", "PDF Q-C", "PDF Uploading", "Completed"];
@@ -140,7 +141,7 @@ export default function EmployeeReportsPage() {
     }, [selectedDate, employeeReports]);
 
      const reportsByEmployee = useMemo(() => {
-        const grouped: { [key: string]: { employeeId: string, employeeName: string, reports: CombinedRecord[], summary: { byStage: { [key: string]: number } } } } = {};
+        const grouped: { [key: string]: { employeeId: string, employeeName: string, employeeAvatar?: string, reports: CombinedRecord[], summary: { byStage: { [key: string]: number } } } } = {};
         const allUsers = getUsers().filter(u => u.role === 'I.T & Scanning-Employee');
 
         const start = startOfMonth(selectedDate);
@@ -153,6 +154,7 @@ export default function EmployeeReportsPage() {
             const employeeData = {
                 employeeId: emp.id,
                 employeeName: emp.name,
+                employeeAvatar: emp.avatar,
                 reports: [] as CombinedRecord[],
                 summary: { byStage: {} },
             };
@@ -570,21 +572,34 @@ export default function EmployeeReportsPage() {
 
       {reportsByEmployee.length > 0 ? (
         reportsByEmployee.map((employeeData) => {
-            const { employeeId, employeeName, reports: employeeCombinedRecords, summary } = employeeData;
+            const { employeeId, employeeName, employeeAvatar, reports: employeeCombinedRecords, summary } = employeeData;
             const selectableReports = employeeCombinedRecords.filter(r => !r.isLeaveRecord);
             const isAllSelected = selectableReports.length > 0 && selectedReportIds.length === selectableReports.length;
             const isExpanded = expandedEmployees.includes(employeeId);
             const visibleRecords = isExpanded ? employeeCombinedRecords : employeeCombinedRecords.slice(0, REPORTS_TO_SHOW);
             const hasMoreRecords = employeeCombinedRecords.length > REPORTS_TO_SHOW;
+            
+            const getInitials = (name: string) => {
+                return name
+                  .split(' ')
+                  .map((n) => n[0])
+                  .join('');
+            };
 
             return (
                 <Card key={employeeId}>
                     <CardHeader className="flex flex-row items-start justify-between">
-                        <div>
-                            <CardTitle>{employeeName}'s Reports &amp; Summary</CardTitle>
-                            <CardDescription>
-                                Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
-                            </CardDescription>
+                        <div className="flex items-center gap-4">
+                            <Avatar className="h-12 w-12 hidden sm:flex">
+                                <AvatarImage src={employeeAvatar || `https://avatar.vercel.sh/${employeeName}.png`} alt={employeeName} />
+                                <AvatarFallback>{getInitials(employeeName)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <CardTitle>{employeeName}'s Reports &amp; Summary</CardTitle>
+                                <CardDescription>
+                                    Submitted reports and monthly summary for <span className="font-semibold text-primary">{selectedMonthFormatted}</span>.
+                                </CardDescription>
+                            </div>
                         </div>
                         <Button variant="outline" size="sm" onClick={() => handleExportSinglePDF(employeeData)}>
                             <Download className="mr-2 h-4 w-4" /> Export PDF
@@ -824,5 +839,7 @@ export default function EmployeeReportsPage() {
     </div>
   );
 }
+
+    
 
     
