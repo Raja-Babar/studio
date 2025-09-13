@@ -276,45 +276,104 @@ export default function CorrespondencePage() {
         setTableRows(prev => prev.filter(row => row.id !== id).map((row, index) => ({ ...row, sno: (index + 1).toString() })));
     };
 
-    const generateImage = () => {
-        if (!letterPreviewRef.current) {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: 'Could not capture the letter preview.',
-            });
-            return;
-        }
-    
-        html2canvas(letterPreviewRef.current, { scale: 2 }).then((canvas) => {
-            const image = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.href = image;
-            link.download = `Letter_Preview_${Date.now()}.png`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            const letterData: GeneratedLetter = {
-                referenceNo,
-                letterHeading, letterHeadingSindhi, recipientPrefix, recipientName, recipientNameSindhi,
-                recipientDesignation, recipientDesignationSindhi, departmentAddress, departmentAddressSindhi,
-                subject, subjectSindhi, body, bodySindhi, closing, closingSindhi,
-                senderName, senderNameSindhi, senderDesignation, senderDesignationSindhi,
-                date: todayDate,
-                id: `IMAGE-${Date.now()}`,
-                tableRows,
-                type: 'Image' as const
-            };
-            
-            setGeneratedLetters(prev => [letterData, ...prev]);
+    const generateImage = (letterData: GeneratedLetter | null = null, silent = false) => {
+        const data = letterData || {
+            referenceNo,
+            letterHeading, letterHeadingSindhi, recipientPrefix, recipientName, recipientNameSindhi,
+            recipientDesignation, recipientDesignationSindhi, departmentAddress, departmentAddressSindhi,
+            subject, subjectSindhi, body, bodySindhi, closing, closingSindhi,
+            senderName, senderNameSindhi, senderDesignation, senderDesignationSindhi,
+            date: todayDate,
+            id: `IMAGE-${Date.now()}`,
+            tableRows,
+            type: 'Image' as const
+        };
 
-            toast({
-                title: 'Image Exported & Saved',
-                description: 'The letter has been saved to history and downloaded as an image.',
-            });
+        // Create a temporary, off-screen div to render the letter for canvas capture
+        const tempRenderDiv = document.createElement('div');
+        tempRenderDiv.style.position = 'absolute';
+        tempRenderDiv.style.left = '-9999px';
+        tempRenderDiv.style.width = '800px'; // A reasonable width for rendering
+        tempRenderDiv.className = "bg-white text-black p-8 font-serif";
+        
+        tempRenderDiv.innerHTML = `
+            <div class="text-center font-bold text-xl mb-6">
+                <p>${data.letterHeading}</p>
+                <p class="font-sindhi text-2xl">${data.letterHeadingSindhi}</p>
+            </div>
+            <div class="flex justify-between mb-6">
+                <span>Ref: ${data.referenceNo}</span>
+                <span>Date: ${data.date}</span>
+            </div>
+            <div class="mb-4">
+                <p>${data.recipientPrefix},</p>
+                <p class="mt-2 whitespace-pre-wrap">${data.recipientName.replace(/\n/g, '<br />')}</p>
+                <p class="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br />')}</p>
+                <p class="mt-2 whitespace-pre-wrap">${data.recipientDesignation.replace(/\n/g, '<br />')}</p>
+                <p class="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">${data.recipientDesignationSindhi.replace(/\n/g, '<br />')}</p>
+                <p class="mt-2 whitespace-pre-wrap">${data.departmentAddress.replace(/\n/g, '<br />')}</p>
+                <p class="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">${data.departmentAddressSindhi.replace(/\n/g, '<br />')}</p>
+            </div>
+            <div class="mb-4">
+                <p class="font-bold underline">Subject: ${data.subject}</p>
+                ${data.subjectSindhi ? `<p class="font-sindhi text-lg font-bold underline" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : ''}
+            </div>
+            <div class="mb-4">
+                <p class="whitespace-pre-wrap">${data.body.replace(/\n/g, '<br />')}</p>
+                <p class="font-sindhi text-lg mt-2 whitespace-pre-wrap" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br />')}</p>
+            </div>
+            ${generateTableHTML(data.tableRows)}
+            <div class="mt-8">
+                <p>${data.closing}</p>
+                <p class="font-sindhi text-lg">${data.closingSindhi}</p>
+                <p class="mt-4">${data.senderName}</p>
+                <p class="font-sindhi text-lg">${data.senderNameSindhi}</p>
+                <p>${data.senderDesignation}</p>
+                <p class="font-sindhi text-lg">${data.senderDesignationSindhi}</p>
+            </div>
+        `;
+        document.body.appendChild(tempRenderDiv);
+
+        html2canvas(tempRenderDiv, { scale: 2 }).then((canvas) => {
+            document.body.removeChild(tempRenderDiv);
+
+            if (!silent) {
+                const image = canvas.toDataURL('image/png');
+                const link = document.createElement('a');
+                link.href = image;
+                link.download = `Letter_Preview_${Date.now()}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            if (!letterData) { // Only add to history if it's a new letter
+                setGeneratedLetters(prev => [data, ...prev]);
+                if (!silent) {
+                    toast({
+                        title: 'Image Exported & Saved',
+                        description: 'The letter has been saved to history and downloaded as an image.',
+                    });
+                }
+            } else if (!silent) {
+                 toast({
+                    title: 'Image Exported',
+                    description: 'The historical letter has been downloaded as an image.',
+                });
+            }
+        }).catch(err => {
+            document.body.removeChild(tempRenderDiv);
+            toast({ variant: 'destructive', title: 'Image Generation Failed', description: 'Could not generate image.' });
         });
     };
+
+  const handleDownload = (letter: GeneratedLetter) => {
+    if (letter.type === 'PDF') {
+      generatePDF(letter, false);
+    } else {
+      generateImage(letter, false);
+    }
+  };
 
 
   return (
@@ -505,7 +564,7 @@ export default function CorrespondencePage() {
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={generateImage}>
+                            <DropdownMenuItem onClick={() => generateImage()}>
                                 <Camera className="mr-2 h-4 w-4" />
                                 Export as Image
                             </DropdownMenuItem>
@@ -593,7 +652,7 @@ export default function CorrespondencePage() {
                                     <TableCell className="font-medium">{letter.recipientName}</TableCell>
                                     <TableCell>{letter.subject}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" onClick={() => letter.type === 'PDF' && generatePDF(letter)}>
+                                        <Button variant="ghost" size="sm" onClick={() => handleDownload(letter)}>
                                             <Download className="mr-2 h-4 w-4" />
                                             Download {letter.type}
                                         </Button>
