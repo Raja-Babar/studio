@@ -336,15 +336,25 @@ export default function CorrespondencePage() {
 
         html2canvas(tempRenderDiv, { scale: 2 }).then((canvas) => {
             document.body.removeChild(tempRenderDiv);
+            
+            const imgData = canvas.toDataURL('image/png');
 
             if (!silent) {
-                const image = canvas.toDataURL('image/png');
-                const link = document.createElement('a');
-                link.href = image;
-                link.download = `Letter_Preview_${Date.now()}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                const pdf = new jsPDF({
+                    orientation: 'p',
+                    unit: 'px',
+                    format: 'a4',
+                });
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+                const imgX = (pdfWidth - imgWidth * ratio) / 2;
+                const imgY = 0;
+
+                pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
+                pdf.save(`Letter_Image_${Date.now()}.pdf`);
             }
             
             if (!letterData) { // Only add to history if it's a new letter
@@ -352,13 +362,13 @@ export default function CorrespondencePage() {
                 if (!silent) {
                     toast({
                         title: 'Image Exported & Saved',
-                        description: 'The letter has been saved to history and downloaded as an image.',
+                        description: 'The letter has been saved to history and downloaded as a PDF with the image.',
                     });
                 }
             } else if (!silent) {
                  toast({
                     title: 'Image Exported',
-                    description: 'The historical letter has been downloaded as an image.',
+                    description: 'The historical letter has been downloaded as an image in a PDF.',
                 });
             }
         }).catch(err => {
