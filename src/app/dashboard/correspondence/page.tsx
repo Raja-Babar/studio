@@ -191,6 +191,9 @@ export default function CorrespondencePage() {
             y: 40,
             width: pdfWidth,
             windowWidth: pdfWidth,
+            html2canvas: {
+                useCORS: true, // Allow fetching cross-origin images
+            },
             callback: async (doc) => {
                 if (hasTable) {
                     const tableHTML = generateTableHTML(data.tableRows);
