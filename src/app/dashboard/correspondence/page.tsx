@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Printer, FileDown, Trash2, PlusCircle, Edit, Download } from 'lucide-react';
+import { Printer, FileDown, Trash2, PlusCircle, Edit, Download, Camera } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import html2canvas from 'html2canvas';
 
 
 type TableRowData = {
@@ -272,6 +273,31 @@ export default function CorrespondencePage() {
         setTableRows(prev => prev.filter(row => row.id !== id).map((row, index) => ({ ...row, sno: (index + 1).toString() })));
     };
 
+    const generateImage = () => {
+        if (!letterPreviewRef.current) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Could not capture the letter preview.',
+            });
+            return;
+        }
+    
+        html2canvas(letterPreviewRef.current, { scale: 2 }).then((canvas) => {
+            const image = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `Letter_Preview_${Date.now()}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast({
+                title: 'Image Exported',
+                description: 'The letter preview has been downloaded as an image.',
+            });
+        });
+    };
+
 
   return (
     <div className="space-y-6">
@@ -452,6 +478,7 @@ export default function CorrespondencePage() {
                         <CardDescription>This is how your letter will look.</CardDescription>
                     </div>
                     <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={generateImage}><Camera className="mr-2 h-4 w-4" /> Export as Image</Button>
                         <Button variant="outline" size="sm" onClick={printLetter}><Printer className="mr-2 h-4 w-4" /> Print</Button>
                         <Button size="sm" onClick={() => generatePDF()}><FileDown className="mr-2 h-4 w-4" /> Export & Save</Button>
                     </div>
@@ -471,9 +498,9 @@ export default function CorrespondencePage() {
                             <p className="mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: recipientName.replace(/\n/g, '<br />') }} />
                             <p className="font-sindhi text-lg whitespace-pre-wrap" dir="rtl" dangerouslySetInnerHTML={{ __html: recipientNameSindhi.replace(/\n/g, '<br />') }} />
                             <p className="mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: recipientDesignation.replace(/\n/g, '<br />') }} />
-                            <p className="font-sindhi text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: recipientDesignationSindhi.replace(/\n/g, '<br />') }} />
+                            <p className="font-sindhi text-lg whitespace-pre-wrap" dir="rtl" dangerouslySetInnerHTML={{ __html: recipientDesignationSindhi.replace(/\n/g, '<br />') }} />
                             <p className="mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: departmentAddress.replace(/\n/g, '<br />') }} />
-                            <p className="font-sindhi text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: departmentAddressSindhi.replace(/\n/g, '<br />') }} />
+                            <p className="font-sindhi text-lg whitespace-pre-wrap" dir="rtl" dangerouslySetInnerHTML={{ __html: departmentAddressSindhi.replace(/\n/g, '<br />') }} />
                         </div>
                         <div className="mb-4">
                             <p className="font-bold underline">Subject: {subject}</p>
