@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { sendWhatsAppInvitations } from './actions';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Contact = {
   id: number;
@@ -42,6 +43,18 @@ type ProgramDetails = {
 type ProgramRecord = ProgramDetails & {
   id: number;
 };
+
+const timeSlots = [
+    "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM", "11:00 AM", "11:30 AM",
+    "12:00 PM", "12:30 PM", "01:00 PM", "01:30 PM", "02:00 PM", "02:30 PM",
+    "03:00 PM", "03:30 PM", "04:00 PM", "04:30 PM", "05:00 PM"
+];
+
+const timeSlotsSindhi = [
+    "09:00 صبح", "09:30 صبح", "10:00 صبح", "10:30 صبح", "11:00 صبح", "11:30 صبح",
+    "12:00 منجهند", "12:30 منجهند", "01:00 منجهند", "01:30 منجهند", "02:00 منجهند", "02:30 منجهند",
+    "03:00 شام", "03:30 شام", "04:00 شام", "04:30 شام", "05:00 شام"
+];
 
 
 export default function AutoInvitationPage() {
@@ -292,12 +305,26 @@ export default function AutoInvitationPage() {
                 <Input id="date-sd" type="date" className="font-sindhi" value={programDetails.programDateSindhi} onChange={(e) => handleInputChange('programDateSindhi', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="time-en">Program Time</Label>
-              <Input id="time-en" type="text" placeholder="e.g., 10:30 AM" value={programDetails.programTime} onChange={(e) => handleInputChange('programTime', e.target.value)} />
+                <Label htmlFor="time-en">Program Time</Label>
+                <Select onValueChange={(value) => handleInputChange('programTime', value)} value={programDetails.programTime}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select a time" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {timeSlots.map(time => <SelectItem key={time} value={time}>{time}</SelectItem>)}
+                    </SelectContent>
+                </Select>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="time-sd" className="font-sindhi text-lg text-right w-full block">ٿيندڙ پروگرام جو وقت</Label>
-                <Input id="time-sd" type="text" placeholder="مثال طور 10:30 صبح" className="font-sindhi text-lg" dir="rtl" value={programDetails.programTimeSindhi} onChange={(e) => handleInputChange('programTimeSindhi', e.target.value)}/>
+                 <Select onValueChange={(value) => handleInputChange('programTimeSindhi', value)} value={programDetails.programTimeSindhi}>
+                    <SelectTrigger className="font-sindhi text-lg" dir="rtl">
+                        <SelectValue placeholder="هڪ وقت چونڊيو" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {timeSlotsSindhi.map(time => <SelectItem key={time} value={time} className="font-sindhi text-lg" dir="rtl">{time}</SelectItem>)}
+                    </SelectContent>
+                </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="address-en">Address</Label>
