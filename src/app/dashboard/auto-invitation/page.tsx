@@ -327,7 +327,10 @@ export default function AutoInvitationPage() {
                 <Input id="phone-sd" type="tel" className="font-sindhi text-lg" dir="rtl" value={programDetails.phoneSindhi} onChange={(e) => handleInputChange('phoneSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email-en">Email</Label>
+              <div className="flex items-center justify-between">
+                  <Label htmlFor="email-en">Email</Label>
+                  <Label htmlFor="email-sd" className="font-sindhi text-lg">اي ميل</Label>
+              </div>
               <Input id="email-en" type="email" value={programDetails.email} onChange={(e) => handleInputChange('email', e.target.value)} />
             </div>
           </form>
@@ -469,5 +472,7 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
+
+    
 
     
