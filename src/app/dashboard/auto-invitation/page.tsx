@@ -269,8 +269,10 @@ export default function AutoInvitationPage() {
           <div className="mx-auto">
               <Image src={appLogo} alt="MHPISSJ-Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
           </div>
-          <h1 className="font-bold text-2xl">M.H. Panhwar Institute of Sindh Studies, Jamshoro</h1>
-          <CardTitle className="font-sindhi text-3xl">ايم. ايڇ. پنھور انسٽيٽيوٽ آف سنڌ اسٽڊيز، ڄامشورو</CardTitle>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4">
+            <h1 className="font-bold text-2xl">M.H. Panhwar Institute of Sindh Studies, Jamshoro</h1>
+            <CardTitle className="font-sindhi text-3xl">ايم. ايڇ. پنھور انسٽيٽيوٽ آف سنڌ اسٽڊيز، ڄامشورو</CardTitle>
+          </div>
           <p className="text-lg text-muted-foreground">Information about the Program to be held in the Institute</p>
           <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
         </CardHeader>
@@ -327,10 +329,6 @@ export default function AutoInvitationPage() {
             <div className="space-y-2">
               <Label htmlFor="email-en">Email</Label>
               <Input id="email-en" type="email" value={programDetails.email} onChange={(e) => handleInputChange('email', e.target.value)} />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="email-sd" className="font-sindhi text-lg text-right w-full block">اي ميل</Label>
-                <Input id="email-sd" type="email" className="font-sindhi text-lg" dir="rtl" value={programDetails.emailSindhi} onChange={(e) => handleInputChange('emailSindhi', e.target.value)}/>
             </div>
           </form>
         </CardContent>
