@@ -67,6 +67,14 @@ export default function AutoInvitationPage() {
                 <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ</Label>
                 <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl"/>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone-en">Phone No</Label>
+              <Input id="phone-en" type="tel" />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="phone-sd" className="font-sindhi text-lg text-right w-full block">فون نمبر</Label>
+                <Input id="phone-sd" type="tel" className="font-sindhi text-lg" dir="rtl"/>
+            </div>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
