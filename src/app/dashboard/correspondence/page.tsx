@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Printer, FileDown, Trash2, PlusCircle, Edit, Download, Camera, MoreHorizontal } from 'lucide-react';
+import { Printer, FileDown, Trash2, PlusCircle, Edit, Download, Camera, MoreHorizontal, Upload } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
@@ -49,6 +49,7 @@ type GeneratedLetter = {
     senderDesignation: string;
     senderDesignationSindhi: string;
     tableRows: TableRowData[];
+    logo: string;
 };
 
 
@@ -75,6 +76,9 @@ export default function CorrespondencePage() {
     const [closingSindhi, setClosingSindhi] = useState('');
     const [senderNameSindhi, setSenderNameSindhi] = useState('');
     const [senderDesignationSindhi, setSenderDesignationSindhi] = useState('');
+    
+    const [logo, setLogo] = useState('https://sindh.org/assets/img/logo1.jpg');
+    const logoInputRef = useRef<HTMLInputElement>(null);
     
     const [generatedLetters, setGeneratedLetters] = useState<GeneratedLetter[]>([]);
     
@@ -127,7 +131,8 @@ export default function CorrespondencePage() {
             date: todayDate,
             id: `LETTER-${Date.now()}`,
             tableRows,
-            type: 'PDF' as const
+            type: 'PDF' as const,
+            logo,
         };
 
         const hasTable = data.tableRows.length > 0;
@@ -144,7 +149,7 @@ export default function CorrespondencePage() {
         
         const pdfContentHTML = `
             <div style="text-align: right; margin-bottom: 1rem;">
-                <img src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" style="width: 80px; height: 80px;"/>
+                <img src="${data.logo}" alt="MHPISSJ-Portal Logo" style="width: 80px; height: 80px;"/>
             </div>
             <div style="text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1.5rem;">
                 <p>${data.letterHeading.replace(/\n/g, '<br />')}</p>
@@ -294,7 +299,8 @@ export default function CorrespondencePage() {
             date: todayDate,
             id: `IMAGE-${Date.now()}`,
             tableRows,
-            type: 'Image' as const
+            type: 'Image' as const,
+            logo,
         };
 
         const previewElement = letterPreviewRef.current;
@@ -365,6 +371,21 @@ export default function CorrespondencePage() {
       generateImage(letter, false);
     }
   };
+  
+    const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setLogo(reader.result as string);
+                toast({
+                    title: 'Logo Updated',
+                    description: 'The letter logo has been updated.',
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
 
   return (
@@ -377,9 +398,22 @@ export default function CorrespondencePage() {
         <div className="grid md:grid-cols-2 gap-8">
             {/* Form Section */}
             <Card>
-                <CardHeader>
-                    <CardTitle>Compose Letter</CardTitle>
-                    <CardDescription>Fill in the details to generate an official letter.</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Compose Letter</CardTitle>
+                        <CardDescription>Fill in the details to generate an official letter.</CardDescription>
+                    </div>
+                     <Button variant="outline" onClick={() => logoInputRef.current?.click()}>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Logo
+                    </Button>
+                    <input
+                        type="file"
+                        ref={logoInputRef}
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleLogoUpload}
+                    />
                 </CardHeader>
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
@@ -573,7 +607,7 @@ export default function CorrespondencePage() {
                 <CardContent>
                     <div ref={letterPreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg font-serif">
                         <div className="text-right mb-4">
-                          <img src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" style={{ width: '80px', height: '80px' }} />
+                          <img src={logo} alt="MHPISSJ-Portal Logo" style={{ width: '80px', height: '80px' }} />
                         </div>
                         <div className="text-center font-bold text-xl mb-6">
                             <p>{letterHeading.replace(/\n/g, '<br />')}</p>
@@ -671,3 +705,5 @@ export default function CorrespondencePage() {
     </div>
   );
 }
+
+    
