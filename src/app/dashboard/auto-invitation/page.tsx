@@ -29,6 +29,7 @@ export default function AutoInvitationPage() {
   const [newContactName, setNewContactName] = useState('');
   const [newContactEmail, setNewContactEmail] = useState('');
   const [newContactPhone, setNewContactPhone] = useState('');
+  const [adminWhatsapp, setAdminWhatsapp] = useState('');
 
   const handleAddContact = () => {
     if (!newContactName || !newContactEmail || !newContactPhone) {
@@ -63,6 +64,13 @@ export default function AutoInvitationPage() {
       description: 'The contact has been removed from the list.',
     });
   };
+  
+  const handleSaveWhatsapp = () => {
+    toast({
+      title: 'WhatsApp Number Saved',
+      description: `Admin's WhatsApp number has been set to ${adminWhatsapp}.`
+    });
+  }
 
 
   return (
@@ -144,8 +152,21 @@ export default function AutoInvitationPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Contact List</CardTitle>
-          <CardDescription>Add contacts to send invitations to.</CardDescription>
+          <div className="flex justify-between items-start">
+              <div>
+                  <CardTitle>Contact List</CardTitle>
+                  <CardDescription>Add contacts to send invitations to.</CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                  <Input 
+                      id="whatsapp-number" 
+                      placeholder="Admin's WhatsApp Number" 
+                      value={adminWhatsapp}
+                      onChange={(e) => setAdminWhatsapp(e.target.value)}
+                  />
+                  <Button onClick={handleSaveWhatsapp}>Save</Button>
+              </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
