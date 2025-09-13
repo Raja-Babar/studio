@@ -281,10 +281,6 @@ export default function AutoInvitationPage() {
               <Input id="topic-en" type="text" value={programDetails.programTopic} onChange={(e) => handleInputChange('programTopic', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
-              <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.programTopicSindhi} onChange={(e) => handleInputChange('programTopicSindhi', e.target.value)}/>
-            </div>
-            <div className="space-y-2">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="date-en">Program Date</Label>
                     <Label htmlFor="date-sd" className="font-sindhi text-lg">پروگرام جي تاريخ</Label>
@@ -305,16 +301,8 @@ export default function AutoInvitationPage() {
               <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address-sd" className="font-sindhi text-lg text-right w-full block">پتو</Label>
-              <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl" value={programDetails.addressSindhi} onChange={(e) => handleInputChange('addressSindhi', e.target.value)}/>
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="organizer-en">Organizer (English / Sindhi)</Label>
               <Input id="organizer-en" type="text" value={programDetails.organizer} onChange={(e) => handleInputChange('organizer', e.target.value)} dir="auto" />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ</Label>
-                <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.organizerSindhi} onChange={(e) => handleInputChange('organizerSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -470,4 +458,4 @@ export default function AutoInvitationPage() {
   );
 }
 
-  
+    
