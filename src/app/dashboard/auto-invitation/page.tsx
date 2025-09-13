@@ -43,7 +43,7 @@ export default function AutoInvitationPage() {
           <p className="text-lg text-muted-foreground">Information about the Program to be held in the Institute</p>
           <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
           <div className="flex justify-between items-center text-sm px-4">
-            <span className="font-mono">MHIPSS(Program)/01/2025</span>
+            <span>MHIPSS(Program)/01/2025</span>
             <Button onClick={handlePrint} variant="outline" className="no-print">
               <Printer className="ml-2 h-4 w-4" />
               Print / پرنٽ
