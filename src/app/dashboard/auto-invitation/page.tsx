@@ -319,12 +319,11 @@ export default function AutoInvitationPage() {
                 <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.organizerSindhi} onChange={(e) => handleInputChange('organizerSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="phone-en">Phone No</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="phone-en">Phone No</Label>
+                <Label htmlFor="phone-sd" className="font-sindhi text-lg">فون نمبر</Label>
+              </div>
               <Input id="phone-en" type="tel" value={programDetails.phone} onChange={(e) => handleInputChange('phone', e.target.value)} />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="phone-sd" className="font-sindhi text-lg text-right w-full block">فون نمبر</Label>
-                <Input id="phone-sd" type="tel" className="font-sindhi text-lg" dir="rtl" value={programDetails.phoneSindhi} onChange={(e) => handleInputChange('phoneSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -472,6 +471,8 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
+
+    
 
     
 
