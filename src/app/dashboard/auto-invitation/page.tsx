@@ -295,12 +295,14 @@ export default function AutoInvitationPage() {
                 <Input id="date-sd" type="date" className="font-sindhi" value={programDetails.programDateSindhi} onChange={(e) => handleInputChange('programDateSindhi', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="time-en">Program Time</Label>
-              <Input id="time-en" type="time" value={programDetails.programTime} onChange={(e) => handleInputChange('programTime', e.target.value)} />
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="time-en">Program Time</Label>
+                    <Label htmlFor="time-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جو وقت</Label>
+                </div>
+                <Input id="time-en" type="time" value={programDetails.programTime} onChange={(e) => handleInputChange('programTime', e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="time-sd" className="font-sindhi text-lg text-right w-full block">ٿيندڙ پروگرام جو وقت</Label>
-              <Input id="time-sd" type="time" className="font-sindhi" dir="rtl" value={programDetails.programTimeSindhi} onChange={(e) => handleInputChange('programTimeSindhi', e.target.value)} />
+                <Input id="time-sd" type="time" className="font-sindhi" dir="rtl" value={programDetails.programTimeSindhi} onChange={(e) => handleInputChange('programTimeSindhi', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="address-en">Address</Label>
