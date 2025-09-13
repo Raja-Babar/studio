@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal, CalendarOff, ChevronDown, ChevronUp, Wallet } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal, CalendarOff, ChevronDown, ChevronUp, Wallet, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -510,6 +510,7 @@ function AccountsDashboard() {
     const adminStats = [
         { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
         { title: 'Petty Cash', value: null, icon: Wallet, href: '/dashboard/petty-cash', bold: true },
+        { title: 'Correspondence', value: null, icon: FileText, href: '/dashboard/correspondence', bold: true },
     ];
   
     return (
