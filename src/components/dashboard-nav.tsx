@@ -154,18 +154,6 @@ export function DashboardNav() {
     return (
       <SidebarContent className="p-2">
         <SidebarMenu className="flex flex-col gap-y-4">
-          <SidebarMenuItem>
-            <Link href="/dashboard">
-              <SidebarMenuButton
-                isActive={pathname === '/dashboard'}
-                tooltip="Dashboard"
-                className="justify-start"
-              >
-                <LayoutDashboard />
-                <span>Dashboard</span>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
           <Collapsible open={isAdministrationSectionOpen} onOpenChange={setIsAdministrationSectionOpen} className="w-full">
             <CollapsibleTrigger asChild>
               <SidebarMenuButton className='w-full justify-between' isActive={isAdministrationSectionOpen}>
