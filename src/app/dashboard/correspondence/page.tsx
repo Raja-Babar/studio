@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useMemo } from 'react';
@@ -524,5 +523,3 @@ export default function CorrespondencePage() {
     </div>
   );
 }
-
-    
