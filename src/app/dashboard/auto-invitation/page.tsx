@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -24,12 +23,12 @@ export default function AutoInvitationPage() {
             {/* English Form */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="organizer-en">Organizer / Institute Name:</Label>
-                <Input id="organizer-en" type="text" />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="topic-en">Program Topic:</Label>
                 <Input id="topic-en" type="text" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="organizer-en">Organizer / Institute Name:</Label>
+                <Input id="organizer-en" type="text" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date-en">Program Date:</Label>
@@ -48,12 +47,12 @@ export default function AutoInvitationPage() {
             {/* Sindhi Form */}
             <div className="space-y-4" dir="rtl">
               <div className="space-y-2">
-                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">پروگرام ڪندڙ / اداري جو نالو:</Label>
-                <Input id="organizer-sd" type="text" className="font-sindhi text-lg"/>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="topic-sd" className="font-sindhi text-lg">پروگرام جو موضوع:</Label>
                 <Input id="topic-sd" type="text" className="font-sindhi text-lg"/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">پروگرام ڪندڙ / اداري جو نالو:</Label>
+                <Input id="organizer-sd" type="text" className="font-sindhi text-lg"/>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date-sd" className="font-sindhi text-lg">پروگرام جي تاريخ:</Label>
