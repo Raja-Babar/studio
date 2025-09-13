@@ -52,8 +52,8 @@ export default function AutoInvitationPage() {
   const [newContactName, setNewContactName] = useState('');
   const [newContactEmail, setNewContactEmail] = useState('');
   const [newContactPhone, setNewContactPhone] = useState('');
-  const [adminWhatsapp, setAdminWhatsapp] = useState('');
   const [whatsappApiKey, setWhatsappApiKey] = useState('');
+  const [gmailApiKey, setGmailApiKey] = useState('');
   
   const [programDetails, setProgramDetails] = useState<ProgramDetails>({
     programTopic: '',
@@ -117,8 +117,8 @@ export default function AutoInvitationPage() {
   
   const handleSaveWhatsapp = () => {
     toast({
-      title: 'WhatsApp Settings Saved',
-      description: `WhatsApp settings have been updated.`
+      title: 'API Keys Saved',
+      description: `Your API keys have been updated.`
     });
   }
   
@@ -157,7 +157,7 @@ export default function AutoInvitationPage() {
             contacts,
             whatsappConfig: {
                 apiKey: whatsappApiKey,
-                adminPhoneNumber: adminWhatsapp
+                adminPhoneNumber: ''
             }
         });
 
@@ -308,8 +308,8 @@ export default function AutoInvitationPage() {
         <CardHeader>
             <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
                 <div>
-                    <CardTitle>Contact & WhatsApp Settings</CardTitle>
-                    <CardDescription>Add contacts and configure WhatsApp for sending invitations.</CardDescription>
+                    <CardTitle>Contact & API Settings</CardTitle>
+                    <CardDescription>Add contacts and configure API keys for sending invitations.</CardDescription>
                 </div>
                 <div className="space-y-2">
                      <div className="flex items-center gap-2">
@@ -319,6 +319,15 @@ export default function AutoInvitationPage() {
                             placeholder="WhatsApp API Key" 
                             value={whatsappApiKey}
                             onChange={(e) => setWhatsappApiKey(e.target.value)}
+                        />
+                    </div>
+                     <div className="flex items-center gap-2 mt-2">
+                        <Input 
+                            id="gmail-api-key" 
+                            type="password"
+                            placeholder="Gmail API Key" 
+                            value={gmailApiKey}
+                            onChange={(e) => setGmailApiKey(e.target.value)}
                         />
                     </div>
                      <Button onClick={handleSaveWhatsapp} className="w-full">Save Settings</Button>
