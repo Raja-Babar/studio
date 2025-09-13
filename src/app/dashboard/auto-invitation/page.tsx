@@ -1,12 +1,17 @@
+
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Calendar } from '@/components/ui/calendar';
 
 export default function AutoInvitationPage() {
+    const [date, setDate] = useState<Date | undefined>(new Date());
+
   return (
     <div className="space-y-6">
       <Card>
@@ -18,6 +23,14 @@ export default function AutoInvitationPage() {
         </CardHeader>
         <CardContent>
           <form className="space-y-8">
+            <div className="flex justify-center">
+                 <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border"
+                />
+            </div>
             {/* English Form */}
             <div className="space-y-4">
               <div className="space-y-2">
@@ -27,10 +40,6 @@ export default function AutoInvitationPage() {
               <div className="space-y-2">
                 <Label htmlFor="topic-en">Program Topic:</Label>
                 <Input id="topic-en" type="text" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date-en">Program Date:</Label>
-                <Input id="date-en" type="date" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time-en">Program Time:</Label>
@@ -51,10 +60,6 @@ export default function AutoInvitationPage() {
               <div className="space-y-2">
                 <Label htmlFor="topic-sd" className="font-sindhi text-lg">پروگرام جو موضوع:</Label>
                 <Input id="topic-sd" type="text" className="font-sindhi text-lg"/>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="date-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جي تاريخ:</Label>
-                <Input id="date-sd" type="date" className="font-sindhi text-lg"/>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جو وقت:</Label>
