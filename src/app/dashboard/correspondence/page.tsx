@@ -122,8 +122,8 @@ export default function CorrespondencePage() {
 
         const bodyTextContent = data.body ? `
             <div style="margin-bottom: 1rem; white-space: pre-wrap;">
-                <p>${data.body}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right;" dir="rtl">${data.bodySindhi}</p>
+                <p style="white-space: pre-wrap;">${data.body}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi}</p>
             </div>` : '';
             
         const tableContent = data.tableRows.length > 0 ? generateTableHTML(data.tableRows) : '';
