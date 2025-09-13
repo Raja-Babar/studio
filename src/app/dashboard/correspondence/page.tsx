@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useMemo } from 'react';
@@ -142,20 +143,20 @@ export default function CorrespondencePage() {
             </div>
             <div style="margin-bottom: 1rem;">
                 <p>${data.recipientPrefix},</p>
-                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientName}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi}</p>
-                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientDesignation}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.recipientDesignationSindhi}</p>
-                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.departmentAddress}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.departmentAddressSindhi}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientName.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br />')}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientDesignation.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.recipientDesignationSindhi.replace(/\n/g, '<br />')}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.departmentAddress.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.departmentAddressSindhi.replace(/\n/g, '<br />')}</p>
             </div>
             <div style="margin-bottom: 1rem;">
                 <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
                 ${sindhiSubjectContent}
             </div>
             <div style="margin-bottom: 1rem;">
-                <p style="white-space: pre-wrap;">${data.body}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi}</p>
+                <p style="white-space: pre-wrap;">${data.body.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br />')}</p>
             </div>
             ${tableContent}
             <div style="margin-top: 2rem;">
