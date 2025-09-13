@@ -249,18 +249,22 @@ export default function EmployeeReportsPage() {
         finalY = 20;
         doc.setPage(doc.internal.getNumberOfPages());
 
-        let xOffset = 14;
         if (employeeAvatar) {
             const imageData = await getBase64Image(employeeAvatar);
             if (imageData) {
-                doc.addImage(imageData, 'PNG', xOffset, finalY - 4, 10, 10);
-                xOffset += 12;
+                doc.addImage(imageData, 'PNG', 14, finalY, 20, 20);
+                finalY += 25;
             }
         }
         
+        doc.setFontSize(14);
+        doc.text(`Digitization Report - ${selectedMonthFormatted}`, 14, finalY);
+        finalY += 6;
+
         doc.setFontSize(12);
-        doc.text(employeeName, xOffset, finalY);
+        doc.text(employeeName, 14, finalY);
         finalY += 10;
+
 
         // Submitted Reports Table
         autoTable(doc, {
@@ -309,22 +313,22 @@ export default function EmployeeReportsPage() {
     const handleExportSinglePDF = async (employeeData: { employeeName: string; employeeAvatar?: string; reports: CombinedRecord[]; summary: { byStage: { [key: string]: number } } }) => {
         const { employeeName, employeeAvatar, reports, summary } = employeeData;
         const doc = new jsPDF();
-        let finalY = 22;
-    
-        doc.setFontSize(14);
-        doc.text(`Digitization Report - ${selectedMonthFormatted}`, 14, 16);
-        
-        let xOffset = 14;
+        let finalY = 20;
+
         if (employeeAvatar) {
             const imageData = await getBase64Image(employeeAvatar);
             if (imageData) {
-                doc.addImage(imageData, 'PNG', xOffset, finalY - 4, 10, 10);
-                xOffset += 12;
+                doc.addImage(imageData, 'PNG', 14, finalY, 20, 20);
+                finalY += 25; // Move down to leave space after the image
             }
         }
+    
+        doc.setFontSize(14);
+        doc.text(`Digitization Report - ${selectedMonthFormatted}`, 14, finalY);
+        finalY += 6;
         
         doc.setFontSize(12);
-        doc.text(employeeName, xOffset, finalY);
+        doc.text(employeeName, 14, finalY);
         finalY += 10;
 
         // Submitted Reports Table
