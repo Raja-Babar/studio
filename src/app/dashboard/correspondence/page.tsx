@@ -116,7 +116,6 @@ export default function CorrespondencePage() {
             format: 'a4',
         });
         
-        // A4 page is 595.28 points wide. Let's use 40pt margins, so 515.28 width.
         const pdfWidth = doc.internal.pageSize.getWidth() - 80;
 
         const data = letterData || {
@@ -135,7 +134,6 @@ export default function CorrespondencePage() {
         
         const sindhiSubjectContent = data.subjectSindhi ? `<p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline; text-align: right;" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : '';
 
-        // Create a temporary container for jsPDF
         const tempContainer = document.createElement('div');
         tempContainer.style.position = 'absolute';
         tempContainer.style.left = '-9999px';
@@ -143,11 +141,10 @@ export default function CorrespondencePage() {
         tempContainer.style.fontFamily = 'serif';
         tempContainer.style.lineHeight = '1.5';
         
-        // This is the content that jsPDF's html() method will render
         const pdfContentHTML = `
             <div style="text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1.5rem;">
-                <p>${data.letterHeading}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.5rem;">${data.letterHeadingSindhi}</p>
+                <p>${data.letterHeading.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.5rem;">${data.letterHeadingSindhi.replace(/\n/g, '<br />')}</p>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
                 <span>Ref: ${data.referenceNo}</span>
@@ -293,11 +290,10 @@ export default function CorrespondencePage() {
             type: 'Image' as const
         };
 
-        // Create a temporary, off-screen div to render the letter for canvas capture
         const tempRenderDiv = document.createElement('div');
         tempRenderDiv.style.position = 'absolute';
         tempRenderDiv.style.left = '-9999px';
-        tempRenderDiv.style.width = '800px'; // A reasonable width for rendering
+        tempRenderDiv.style.width = '794px';
         tempRenderDiv.className = "bg-white text-black p-8 font-serif";
         
         tempRenderDiv.innerHTML = `
