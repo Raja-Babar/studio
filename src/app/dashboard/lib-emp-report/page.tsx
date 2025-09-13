@@ -306,10 +306,10 @@ export default function LibEmployeeReportsPage() {
     const handleExportSinglePDF = async (employeeData: { employeeName: string; employeeAvatar?: string; reports: CombinedRecord[]; summary: { byStage: { [key: string]: number } } }) => {
         const { employeeName, employeeAvatar, reports, summary } = employeeData;
         const doc = new jsPDF();
-        let finalY = 20;
+        let finalY = 22;
     
+        doc.setFontSize(14);
         doc.text(`Library Employee Report - ${selectedMonthFormatted}`, 14, 16);
-        finalY = 22;
 
         doc.setFontSize(12);
         doc.text(employeeName, 14, finalY);
@@ -873,3 +873,4 @@ export default function LibEmployeeReportsPage() {
 }
 
     
+
