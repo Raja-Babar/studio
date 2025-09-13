@@ -12,7 +12,6 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type TableRowData = {
     id: number;
@@ -42,7 +41,6 @@ type GeneratedLetter = {
     senderNameSindhi: string;
     senderDesignation: string;
     senderDesignationSindhi: string;
-    bodyType: 'text' | 'table';
     tableRows: TableRowData[];
 };
 
@@ -71,7 +69,6 @@ export default function CorrespondencePage() {
     
     const [generatedLetters, setGeneratedLetters] = useState<GeneratedLetter[]>([]);
     
-    const [bodyType, setBodyType] = useState<'text' | 'table'>('text');
     const [tableRows, setTableRows] = useState<TableRowData[]>([]);
     const [nextTableRowId, setNextTableRowId] = useState(1);
     const [newItems, setNewItems] = useState('');
@@ -117,17 +114,16 @@ export default function CorrespondencePage() {
             senderName, senderNameSindhi, senderDesignation, senderDesignationSindhi,
             date: todayDate,
             id: `LETTER-${Date.now()}`,
-            bodyType,
             tableRows,
         };
 
-        const bodyContent = data.bodyType === 'table' 
-            ? generateTableHTML(data.tableRows)
-            : `<div style="margin-bottom: 1.5rem; white-space: pre-wrap;">
+        const bodyTextContent = data.body ? `
+            <div style="margin-bottom: 1rem; white-space: pre-wrap;">
                 <p>${data.body}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right;" dir="rtl">${data.bodySindhi}</p>
-            </div>`;
-
+            </div>` : '';
+            
+        const tableContent = data.tableRows.length > 0 ? generateTableHTML(data.tableRows) : '';
 
         const tempDiv = document.createElement('div');
         tempDiv.style.width = '595pt'; // A4 width
@@ -154,7 +150,8 @@ export default function CorrespondencePage() {
                 <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline; text-align: right;" dir="rtl">مضمون: ${data.subjectSindhi}</p>
             </div>
-            ${bodyContent}
+            ${bodyTextContent}
+            ${tableContent}
             <div style="margin-top: 2rem;">
                 <p>${data.closing}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.closingSindhi}</p>
@@ -301,37 +298,30 @@ export default function CorrespondencePage() {
                         </div>
                     </div>
                     
-                    <Tabs value={bodyType} onValueChange={(value) => setBodyType(value as 'text' | 'table')}>
-                        <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="text">Text Body</TabsTrigger>
-                            <TabsTrigger value="table">Table Body</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="text">
-                             <div className="grid grid-cols-2 gap-4 pt-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="body">Body Text</Label>
-                                    <Textarea id="body" value={body} onChange={e => setBody(e.target.value)} placeholder="Dear Sir/Madam..." rows={8} />
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="bodySindhi" className="font-sindhi text-lg float-right">خط جو متن</Label>
-                                    <Textarea id="bodySindhi" value={bodySindhi} onChange={e => setBodySindhi(e.target.value)} placeholder="جناب/محترمه..." rows={8} className="font-sindhi" dir="rtl" />
-                                </div>
+                    <div className="space-y-6 pt-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="body">Body Text</Label>
+                                <Textarea id="body" value={body} onChange={e => setBody(e.target.value)} placeholder="Dear Sir/Madam..." rows={8} />
                             </div>
-                        </TabsContent>
-                        <TabsContent value="table">
-                            <div className="space-y-4 pt-4">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Table Content</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                         <div className="grid grid-cols-2 gap-2">
-                                            <Input placeholder="Items" value={newItems} onChange={e => setNewItems(e.target.value)} />
-                                            <Input placeholder="Quantity" value={newQuantity} onChange={e => setNewQuantity(e.target.value)} />
-                                        </div>
-                                        <Button size="sm" className="mt-2" onClick={handleAddTableRow}><PlusCircle className="mr-2 h-4 w-4" /> Add Row</Button>
-                                    </CardContent>
-                                </Card>
+                            <div className="space-y-2">
+                                <Label htmlFor="bodySindhi" className="font-sindhi text-lg float-right">خط جو متن</Label>
+                                <Textarea id="bodySindhi" value={bodySindhi} onChange={e => setBodySindhi(e.target.value)} placeholder="جناب/محترمه..." rows={8} className="font-sindhi" dir="rtl" />
+                            </div>
+                        </div>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Table Content</CardTitle>
+                                <CardDescription>Optionally, add a table to your letter body.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <Input placeholder="Items" value={newItems} onChange={e => setNewItems(e.target.value)} />
+                                    <Input placeholder="Quantity" value={newQuantity} onChange={e => setNewQuantity(e.target.value)} />
+                                </div>
+                                <Button size="sm" className="mt-2" onClick={handleAddTableRow}><PlusCircle className="mr-2 h-4 w-4" /> Add Row</Button>
+                                
                                 <Table>
                                     <TableHeader>
                                         <TableRow>
@@ -356,14 +346,14 @@ export default function CorrespondencePage() {
                                         ))}
                                         {tableRows.length === 0 && (
                                             <TableRow>
-                                                <TableCell colSpan={4} className="text-center">No items added to the table.</TableCell>
+                                                <TableCell colSpan={4} className="text-center text-muted-foreground py-4">No items added to the table.</TableCell>
                                             </TableRow>
                                         )}
                                     </TableBody>
                                 </Table>
-                            </div>
-                        </TabsContent>
-                    </Tabs>
+                            </CardContent>
+                        </Card>
+                    </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -433,12 +423,14 @@ export default function CorrespondencePage() {
                             <p className="font-sindhi text-lg font-bold underline" dir="rtl">مضمون: {subjectSindhi}</p>
                         </div>
                         
-                        {bodyType === 'text' ? (
-                            <div className="mb-6 whitespace-pre-wrap">
+                        {body && (
+                            <div className="mb-4 whitespace-pre-wrap">
                                 <p>{body}</p>
                                 <p className="font-sindhi text-lg mt-2" dir="rtl">{bodySindhi}</p>
                             </div>
-                        ) : (
+                        )}
+
+                        {tableRows.length > 0 && (
                             <div dangerouslySetInnerHTML={{ __html: generateTableHTML(tableRows) }} />
                         )}
 
