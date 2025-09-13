@@ -125,6 +125,8 @@ export default function CorrespondencePage() {
             
         const tableContent = data.tableRows.length > 0 ? generateTableHTML(data.tableRows) : '';
 
+        const sindhiSubjectContent = data.subjectSindhi ? `<p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline; text-align: right;" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : '';
+
         const tempDiv = document.createElement('div');
         tempDiv.style.width = '595pt'; // A4 width
         tempDiv.style.padding = '40pt';
@@ -148,7 +150,7 @@ export default function CorrespondencePage() {
             </div>
             <div style="margin-bottom: 1rem;">
                 <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline; text-align: right;" dir="rtl">مضمون: ${data.subjectSindhi}</p>
+                ${sindhiSubjectContent}
             </div>
             ${bodyTextContent}
             ${tableContent}
@@ -420,7 +422,9 @@ export default function CorrespondencePage() {
                         </div>
                         <div className="mb-4">
                             <p className="font-bold underline">Subject: {subject}</p>
-                            <p className="font-sindhi text-lg font-bold underline" dir="rtl">مضمون: {subjectSindhi}</p>
+                            {subjectSindhi && (
+                                <p className="font-sindhi text-lg font-bold underline" dir="rtl">مضمون: {subjectSindhi}</p>
+                            )}
                         </div>
                         
                         {body && (
