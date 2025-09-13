@@ -143,8 +143,8 @@ export default function CorrespondencePage() {
         tempContainer.style.wordWrap = 'break-word';
         
         const pdfContentHTML = `
-            <div style="text-align: center; margin-bottom: 1rem;">
-                <img src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" style="width: 80px; height: 80px; margin: 0 auto;"/>
+            <div style="text-align: right; margin-bottom: 1rem;">
+                <img src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" style="width: 80px; height: 80px;"/>
             </div>
             <div style="text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1.5rem;">
                 <p>${data.letterHeading.replace(/\n/g, '<br />')}</p>
@@ -569,8 +569,8 @@ export default function CorrespondencePage() {
                 </CardHeader>
                 <CardContent>
                     <div ref={letterPreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg font-serif">
-                        <div className="text-center mb-4">
-                          <img src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" style={{ width: '80px', height: '80px', margin: '0 auto' }} />
+                        <div className="text-right mb-4">
+                          <img src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" style={{ width: '80px', height: '80px' }} />
                         </div>
                         <div className="text-center font-bold text-xl mb-6">
                             <p>{letterHeading.replace(/\n/g, '<br />')}</p>
