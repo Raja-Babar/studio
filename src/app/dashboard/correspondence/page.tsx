@@ -144,8 +144,8 @@ export default function CorrespondencePage() {
                 <span>Date: ${data.date}</span>
             </div>
             <div style="margin-bottom: 1rem;">
-                <p>${data.recipientName}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.recipientNameSindhi}</p>
+                <p style="white-space: pre-wrap;">${data.recipientName}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi}</p>
                 <p>${data.recipientDesignation}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.recipientDesignationSindhi}</p>
                 <p>${data.departmentAddress}</p>
@@ -269,11 +269,11 @@ export default function CorrespondencePage() {
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="recipientName">Recipient Name</Label>
-                            <Input id="recipientName" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="e.g., Dr. John Doe" />
+                            <Textarea id="recipientName" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="e.g., Dr. John Doe" />
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="recipientNameSindhi" className="font-sindhi text-lg float-right">وصول ڪندڙ جو نالو</Label>
-                            <Input id="recipientNameSindhi" value={recipientNameSindhi} onChange={e => setRecipientNameSindhi(e.target.value)} placeholder="مثال طور، ڊاڪٽر جان ڊو" className="font-sindhi" dir="rtl" />
+                            <Textarea id="recipientNameSindhi" value={recipientNameSindhi} onChange={e => setRecipientNameSindhi(e.target.value)} placeholder="مثال طور، ڊاڪٽر جان ڊو" className="font-sindhi" dir="rtl" />
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
@@ -420,8 +420,8 @@ export default function CorrespondencePage() {
                             <span>Date: {todayDate}</span>
                         </div>
                         <div className="mb-4">
-                            <p>{recipientName}</p>
-                            <p className="font-sindhi text-lg">{recipientNameSindhi}</p>
+                            <p className="whitespace-pre-wrap">{recipientName}</p>
+                            <p className="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">{recipientNameSindhi}</p>
                             <p>{recipientDesignation}</p>
                             <p className="font-sindhi text-lg">{recipientDesignationSindhi}</p>
                             <p>{departmentAddress}</p>
