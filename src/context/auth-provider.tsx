@@ -62,6 +62,8 @@ export type ScanningRecord = {
   month: string;
 };
 
+const defaultLogo = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxEPDxEPEA8QDw8PDw8PDw8PDw8PDw8PFREBFiARFRUYHSggGBolGxUVITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OFw8QDisZFRkrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrK//AABEIAOEA4QMBEQACEQEDEQH/xAAcAAEAAwEBAQEBAAAAAAAAAAAABgcFAwQIAgH/xABEEAABAwMCAwUEBwQJAwUAAAABAAIDBAURBhIhBzFBEyJRYXEUMoGRoRUjQlKxwdEWYnLh8PGy0gozQ2OCkqLCF0ST/9f/xAAaAQEAAwEBAQAAAAAAAAAAAAAAAQIDBAUG/8QALhEBAAICAQIDBgYDAAAAAAAAAAECAxEEEiExBUFREyIyYXGBkaGx0ULh8SPx/oADAMBAAIRAxEAPwDcaIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIiAiIgIiICIi-DEK-DEK';
+
 
 type AuthContextType = {
   user: User | null;
@@ -86,6 +88,8 @@ type AuthContextType = {
   requiredIp: string;
   setRequiredIp: (ip: string) => void;
   importScanningRecords: (records: ScanningRecord[]) => void;
+  appLogo: string;
+  updateAppLogo: (logo: string) => void;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -114,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [employeeReports, setEmployeeReports] = useState<EmployeeReport[]>([]);
   const [requiredIp, setRequiredIpState] = useState('');
+  const [appLogo, setAppLogo] = useState(defaultLogo);
 
 
   const router = useRouter();
@@ -166,6 +171,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error: any) {
         throw error;
     }
+  };
+
+  const updateAppLogo = (logo: string) => {
+    setAppLogo(logo);
+    localStorage.setItem('appLogo', logo);
   };
 
 
@@ -249,6 +259,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedIp = localStorage.getItem('requiredIp');
       if (storedIp) {
         setRequiredIpState(storedIp);
+      }
+
+      const storedLogo = localStorage.getItem('appLogo');
+      if (storedLogo) {
+          setAppLogo(storedLogo);
       }
 
       try {
@@ -559,7 +574,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
   
 
-  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, approveUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, requiredIp, setRequiredIp, importScanningRecords };
+  const authContextValue: AuthContextType = { user, login, signup, logout, isLoading, getUsers, importUsers, resetUsers, updateUser, deleteUser, approveUser, attendanceRecords, updateAttendance, updateAttendanceRecord, deleteAttendanceRecord, employeeReports, addEmployeeReport, updateEmployeeReport, deleteEmployeeReport, requiredIp, setRequiredIp, importScanningRecords, appLogo, updateAppLogo };
 
   if (isLoading) {
     return (

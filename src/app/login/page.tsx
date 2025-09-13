@@ -34,7 +34,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, appLogo } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -74,7 +74,7 @@ export default function LoginPage() {
            <div className="bg-primary h-4" />
           <CardHeader className="text-center pt-8">
             <div className="mx-auto">
-              <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
+              <Image src={appLogo} alt="MHPISSJ-Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight mt-4">MHPISSJ-Portal</CardTitle>
             <CardDescription className="text-primary">M.H. Panhwar Institute App</CardDescription>

@@ -15,7 +15,7 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, appLogo } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function DashboardLayout({
         <div className="flex h-full flex-col">
           <div className="flex h-16 shrink-0 items-center gap-2 border-b border-sidebar-border px-4">
             <div className="flex items-center gap-2">
-              <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
+              <Image src={appLogo} alt="MHPISSJ-Portal Logo" width={32} height={32} className="h-8 w-8 rounded-full" />
               <span className="text-lg font-semibold">MHPISSJ-Portal</span>
             </div>
           </div>

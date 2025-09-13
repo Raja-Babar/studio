@@ -41,6 +41,8 @@ type AuthContextType = {
   requiredIp: string;
   setRequiredIp: (ip: string) => void;
   importScanningRecords: (records: ScanningRecord[]) => void;
+  appLogo: string;
+  updateAppLogo: (logo: string) => void;
 };
 
 export const useAuth = (): AuthContextType => {

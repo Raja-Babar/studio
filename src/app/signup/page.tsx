@@ -39,7 +39,7 @@ const formSchema = z.object({
 
 export default function SignupPage() {
   const router = useRouter();
-  const { signup } = useAuth();
+  const { signup, appLogo } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -81,7 +81,7 @@ export default function SignupPage() {
            <div className="bg-primary h-4" />
           <CardHeader className="text-center pt-8">
              <div className="mx-auto">
-                <Image src="https://sindh.org/assets/img/logo1.jpg" alt="Panhwar Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
+                <Image src={appLogo} alt="Panhwar Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
             </div>
             <CardTitle className="text-3xl font-bold tracking-tight mt-4">Create an Account</CardTitle>
             <CardDescription>Enter your details to get started.</CardDescription>
