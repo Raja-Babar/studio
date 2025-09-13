@@ -276,15 +276,13 @@ export default function AutoInvitationPage() {
         </CardHeader>
         <CardContent>
           <form className="space-y-4 max-w-2xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="topic-en">Program Topic</Label>
-                  <Input id="topic-en" type="text" value={programDetails.programTopic} onChange={(e) => handleInputChange('programTopic', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
-                  <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.programTopicSindhi} onChange={(e) => handleInputChange('programTopicSindhi', e.target.value)}/>
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="topic-en">Program Topic</Label>
+              <Input id="topic-en" type="text" value={programDetails.programTopic} onChange={(e) => handleInputChange('programTopic', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
+              <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.programTopicSindhi} onChange={(e) => handleInputChange('programTopicSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -471,5 +469,3 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
-
-    
