@@ -246,15 +246,17 @@ export default function LibEmployeeReportsPage() {
         finalY = 20;
         doc.setPage(doc.internal.getNumberOfPages());
 
+        doc.setFontSize(12);
+        doc.text(employeeName, 14, finalY);
+
         if (employeeAvatar) {
+            const textWidth = doc.getTextWidth(employeeName);
             const imageData = await getBase64Image(employeeAvatar);
             if (imageData) {
-                doc.addImage(imageData, 'PNG', 14, finalY - 4, 10, 10);
+                doc.addImage(imageData, 'PNG', 14 + textWidth + 2, finalY - 4, 10, 10);
             }
         }
         
-        doc.setFontSize(12);
-        doc.text(employeeName, 26, finalY);
         finalY += 10;
 
         // Submitted Reports Table
@@ -308,16 +310,18 @@ export default function LibEmployeeReportsPage() {
     
         doc.text(`Library Employee Report - ${selectedMonthFormatted}`, 14, 16);
         finalY = 22;
+
+        doc.setFontSize(12);
+        doc.text(employeeName, 14, finalY);
         
         if (employeeAvatar) {
+            const textWidth = doc.getTextWidth(employeeName);
             const imageData = await getBase64Image(employeeAvatar);
             if (imageData) {
-                doc.addImage(imageData, 'PNG', 14, finalY - 4, 10, 10);
+                doc.addImage(imageData, 'PNG', 14 + textWidth + 2, finalY - 4, 10, 10);
             }
         }
         
-        doc.setFontSize(12);
-        doc.text(employeeName, 26, finalY);
         finalY += 10;
 
         // Submitted Reports Table
