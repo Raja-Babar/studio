@@ -28,43 +28,43 @@ export default function AutoInvitationPage() {
         <CardContent>
           <form className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="topic-en">Program Topic:</Label>
+              <Label htmlFor="topic-en">Program Topic</Label>
               <Input id="topic-en" type="text" />
             </div>
              <div className="space-y-2">
-              <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع:</Label>
+              <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
               <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="date-en">Program Date:</Label>
+              <Label htmlFor="date-en">Program Date</Label>
               <Input id="date-en" type="date" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="date-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جي تاريخ:</Label>
+                <Label htmlFor="date-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جي تاريخ</Label>
                 <Input id="date-sd" type="date" className="font-sindhi text-lg" dir="ltr" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="time-en">Program Time:</Label>
+              <Label htmlFor="time-en">Program Time</Label>
               <Input id="time-en" type="time" />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="time-sd" className="font-sindhi text-lg text-right w-full block">ٿيندڙ پروگرام جو وقت:</Label>
+                <Label htmlFor="time-sd" className="font-sindhi text-lg text-right w-full block">ٿيندڙ پروگرام جو وقت</Label>
                 <Input id="time-sd" type="time" className="font-sindhi text-lg"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address-en">Address:</Label>
+              <Label htmlFor="address-en">Address</Label>
               <Textarea id="address-en" />
             </div>
              <div className="space-y-2">
-              <Label htmlFor="address-sd" className="font-sindhi text-lg text-right w-full block">پتو:</Label>
+              <Label htmlFor="address-sd" className="font-sindhi text-lg text-right w-full block">پتو</Label>
               <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="organizer-en">Organizer / Institute Name:</Label>
+              <Label htmlFor="organizer-en">Organizer / Institute Name</Label>
               <Input id="organizer-en" type="text" />
             </div>
              <div className="space-y-2">
-                <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ / اداري جو نالو:</Label>
+                <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ / اداري جو نالو</Label>
                 <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl"/>
             </div>
           </form>
