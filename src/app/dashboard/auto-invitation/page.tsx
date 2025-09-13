@@ -18,46 +18,44 @@ export default function AutoInvitationPage() {
           <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
         </CardHeader>
         <CardContent>
-          <form className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* English Form */}
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="organizer-en">Organizer / Institute Name:</Label>
-                  <Input id="organizer-en" type="text" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="topic-en">Program Topic:</Label>
-                  <Input id="topic-en" type="text" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date-en">Program Date:</Label>
-                  <Input id="date-en" type="date" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="time-en">Program Time:</Label>
-                  <Input id="time-en" type="time" />
-                </div>
+          <form className="space-y-8">
+            {/* English Form */}
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="organizer-en">Organizer / Institute Name:</Label>
+                <Input id="organizer-en" type="text" />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="topic-en">Program Topic:</Label>
+                <Input id="topic-en" type="text" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date-en">Program Date:</Label>
+                <Input id="date-en" type="date" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="time-en">Program Time:</Label>
+                <Input id="time-en" type="time" />
+              </div>
+            </div>
 
-              {/* Sindhi Form */}
-              <div className="space-y-4" dir="rtl">
-                <div className="space-y-2">
-                  <Label htmlFor="organizer-sd" className="font-sindhi text-lg">پروگرام ڪندڙ / اداري جو نالو:</Label>
-                  <Input id="organizer-sd" type="text" className="font-sindhi text-lg"/>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="topic-sd" className="font-sindhi text-lg">پروگرام جو موضوع:</Label>
-                  <Input id="topic-sd" type="text" className="font-sindhi text-lg"/>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="date-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جي تاريخ:</Label>
-                  <Input id="date-sd" type="date" className="font-sindhi text-lg"/>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="time-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جو وقت:</Label>
-                  <Input id="time-sd" type="time" className="font-sindhi text-lg"/>
-                </div>
+            {/* Sindhi Form */}
+            <div className="space-y-4" dir="rtl">
+              <div className="space-y-2">
+                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">پروگرام ڪندڙ / اداري جو نالو:</Label>
+                <Input id="organizer-sd" type="text" className="font-sindhi text-lg"/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="topic-sd" className="font-sindhi text-lg">پروگرام جو موضوع:</Label>
+                <Input id="topic-sd" type="text" className="font-sindhi text-lg"/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جي تاريخ:</Label>
+                <Input id="date-sd" type="date" className="font-sindhi text-lg"/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="time-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جو وقت:</Label>
+                <Input id="time-sd" type="time" className="font-sindhi text-lg"/>
               </div>
             </div>
           </form>
