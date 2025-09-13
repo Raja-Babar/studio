@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -10,9 +9,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { PlusCircle, Trash2, Download } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { sendWhatsAppInvitations } from './actions';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 type Contact = {
   id: number;
@@ -189,6 +190,76 @@ export default function AutoInvitationPage() {
 
   };
 
+  const generateProgramPDF = (program: ProgramRecord) => {
+    const doc = new jsPDF();
+    
+    // Add Sindhi font
+    doc.addFont('/MB-Lateefi.ttf', 'MB Lateefi', 'normal');
+
+    // Add Logo
+    const img = new window.Image();
+    img.src = appLogo;
+    img.onload = () => {
+        doc.addImage(img, 'PNG', 95, 10, 20, 20);
+
+        // Titles
+        doc.setFontSize(16);
+        doc.text("M.H. Panhwar Institute of Sindh Studies, Jamshoro", doc.internal.pageSize.getWidth() / 2, 40, { align: 'center' });
+        
+        doc.setFont('MB Lateefi');
+        doc.setFontSize(20);
+        doc.text("ايم. ايڇ. پنھور انسٽيٽيوٽ آف سنڌ اسٽڊيز، ڄامشورو", doc.internal.pageSize.getWidth() / 2, 50, { align: 'center' });
+
+        doc.setFont('helvetica');
+        doc.setFontSize(12);
+        doc.text("Information about the Program to be held in the Institute", doc.internal.pageSize.getWidth() / 2, 60, { align: 'center' });
+        
+        doc.setFont('MB Lateefi');
+        doc.setFontSize(14);
+        doc.text("اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ", doc.internal.pageSize.getWidth() / 2, 70, { align: 'center' });
+
+
+        // Program Details Table
+        const body = [
+            ['Program Topic', program.programTopic],
+            ['پروگرام جو موضوع', program.programTopicSindhi],
+            ['Program Date', program.programDate],
+            ['پروگرام جي تاريخ', program.programDateSindhi],
+            ['Program Time', program.programTime],
+            ['ٿيندڙ پروگرام جو وقت', program.programTimeSindhi],
+            ['Address', program.address],
+            ['پتو', program.addressSindhi],
+            ['Organizer', program.organizer],
+            ['پروگرام ڪندڙ', program.organizerSindhi],
+            ['Phone No', program.phone],
+            ['فون نمبر', program.phoneSindhi],
+            ['Email', program.email],
+            ['اي ميل', program.emailSindhi],
+        ];
+
+        (doc as any).autoTable({
+            startY: 80,
+            head: [['Description', 'Details']],
+            body: body,
+            theme: 'grid',
+            didParseCell: function(data: any) {
+                if (/[\u0600-\u06FF]/.test(data.cell.raw as string)) {
+                    data.cell.styles.font = 'MB Lateefi';
+                    data.cell.styles.fontSize = 14;
+                    data.cell.styles.halign = 'right';
+                }
+            }
+        });
+        
+        doc.save(`program_invitation_${program.id}.pdf`);
+    };
+    
+    img.onerror = () => {
+        toast({ variant: 'destructive', title: 'PDF Error', description: 'Failed to load logo for PDF.' });
+    };
+
+  };
+
 
   return (
     <div className="space-y-6">
@@ -281,6 +352,7 @@ export default function AutoInvitationPage() {
                     <TableHead>Program Topic</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Time</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -290,11 +362,17 @@ export default function AutoInvitationPage() {
                         <TableCell className="font-medium">{program.programTopic}</TableCell>
                         <TableCell>{program.programDate}</TableCell>
                         <TableCell>{program.programTime}</TableCell>
+                        <TableCell className="text-right">
+                            <Button variant="outline" size="sm" onClick={() => generateProgramPDF(program)}>
+                                <Download className="mr-2 h-4 w-4" />
+                                Download PDF
+                            </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3} className="h-24 text-center">
+                      <TableCell colSpan={4} className="h-24 text-center">
                         No program records found.
                       </TableCell>
                     </TableRow>
