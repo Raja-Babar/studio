@@ -1,9 +1,247 @@
 
+'use client';
+
+import { useState, useRef } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Printer, FileDown } from 'lucide-react';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable'; // For tables if needed, but good to have.
+import { useToast } from '@/hooks/use-toast';
+
+
 export default function CorrespondencePage() {
+    const { toast } = useToast();
+    const [letterHeading, setLetterHeading] = useState('');
+    const [recipientName, setRecipientName] = useState('');
+    const [recipientDesignation, setRecipientDesignation] = useState('');
+    const [departmentAddress, setDepartmentAddress] = useState('');
+    const [subject, setSubject] = useState('');
+    const [body, setBody] = useState('');
+    const [closing, setClosing] = useState('');
+    const [senderName, setSenderName] = useState('');
+    const [senderDesignation, setSenderDesignation] = useState('');
+
+    const [letterHeadingSindhi, setLetterHeadingSindhi] = useState('');
+    const [recipientNameSindhi, setRecipientNameSindhi] = useState('');
+    const [recipientDesignationSindhi, setRecipientDesignationSindhi] = useState('');
+    const [departmentAddressSindhi, setDepartmentAddressSindhi] = useState('');
+    const [subjectSindhi, setSubjectSindhi] = useState('');
+    const [bodySindhi, setBodySindhi] = useState('');
+    const [closingSindhi, setClosingSindhi] = useState('');
+    const [senderNameSindhi, setSenderNameSindhi] = useState('');
+    const [senderDesignationSindhi, setSenderDesignationSindhi] = useState('');
+
+    const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const letterPreviewRef = useRef<HTMLDivElement>(null);
+    
+    const generatePDF = () => {
+        if (!letterPreviewRef.current) {
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Could not generate PDF. Preview is not available.',
+            });
+            return;
+        }
+
+        const doc = new jsPDF({
+            orientation: 'p',
+            unit: 'pt',
+            format: 'a4',
+        });
+
+        doc.html(letterPreviewRef.current, {
+            callback: function (doc) {
+                doc.save(`Official_Letter_${recipientName.replace(/\s+/g, '_') || 'Generated'}.pdf`);
+                toast({
+                    title: 'PDF Exported',
+                    description: 'The letter has been successfully exported as a PDF.',
+                });
+            },
+            x: 15,
+            y: 15,
+            width: 565, // A4 width in points minus margins
+            windowWidth: letterPreviewRef.current.scrollWidth
+        });
+    };
+
+    const printLetter = () => {
+        const printContent = letterPreviewRef.current?.innerHTML;
+        const printWindow = window.open('', '', 'height=800,width=800');
+        if (printWindow) {
+            printWindow.document.write('<html><head><title>Print Letter</title>');
+            printWindow.document.write('<style> body { font-family: sans-serif; } .sindhi { font-family: "MB Lateefi", sans-serif; direction: rtl; text-align: right; } </style>');
+            printWindow.document.write('</head><body >');
+            printWindow.document.write(printContent || '');
+            printWindow.document.write('</body></html>');
+            printWindow.document.close();
+            printWindow.print();
+        }
+    };
+
+
   return (
-    <div>
-      <h1 className="text-3xl font-bold tracking-tight">Correspondence with Government Officials</h1>
-      <p className="text-muted-foreground mt-2">Manage correspondence records.</p>
+    <div className="space-y-6">
+        <div>
+            <h1 className="text-3xl font-bold tracking-tight">Correspondence with Government Officials</h1>
+            <p className="text-muted-foreground mt-2">Create and manage official correspondence.</p>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8">
+            {/* Form Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Compose Letter</CardTitle>
+                    <CardDescription>Fill in the details to generate an official letter.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="letterHeading">Letter Heading / Title</Label>
+                            <Input id="letterHeading" value={letterHeading} onChange={e => setLetterHeading(e.target.value)} placeholder="e.g., OFFICIAL COMMUNIQUE" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="letterHeadingSindhi" className="font-sindhi text-lg float-right">خط جي عنوان</Label>
+                            <Input id="letterHeadingSindhi" value={letterHeadingSindhi} onChange={e => setLetterHeadingSindhi(e.target.value)} placeholder="مثال طور، سرڪاري پڌرائي" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="recipientName">Recipient Name</Label>
+                            <Input id="recipientName" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="e.g., Dr. John Doe" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="recipientNameSindhi" className="font-sindhi text-lg float-right">وصول ڪندڙ جو نالو</Label>
+                            <Input id="recipientNameSindhi" value={recipientNameSindhi} onChange={e => setRecipientNameSindhi(e.target.value)} placeholder="مثال طور، ڊاڪٽر جان ڊو" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="recipientDesignation">Recipient's Designation</Label>
+                            <Input id="recipientDesignation" value={recipientDesignation} onChange={e => setRecipientDesignation(e.target.value)} placeholder="e.g., Director General" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="recipientDesignationSindhi" className="font-sindhi text-lg float-right">عھدو</Label>
+                            <Input id="recipientDesignationSindhi" value={recipientDesignationSindhi} onChange={e => setRecipientDesignationSindhi(e.target.value)} placeholder="مثال طور، ڊائريڪٽر جنرل" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="departmentAddress">Department / Office Address</Label>
+                            <Textarea id="departmentAddress" value={departmentAddress} onChange={e => setDepartmentAddress(e.target.value)} placeholder="e.g., Department of Archives, Karachi" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="departmentAddressSindhi" className="font-sindhi text-lg float-right">کاتو / آفيس جو پتو</Label>
+                            <Textarea id="departmentAddressSindhi" value={departmentAddressSindhi} onChange={e => setDepartmentAddressSindhi(e.target.value)} placeholder="مثال طور، آرڪائيو کاتو، ڪراچي" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="subject">Subject Line</Label>
+                            <Input id="subject" value={subject} onChange={e => setSubject(e.target.value)} placeholder="Request for Archival Access" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="subjectSindhi" className="font-sindhi text-lg float-right">مضمون</Label>
+                            <Input id="subjectSindhi" value={subjectSindhi} onChange={e => setSubjectSindhi(e.target.value)} placeholder="آرڪائيو رسائي جي درخواست" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="body">Body Text</Label>
+                            <Textarea id="body" value={body} onChange={e => setBody(e.target.value)} placeholder="Dear Sir/Madam..." rows={8} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="bodySindhi" className="font-sindhi text-lg float-right">خط جو متن</Label>
+                            <Textarea id="bodySindhi" value={bodySindhi} onChange={e => setBodySindhi(e.target.value)} placeholder="جناب/محترمه..." rows={8} className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="closing">Closing/Regards</Label>
+                            <Input id="closing" value={closing} onChange={e => setClosing(e.target.value)} placeholder="Sincerely" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="closingSindhi" className="font-sindhi text-lg float-right">نيڪ تمنائون</Label>
+                            <Input id="closingSindhi" value={closingSindhi} onChange={e => setClosingSindhi(e.target.value)} placeholder="مخلص" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="senderName">Sender Name</Label>
+                            <Input id="senderName" value={senderName} onChange={e => setSenderName(e.target.value)} placeholder="e.g., M.H. Panhwar" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="senderNameSindhi" className="font-sindhi text-lg float-right">موڪليندڙ جو نالو</Label>
+                            <Input id="senderNameSindhi" value={senderNameSindhi} onChange={e => setSenderNameSindhi(e.target.value)} placeholder="مثال طور، ايم ايڇ پنهور" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="senderDesignation">Sender's Designation</Label>
+                            <Input id="senderDesignation" value={senderDesignation} onChange={e => setSenderDesignation(e.target.value)} placeholder="e.g., Chairman" />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="senderDesignationSindhi" className="font-sindhi text-lg float-right">موڪليندڙ جو عھدو</Label>
+                            <Input id="senderDesignationSindhi" value={senderDesignationSindhi} onChange={e => setSenderDesignationSindhi(e.target.value)} placeholder="مثال طور، چيئرمين" className="font-sindhi" dir="rtl" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Preview Section */}
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>Letter Preview</CardTitle>
+                        <CardDescription>This is how your letter will look.</CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={printLetter}><Printer className="mr-2 h-4 w-4" /> Print</Button>
+                        <Button size="sm" onClick={generatePDF}><FileDown className="mr-2 h-4 w-4" /> Export PDF</Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div ref={letterPreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg font-serif">
+                        <div className="text-center font-bold text-xl mb-6">
+                            <p>{letterHeading}</p>
+                            <p className="font-sindhi text-2xl">{letterHeadingSindhi}</p>
+                        </div>
+                        <div className="flex justify-between mb-6">
+                            <span>No: MHPRI/</span>
+                            <span>Date: {todayDate}</span>
+                        </div>
+                        <div className="mb-4">
+                            <p>{recipientName}</p>
+                            <p className="font-sindhi text-lg">{recipientNameSindhi}</p>
+                            <p>{recipientDesignation}</p>
+                            <p className="font-sindhi text-lg">{recipientDesignationSindhi}</p>
+                            <p>{departmentAddress}</p>
+                            <p className="font-sindhi text-lg">{departmentAddressSindhi}</p>
+                        </div>
+                        <div className="mb-4">
+                            <p className="font-bold underline">Subject: {subject}</p>
+                            <p className="font-sindhi text-lg font-bold underline" dir="rtl">مضمون: {subjectSindhi}</p>
+                        </div>
+                        <div className="mb-6 whitespace-pre-wrap">
+                            <p>{body}</p>
+                            <p className="font-sindhi text-lg mt-2" dir="rtl">{bodySindhi}</p>
+                        </div>
+                        <div className="mt-8">
+                            <p>{closing}</p>
+                            <p className="font-sindhi text-lg">{closingSindhi}</p>
+                            <p className="mt-4">{senderName}</p>
+                            <p className="font-sindhi text-lg">{senderNameSindhi}</p>
+                            <p>{senderDesignation}</p>
+                            <p className="font-sindhi text-lg">{senderDesignationSindhi}</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     </div>
   );
 }
