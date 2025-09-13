@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 
 export default function AutoInvitationPage() {
     const [date, setDate] = useState<Date | undefined>(new Date());
@@ -42,6 +43,10 @@ export default function AutoInvitationPage() {
                 <Input id="topic-en" type="text" />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="date-en">Program Date:</Label>
+                <Input id="date-en" type="text" value={date ? format(date, 'PPP') : ''} readOnly />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="time-en">Program Time:</Label>
                 <Input id="time-en" type="time" />
               </div>
@@ -60,6 +65,10 @@ export default function AutoInvitationPage() {
               <div className="space-y-2">
                 <Label htmlFor="topic-sd" className="font-sindhi text-lg">پروگرام جو موضوع:</Label>
                 <Input id="topic-sd" type="text" className="font-sindhi text-lg"/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date-sd" className="font-sindhi text-lg">پروگرام جي تاريخ:</Label>
+                <Input id="date-sd" type="text" value={date ? format(date, 'PPP') : ''} readOnly className="font-sindhi text-lg" dir="ltr" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="time-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جو وقت:</Label>
