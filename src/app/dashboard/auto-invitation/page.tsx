@@ -300,13 +300,6 @@ export default function AutoInvitationPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="address-en">Address</Label>
-                <Label htmlFor="address-sd" className="font-sindhi text-lg">پتو</Label>
-              </div>
-              <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} dir="auto" />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
                 <Label htmlFor="organizer-en">Organizer</Label>
                 <Label htmlFor="organizer-sd" className="font-sindhi text-lg">منتظم</Label>
               </div>
@@ -325,6 +318,13 @@ export default function AutoInvitationPage() {
                   <Label htmlFor="email-sd" className="font-sindhi text-lg">اي ميل</Label>
               </div>
               <Input id="email-en" type="email" value={programDetails.email} onChange={(e) => handleInputChange('email', e.target.value)} />
+            </div>
+             <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="address-en">Address</Label>
+                <Label htmlFor="address-sd" className="font-sindhi text-lg">پتو</Label>
+              </div>
+              <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} dir="auto" />
             </div>
           </form>
         </CardContent>
