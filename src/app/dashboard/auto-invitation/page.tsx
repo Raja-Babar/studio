@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -277,7 +276,10 @@ export default function AutoInvitationPage() {
         <CardContent>
           <form className="space-y-4 max-w-2xl mx-auto">
             <div className="space-y-2">
-              <Label htmlFor="topic-en">Program Topic</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="topic-en">Program Topic</Label>
+                <Label htmlFor="topic-sd" className="font-sindhi text-lg">پروگرام جو موضوع</Label>
+              </div>
               <Input id="topic-en" type="text" value={programDetails.programTopic} onChange={(e) => handleInputChange('programTopic', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
