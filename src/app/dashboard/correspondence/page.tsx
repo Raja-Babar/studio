@@ -7,10 +7,34 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Printer, FileDown } from 'lucide-react';
+import { Printer, FileDown, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable'; // For tables if needed, but good to have.
 import { useToast } from '@/hooks/use-toast';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+type GeneratedLetter = {
+    id: string;
+    recipientName: string;
+    subject: string;
+    date: string;
+    letterHeading: string;
+    letterHeadingSindhi: string;
+    recipientNameSindhi: string;
+    recipientDesignation: string;
+    recipientDesignationSindhi: string;
+    departmentAddress: string;
+    departmentAddressSindhi: string;
+    subjectSindhi: string;
+    body: string;
+    bodySindhi: string;
+    closing: string;
+    closingSindhi: string;
+    senderName: string;
+    senderNameSindhi: string;
+    senderDesignation: string;
+    senderDesignationSindhi: string;
+};
 
 
 export default function CorrespondencePage() {
@@ -34,38 +58,103 @@ export default function CorrespondencePage() {
     const [closingSindhi, setClosingSindhi] = useState('');
     const [senderNameSindhi, setSenderNameSindhi] = useState('');
     const [senderDesignationSindhi, setSenderDesignationSindhi] = useState('');
+    
+    const [generatedLetters, setGeneratedLetters] = useState<GeneratedLetter[]>([]);
 
     const todayDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     const letterPreviewRef = useRef<HTMLDivElement>(null);
     
-    const generatePDF = () => {
-        if (!letterPreviewRef.current) {
-            toast({
-                variant: 'destructive',
-                title: 'Error',
-                description: 'Could not generate PDF. Preview is not available.',
-            });
-            return;
-        }
-
+    const generatePDF = (letterData: GeneratedLetter | null = null, silent = false) => {
         const doc = new jsPDF({
             orientation: 'p',
             unit: 'pt',
             format: 'a4',
         });
+        
+        const data = letterData || {
+            letterHeading, letterHeadingSindhi, recipientName, recipientNameSindhi,
+            recipientDesignation, recipientDesignationSindhi, departmentAddress, departmentAddressSindhi,
+            subject, subjectSindhi, body, bodySindhi, closing, closingSindhi,
+            senderName, senderNameSindhi, senderDesignation, senderDesignationSindhi,
+            date: todayDate,
+            id: `LETTER-${Date.now()}`
+        };
 
-        doc.html(letterPreviewRef.current, {
+        const tempDiv = document.createElement('div');
+        tempDiv.style.width = '595pt'; // A4 width
+        tempDiv.style.padding = '40pt';
+        tempDiv.style.fontFamily = 'serif';
+        tempDiv.innerHTML = `
+            <div style="text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1.5rem;">
+                <p>${data.letterHeading}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.5rem;">${data.letterHeadingSindhi}</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+                <span>No: MHPRI/</span>
+                <span>Date: ${data.date}</span>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <p>${data.recipientName}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.recipientNameSindhi}</p>
+                <p>${data.recipientDesignation}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.recipientDesignationSindhi}</p>
+                <p>${data.departmentAddress}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.departmentAddressSindhi}</p>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline; text-align: right;" dir="rtl">مضمون: ${data.subjectSindhi}</p>
+            </div>
+            <div style="margin-bottom: 1.5rem; white-space: pre-wrap;">
+                <p>${data.body}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right;" dir="rtl">${data.bodySindhi}</p>
+            </div>
+            <div style="margin-top: 2rem;">
+                <p>${data.closing}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.closingSindhi}</p>
+                <p style="margin-top: 1rem;">${data.senderName}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderNameSindhi}</p>
+                <p>${data.senderDesignation}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderDesignationSindhi}</p>
+            </div>
+        `;
+        document.body.appendChild(tempDiv);
+        
+        doc.html(tempDiv, {
             callback: function (doc) {
-                doc.save(`Official_Letter_${recipientName.replace(/\s+/g, '_') || 'Generated'}.pdf`);
-                toast({
-                    title: 'PDF Exported',
-                    description: 'The letter has been successfully exported as a PDF.',
-                });
+                if (!silent) {
+                    doc.save(`Official_Letter_${(data.recipientName || 'Generated').replace(/\s+/g, '_')}.pdf`);
+                }
+                
+                if (!letterData) { // Only add to history if it's a new letter
+                    setGeneratedLetters(prev => [data, ...prev]);
+                    toast({
+                        title: 'Letter Saved & Exported',
+                        description: 'The letter has been saved to history and exported as a PDF.',
+                    });
+                } else if (!silent) {
+                    toast({
+                        title: 'PDF Exported',
+                        description: 'The historical letter has been exported as a PDF.',
+                    });
+                }
+                 document.body.removeChild(tempDiv);
             },
-            x: 15,
-            y: 15,
-            width: 565, // A4 width in points minus margins
-            windowWidth: letterPreviewRef.current.scrollWidth
+            x: 0,
+            y: 0,
+            width: 595,
+            windowWidth: tempDiv.scrollWidth,
+            html2canvas: {
+                scale: 0.75
+            }
+        });
+    };
+
+    const handleDeleteLetter = (id: string) => {
+        setGeneratedLetters(prev => prev.filter(letter => letter.id !== id));
+        toast({
+            title: 'Letter Deleted',
+            description: 'The letter has been removed from the history.',
         });
     };
 
@@ -201,7 +290,7 @@ export default function CorrespondencePage() {
                     </div>
                     <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={printLetter}><Printer className="mr-2 h-4 w-4" /> Print</Button>
-                        <Button size="sm" onClick={generatePDF}><FileDown className="mr-2 h-4 w-4" /> Export PDF</Button>
+                        <Button size="sm" onClick={() => generatePDF()}><FileDown className="mr-2 h-4 w-4" /> Export & Save</Button>
                     </div>
                 </CardHeader>
                 <CardContent>
@@ -242,6 +331,52 @@ export default function CorrespondencePage() {
                 </CardContent>
             </Card>
         </div>
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Generated Letters History</CardTitle>
+                <CardDescription>A record of all previously generated and saved letters.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Recipient</TableHead>
+                            <TableHead>Subject</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {generatedLetters.length > 0 ? (
+                            generatedLetters.map((letter) => (
+                                <TableRow key={letter.id}>
+                                    <TableCell>{letter.date}</TableCell>
+                                    <TableCell className="font-medium">{letter.recipientName}</TableCell>
+                                    <TableCell>{letter.subject}</TableCell>
+                                    <TableCell className="text-right">
+                                        <Button variant="ghost" size="sm" onClick={() => generatePDF(letter)}>
+                                            <Download className="mr-2 h-4 w-4" />
+                                            Download
+                                        </Button>
+                                        <Button variant="ghost" size="icon" onClick={() => handleDeleteLetter(letter.id)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                            <span className="sr-only">Delete</span>
+                                        </Button>
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={4} className="h-24 text-center">
+                                    No letters have been generated yet.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </CardContent>
+        </Card>
     </div>
   );
 }
