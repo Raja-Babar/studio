@@ -264,7 +264,7 @@ export default function AutoInvitationPage() {
           <div className="mx-auto">
               <Image src={appLogo} alt="MHPISSJ-Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
           </div>
-          <div className="flex flex-col items-center justify-center gap-2">
+          <div className="flex flex-col items-center justify-center">
             <h1 className="font-bold text-2xl">M.H. Panhwar Institute of Sindh Studies, Jamshoro</h1>
             <CardTitle className="font-sindhi text-3xl">ايم. ايڇ. پنھور انسٽيٽيوٽ آف سنڌ اسٽڊيز، ڄامشورو</CardTitle>
           </div>
@@ -299,11 +299,17 @@ export default function AutoInvitationPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address-en">Address (English / Sindhi)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="address-en">Address</Label>
+                <Label htmlFor="address-sd" className="font-sindhi text-lg">پتو</Label>
+              </div>
               <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="organizer-en">Organizer (English / Sindhi)</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="organizer-en">Organizer</Label>
+                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">منتظم</Label>
+              </div>
               <Input id="organizer-en" type="text" value={programDetails.organizer} onChange={(e) => handleInputChange('organizer', e.target.value)} dir="auto" />
             </div>
             <div className="space-y-2">
