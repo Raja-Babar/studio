@@ -74,7 +74,6 @@ export default function CorrespondencePage() {
     const [bodyType, setBodyType] = useState<'text' | 'table'>('text');
     const [tableRows, setTableRows] = useState<TableRowData[]>([]);
     const [nextTableRowId, setNextTableRowId] = useState(1);
-    const [newSno, setNewSno] = useState('');
     const [newItems, setNewItems] = useState('');
     const [newQuantity, setNewQuantity] = useState('');
 
@@ -220,13 +219,13 @@ export default function CorrespondencePage() {
     };
     
     const handleAddTableRow = () => {
-        if (!newSno || !newItems || !newQuantity) {
+        if (!newItems || !newQuantity) {
             toast({ variant: 'destructive', title: 'Missing Fields', description: 'Please fill all fields for the table row.' });
             return;
         }
+        const newSno = (tableRows.length + 1).toString();
         setTableRows(prev => [...prev, { id: nextTableRowId, sno: newSno, items: newItems, quantity: newQuantity }]);
         setNextTableRowId(prev => prev + 1);
-        setNewSno('');
         setNewItems('');
         setNewQuantity('');
     };
@@ -326,8 +325,7 @@ export default function CorrespondencePage() {
                                         <CardTitle>Table Content</CardTitle>
                                     </CardHeader>
                                     <CardContent>
-                                         <div className="grid grid-cols-3 gap-2">
-                                            <Input placeholder="S.No" value={newSno} onChange={e => setNewSno(e.target.value)} />
+                                         <div className="grid grid-cols-2 gap-2">
                                             <Input placeholder="Items" value={newItems} onChange={e => setNewItems(e.target.value)} />
                                             <Input placeholder="Quantity" value={newQuantity} onChange={e => setNewQuantity(e.target.value)} />
                                         </div>
