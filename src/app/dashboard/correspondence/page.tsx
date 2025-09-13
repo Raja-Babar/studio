@@ -122,12 +122,6 @@ export default function CorrespondencePage() {
             id: `LETTER-${Date.now()}`,
             tableRows,
         };
-
-        const bodyTextContent = data.body ? `
-            <div style="margin-bottom: 1rem;">
-                <p style="white-space: pre-wrap;">${data.body}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi}</p>
-            </div>` : '';
             
         const tableContent = data.tableRows.length > 0 ? generateTableHTML(data.tableRows) : '';
 
@@ -148,12 +142,12 @@ export default function CorrespondencePage() {
             </div>
             <div style="margin-bottom: 1rem;">
                 <p>${data.recipientPrefix},</p>
-                <p>${data.recipientName}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;" dir="rtl">${data.recipientNameSindhi}</p>
-                <p style="margin-top: 0.5rem;">${data.recipientDesignation}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.recipientDesignationSindhi}</p>
-                <p style="margin-top: 0.5rem;">${data.departmentAddress}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.departmentAddressSindhi}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientName}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientDesignation}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.recipientDesignationSindhi}</p>
+                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.departmentAddress}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.departmentAddressSindhi}</p>
             </div>
             <div style="margin-bottom: 1rem;">
                 <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
@@ -287,21 +281,21 @@ export default function CorrespondencePage() {
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="recipientName">Recipient Name</Label>
-                            <Input id="recipientName" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="e.g., Dr. John Doe" />
+                            <Textarea id="recipientName" value={recipientName} onChange={e => setRecipientName(e.target.value)} placeholder="e.g., Dr. John Doe" />
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="recipientNameSindhi" className="font-sindhi text-lg float-right">وصول ڪندڙ جو نالو</Label>
-                            <Input id="recipientNameSindhi" value={recipientNameSindhi} onChange={e => setRecipientNameSindhi(e.target.value)} placeholder="مثال طور، ڊاڪٽر جان ڊو" className="font-sindhi" dir="rtl" />
+                            <Textarea id="recipientNameSindhi" value={recipientNameSindhi} onChange={e => setRecipientNameSindhi(e.target.value)} placeholder="مثال طور، ڊاڪٽر جان ڊو" className="font-sindhi" dir="rtl" />
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="recipientDesignation">Recipient's Designation</Label>
-                            <Input id="recipientDesignation" value={recipientDesignation} onChange={e => setRecipientDesignation(e.target.value)} placeholder="e.g., Director General" />
+                            <Textarea id="recipientDesignation" value={recipientDesignation} onChange={e => setRecipientDesignation(e.target.value)} placeholder="e.g., Director General" />
                         </div>
                          <div className="space-y-2">
                             <Label htmlFor="recipientDesignationSindhi" className="font-sindhi text-lg float-right">عھدو</Label>
-                            <Input id="recipientDesignationSindhi" value={recipientDesignationSindhi} onChange={e => setRecipientDesignationSindhi(e.target.value)} placeholder="مثال طور، ڊائريڪٽر جنرل" className="font-sindhi" dir="rtl" />
+                            <Textarea id="recipientDesignationSindhi" value={recipientDesignationSindhi} onChange={e => setRecipientDesignationSindhi(e.target.value)} placeholder="مثال طور، ڊائريڪٽر جنرل" className="font-sindhi" dir="rtl" />
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
@@ -439,12 +433,12 @@ export default function CorrespondencePage() {
                         </div>
                         <div className="mb-4">
                             <p>{recipientPrefix},</p>
-                            <p>{recipientName}</p>
-                            <p className="font-sindhi text-lg" dir="rtl">{recipientNameSindhi}</p>
-                            <p className="mt-2">{recipientDesignation}</p>
-                            <p className="font-sindhi text-lg">{recipientDesignationSindhi}</p>
-                            <p className="mt-2">{departmentAddress}</p>
-                            <p className="font-sindhi text-lg">{departmentAddressSindhi}</p>
+                            <p className="mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: recipientName.replace(/\n/g, '<br />') }} />
+                            <p className="font-sindhi text-lg whitespace-pre-wrap" dir="rtl" dangerouslySetInnerHTML={{ __html: recipientNameSindhi.replace(/\n/g, '<br />') }} />
+                            <p className="mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: recipientDesignation.replace(/\n/g, '<br />') }} />
+                            <p className="font-sindhi text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: recipientDesignationSindhi.replace(/\n/g, '<br />') }} />
+                            <p className="mt-2 whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: departmentAddress.replace(/\n/g, '<br />') }} />
+                            <p className="font-sindhi text-lg whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: departmentAddressSindhi.replace(/\n/g, '<br />') }} />
                         </div>
                         <div className="mb-4">
                             <p className="font-bold underline">Subject: {subject}</p>
