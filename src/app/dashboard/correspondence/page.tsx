@@ -26,6 +26,7 @@ type TableRowData = {
 
 type GeneratedLetter = {
     id: string;
+    type: 'PDF' | 'Image';
     recipientPrefix: string;
     recipientName: string;
     subject: string;
@@ -124,6 +125,7 @@ export default function CorrespondencePage() {
             date: todayDate,
             id: `LETTER-${Date.now()}`,
             tableRows,
+            type: 'PDF' as const
         };
 
         const hasTable = data.tableRows.length > 0;
@@ -292,9 +294,24 @@ export default function CorrespondencePage() {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            
+            const letterData: GeneratedLetter = {
+                referenceNo,
+                letterHeading, letterHeadingSindhi, recipientPrefix, recipientName, recipientNameSindhi,
+                recipientDesignation, recipientDesignationSindhi, departmentAddress, departmentAddressSindhi,
+                subject, subjectSindhi, body, bodySindhi, closing, closingSindhi,
+                senderName, senderNameSindhi, senderDesignation, senderDesignationSindhi,
+                date: todayDate,
+                id: `IMAGE-${Date.now()}`,
+                tableRows,
+                type: 'Image' as const
+            };
+            
+            setGeneratedLetters(prev => [letterData, ...prev]);
+
             toast({
-                title: 'Image Exported',
-                description: 'The letter preview has been downloaded as an image.',
+                title: 'Image Exported & Saved',
+                description: 'The letter has been saved to history and downloaded as an image.',
             });
         });
     };
@@ -576,9 +593,9 @@ export default function CorrespondencePage() {
                                     <TableCell className="font-medium">{letter.recipientName}</TableCell>
                                     <TableCell>{letter.subject}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" onClick={() => generatePDF(letter)}>
+                                        <Button variant="ghost" size="sm" onClick={() => letter.type === 'PDF' && generatePDF(letter)}>
                                             <Download className="mr-2 h-4 w-4" />
-                                            Download
+                                            Download {letter.type}
                                         </Button>
                                         <Button variant="ghost" size="icon" onClick={() => handleDeleteLetter(letter.id)}>
                                             <Trash2 className="h-4 w-4 text-destructive" />
