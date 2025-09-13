@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Printer, FileDown, Trash2, PlusCircle, Edit, Download, Camera } from 'lucide-react';
+import { Printer, FileDown, Trash2, PlusCircle, Edit, Download, Camera, MoreHorizontal } from 'lucide-react';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import html2canvas from 'html2canvas';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 
 type TableRowData = {
@@ -477,11 +478,30 @@ export default function CorrespondencePage() {
                         <CardTitle>Letter Preview</CardTitle>
                         <CardDescription>This is how your letter will look.</CardDescription>
                     </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm" onClick={generateImage}><Camera className="mr-2 h-4 w-4" /> Export as Image</Button>
-                        <Button variant="outline" size="sm" onClick={printLetter}><Printer className="mr-2 h-4 w-4" /> Print</Button>
-                        <Button size="sm" onClick={() => generatePDF()}><FileDown className="mr-2 h-4 w-4" /> Export & Save</Button>
-                    </div>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="ml-2">Actions</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={generateImage}>
+                                <Camera className="mr-2 h-4 w-4" />
+                                Export as Image
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={printLetter}>
+                                <Printer className="mr-2 h-4 w-4" />
+                                Print
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => generatePDF()}>
+                                <FileDown className="mr-2 h-4 w-4" />
+                                Export & Save
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </CardHeader>
                 <CardContent>
                     <div ref={letterPreviewRef} className="bg-white text-black p-8 rounded-md shadow-lg font-serif">
