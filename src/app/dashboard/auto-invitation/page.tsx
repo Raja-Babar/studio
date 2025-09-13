@@ -60,11 +60,11 @@ export default function AutoInvitationPage() {
               <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl"/>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="organizer-en">Organizer / Institute Name</Label>
+              <Label htmlFor="organizer-en">Organizer</Label>
               <Input id="organizer-en" type="text" />
             </div>
              <div className="space-y-2">
-                <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ / اداري جو نالو</Label>
+                <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ</Label>
                 <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl"/>
             </div>
           </form>
