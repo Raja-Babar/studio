@@ -1,11 +1,10 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Printer } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function AutoInvitationPage() {
   return (
@@ -37,6 +36,10 @@ export default function AutoInvitationPage() {
                 <Label htmlFor="time-en">Program Time:</Label>
                 <Input id="time-en" type="time" />
               </div>
+               <div className="space-y-2">
+                <Label htmlFor="address-en">Address:</Label>
+                <Textarea id="address-en" />
+              </div>
             </div>
 
             {/* Sindhi Form */}
@@ -56,6 +59,10 @@ export default function AutoInvitationPage() {
               <div className="space-y-2">
                 <Label htmlFor="time-sd" className="font-sindhi text-lg">ٿيندڙ پروگرام جو وقت:</Label>
                 <Input id="time-sd" type="time" className="font-sindhi text-lg"/>
+              </div>
+               <div className="space-y-2">
+                <Label htmlFor="address-sd" className="font-sindhi text-lg">پتو:</Label>
+                <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl"/>
               </div>
             </div>
           </form>
