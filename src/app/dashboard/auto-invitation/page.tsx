@@ -42,10 +42,9 @@ export default function AutoInvitationPage() {
           <CardTitle className="font-sindhi text-3xl">ايم. ايڇ. پنھور انسٽيٽيوٽ آف سنڌ اسٽڊيز، ڄامشورو</CardTitle>
           <p className="text-lg text-muted-foreground">Information about the Program to be held in the Institute</p>
           <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
-          <div className="flex justify-between items-center text-sm px-4">
-            <span>MHIPSS(Program)/01/2025</span>
+          <div className="flex justify-end items-center text-sm px-4">
             <Button onClick={handlePrint} variant="outline" className="no-print">
-              <Printer className="ml-2 h-4 w-4" />
+              <Printer className="mr-2 h-4 w-4" />
               Print / پرنٽ
             </Button>
           </div>
