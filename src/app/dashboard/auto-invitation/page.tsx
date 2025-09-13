@@ -223,9 +223,7 @@ export default function AutoInvitationPage() {
             ['Program Topic', program.programTopic],
             ['پروگرام جو موضوع', program.programTopicSindhi],
             ['Program Date', program.programDate],
-            ['پروگرام جي تاريخ', program.programDateSindhi],
             ['Program Time', program.programTime],
-            ['ٿيندڙ پروگرام جو وقت', program.programTimeSindhi],
             ['Address', program.address],
             ['پتو', program.addressSindhi],
             ['Organizer', program.organizer],
@@ -267,12 +265,14 @@ export default function AutoInvitationPage() {
           <div className="mx-auto">
               <Image src={appLogo} alt="MHPISSJ-Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
           </div>
-          <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4">
+          <div className="flex flex-col items-center justify-center gap-2">
             <h1 className="font-bold text-2xl">M.H. Panhwar Institute of Sindh Studies, Jamshoro</h1>
             <CardTitle className="font-sindhi text-3xl">ايم. ايڇ. پنھور انسٽيٽيوٽ آف سنڌ اسٽڊيز، ڄامشورو</CardTitle>
           </div>
-          <p className="text-lg text-muted-foreground">Information about the Program to be held in the Institute</p>
-          <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
+           <div className="flex flex-col items-center justify-center">
+            <p className="text-lg text-muted-foreground">Information about the Program to be held in the Institute</p>
+            <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
+          </div>
         </CardHeader>
         <CardContent>
           <form className="space-y-4 max-w-2xl mx-auto">
@@ -469,3 +469,5 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
+
+  
