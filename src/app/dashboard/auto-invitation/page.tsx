@@ -27,10 +27,6 @@ export default function AutoInvitationPage() {
                 <Input id="topic-en" type="text" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="organizer-en">Organizer / Institute Name:</Label>
-                <Input id="organizer-en" type="text" />
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="date-en">Program Date:</Label>
                 <Input id="date-en" type="date" />
               </div>
@@ -42,6 +38,10 @@ export default function AutoInvitationPage() {
                 <Label htmlFor="address-en">Address:</Label>
                 <Textarea id="address-en" />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="organizer-en">Organizer / Institute Name:</Label>
+                <Input id="organizer-en" type="text" />
+              </div>
             </div>
 
             {/* Sindhi Form */}
@@ -49,10 +49,6 @@ export default function AutoInvitationPage() {
               <div className="space-y-2">
                 <Label htmlFor="topic-sd" className="font-sindhi text-lg">پروگرام جو موضوع:</Label>
                 <Input id="topic-sd" type="text" className="font-sindhi text-lg"/>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">پروگرام ڪندڙ / اداري جو نالو:</Label>
-                <Input id="organizer-sd" type="text" className="font-sindhi text-lg"/>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date-sd" className="font-sindhi text-lg">پروگرام جي تاريخ:</Label>
@@ -65,6 +61,10 @@ export default function AutoInvitationPage() {
                <div className="space-y-2">
                 <Label htmlFor="address-sd" className="font-sindhi text-lg">پتو:</Label>
                 <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl"/>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="organizer-sd" className="font-sindhi text-lg">پروگرام ڪندڙ / اداري جو نالو:</Label>
+                <Input id="organizer-sd" type="text" className="font-sindhi text-lg"/>
               </div>
             </div>
           </form>
