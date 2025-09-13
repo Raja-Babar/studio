@@ -30,6 +30,7 @@ export default function AutoInvitationPage() {
   const [newContactEmail, setNewContactEmail] = useState('');
   const [newContactPhone, setNewContactPhone] = useState('');
   const [adminWhatsapp, setAdminWhatsapp] = useState('');
+  const [whatsappApiKey, setWhatsappApiKey] = useState('');
 
   const handleAddContact = () => {
     if (!newContactName || !newContactEmail || !newContactPhone) {
@@ -67,8 +68,8 @@ export default function AutoInvitationPage() {
   
   const handleSaveWhatsapp = () => {
     toast({
-      title: 'WhatsApp Number Saved',
-      description: `Admin's WhatsApp number has been set to ${adminWhatsapp}.`
+      title: 'WhatsApp Settings Saved',
+      description: `WhatsApp settings have been updated.`
     });
   }
 
@@ -87,7 +88,7 @@ export default function AutoInvitationPage() {
         </CardHeader>
         <CardContent>
           <form className="space-y-4 max-w-2xl mx-auto">
-            <div className="space-y-2">
+             <div className="space-y-2">
               <Label htmlFor="topic-en">Program Topic</Label>
               <Input id="topic-en" type="text" />
             </div>
@@ -95,11 +96,11 @@ export default function AutoInvitationPage() {
               <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
               <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl"/>
             </div>
-            <div className="space-y-2">
+             <div className="space-y-2">
               <Label htmlFor="date-en">Program Date</Label>
               <Input id="date-en" type="date" />
             </div>
-            <div className="space-y-2">
+             <div className="space-y-2">
                 <Label htmlFor="date-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جي تاريخ</Label>
                 <Input id="date-sd" type="date" className="font-sindhi text-lg" dir="ltr" />
             </div>
@@ -152,21 +153,32 @@ export default function AutoInvitationPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-start">
-              <div>
-                  <CardTitle>Contact List</CardTitle>
-                  <CardDescription>Add contacts to send invitations to.</CardDescription>
-              </div>
-              <div className="flex items-center gap-2">
-                  <Input 
-                      id="whatsapp-number" 
-                      placeholder="Admin's WhatsApp Number" 
-                      value={adminWhatsapp}
-                      onChange={(e) => setAdminWhatsapp(e.target.value)}
-                  />
-                  <Button onClick={handleSaveWhatsapp}>Save</Button>
-              </div>
-          </div>
+            <div className="flex justify-between items-start flex-col sm:flex-row gap-4">
+                <div>
+                    <CardTitle>Contact & WhatsApp Settings</CardTitle>
+                    <CardDescription>Add contacts and configure WhatsApp for sending invitations.</CardDescription>
+                </div>
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                        <Input 
+                            id="whatsapp-number" 
+                            placeholder="Admin's WhatsApp Number" 
+                            value={adminWhatsapp}
+                            onChange={(e) => setAdminWhatsapp(e.target.value)}
+                        />
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <Input 
+                            id="whatsapp-api-key" 
+                            type="password"
+                            placeholder="WhatsApp API Key" 
+                            value={whatsappApiKey}
+                            onChange={(e) => setWhatsappApiKey(e.target.value)}
+                        />
+                    </div>
+                     <Button onClick={handleSaveWhatsapp} className="w-full">Save Settings</Button>
+                </div>
+            </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
