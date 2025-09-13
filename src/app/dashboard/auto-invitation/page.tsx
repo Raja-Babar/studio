@@ -12,6 +12,7 @@ import Image from 'next/image';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PlusCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { sendWhatsAppInvitations } from './actions';
 
 type Contact = {
   id: number;
@@ -20,11 +21,25 @@ type Contact = {
   phone: string;
 };
 
-type ProgramRecord = {
+type ProgramDetails = {
+  programTopic: string;
+  programDate: string;
+  programTime: string;
+  address: string;
+  organizer: string;
+  phone: string;
+  email: string;
+  programTopicSindhi: string;
+  programDateSindhi: string;
+  programTimeSindhi: string;
+  addressSindhi: string;
+  organizerSindhi: string;
+  phoneSindhi: string;
+  emailSindhi: string;
+}
+
+type ProgramRecord = ProgramDetails & {
   id: number;
-  topic: string;
-  date: string;
-  time: string;
 };
 
 
@@ -39,25 +54,31 @@ export default function AutoInvitationPage() {
   const [newContactPhone, setNewContactPhone] = useState('');
   const [adminWhatsapp, setAdminWhatsapp] = useState('');
   const [whatsappApiKey, setWhatsappApiKey] = useState('');
-
-  const [programTopic, setProgramTopic] = useState('');
-  const [programDate, setProgramDate] = useState('');
-  const [programTime, setProgramTime] = useState('');
-  const [address, setAddress] = useState('');
-  const [organizer, setOrganizer] = useState('');
-  const [phone, setPhone] = useState('');
-  const [email, setEmail] = useState('');
   
-  const [programTopicSindhi, setProgramTopicSindhi] = useState('');
-  const [programDateSindhi, setProgramDateSindhi] = useState('');
-  const [programTimeSindhi, setProgramTimeSindhi] = useState('');
-  const [addressSindhi, setAddressSindhi] = useState('');
-  const [organizerSindhi, setOrganizerSindhi] = useState('');
-  const [phoneSindhi, setPhoneSindhi] = useState('');
-  const [emailSindhi, setEmailSindhi] = useState('');
+  const [programDetails, setProgramDetails] = useState<ProgramDetails>({
+    programTopic: '',
+    programDate: '',
+    programTime: '',
+    address: '',
+    organizer: '',
+    phone: '',
+    email: '',
+    programTopicSindhi: '',
+    programDateSindhi: '',
+    programTimeSindhi: '',
+    addressSindhi: '',
+    organizerSindhi: '',
+    phoneSindhi: '',
+    emailSindhi: '',
+  });
   
   const [submittedPrograms, setSubmittedPrograms] = useState<ProgramRecord[]>([]);
   const [nextProgramId, setNextProgramId] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleInputChange = (field: keyof ProgramDetails, value: string) => {
+    setProgramDetails(prev => ({...prev, [field]: value}));
+  };
 
 
   const handleAddContact = () => {
@@ -101,8 +122,8 @@ export default function AutoInvitationPage() {
     });
   }
   
-  const handleSubmitProgram = () => {
-    if (!programTopic || !programDate || !programTime) {
+  const handleSubmitProgram = async () => {
+    if (!programDetails.programTopic || !programDetails.programDate || !programDetails.programTime) {
       toast({
         variant: 'destructive',
         title: 'Missing Program Info',
@@ -111,35 +132,61 @@ export default function AutoInvitationPage() {
       return;
     }
 
+    if(contacts.length === 0) {
+       toast({
+        variant: 'destructive',
+        title: 'No Contacts',
+        description: 'Please add at least one contact to send invitations to.',
+      });
+      return;
+    }
+    
+    setIsSubmitting(true);
+
     const newProgram: ProgramRecord = {
       id: nextProgramId,
-      topic: programTopic,
-      date: programDate,
-      time: programTime,
+      ...programDetails
     };
     setSubmittedPrograms(prev => [newProgram, ...prev]);
     setNextProgramId(prev => prev + 1);
 
-    // Reset form fields
-    setProgramTopic('');
-    setProgramDate('');
-    setProgramTime('');
-    setAddress('');
-    setOrganizer('');
-    setPhone('');
-    setEmail('');
-    setProgramTopicSindhi('');
-    setProgramDateSindhi('');
-    setProgramTimeSindhi('');
-    setAddressSindhi('');
-    setOrganizerSindhi('');
-    setPhoneSindhi('');
-    setEmailSindhi('');
+    
+    try {
+        const result = await sendWhatsAppInvitations({
+            programDetails,
+            contacts,
+            whatsappConfig: {
+                apiKey: whatsappApiKey,
+                adminPhoneNumber: adminWhatsapp
+            }
+        });
 
-    toast({
-      title: 'Program Submitted',
-      description: `The program "${programTopic}" has been added to the records.`,
+        if (result.success) {
+            toast({
+                title: 'Program Submitted & Invitations Sent',
+                description: `Invitations for "${programDetails.programTopic}" have been sent.`,
+            });
+        } else {
+            throw new Error(result.error);
+        }
+
+    } catch (error) {
+        toast({
+            variant: 'destructive',
+            title: 'Failed to Send Invitations',
+            description: error instanceof Error ? error.message : 'An unknown error occurred.',
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
+
+
+    // Reset form fields
+    setProgramDetails({
+        programTopic: '', programDate: '', programTime: '', address: '', organizer: '', phone: '', email: '',
+        programTopicSindhi: '', programDateSindhi: '', programTimeSindhi: '', addressSindhi: '', organizerSindhi: '', phoneSindhi: '', emailSindhi: ''
     });
+
   };
 
 
@@ -159,64 +206,66 @@ export default function AutoInvitationPage() {
           <form className="space-y-4 max-w-2xl mx-auto">
             <div className="space-y-2">
               <Label htmlFor="topic-en">Program Topic</Label>
-              <Input id="topic-en" type="text" value={programTopic} onChange={(e) => setProgramTopic(e.target.value)} />
+              <Input id="topic-en" type="text" value={programDetails.programTopic} onChange={(e) => handleInputChange('programTopic', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="topic-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جو موضوع</Label>
-              <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programTopicSindhi} onChange={(e) => setProgramTopicSindhi(e.target.value)}/>
+              <Input id="topic-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.programTopicSindhi} onChange={(e) => handleInputChange('programTopicSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="date-en">Program Date</Label>
-                <Input id="date-en" type="date" value={programDate} onChange={(e) => setProgramDate(e.target.value)} />
+                <Input id="date-en" type="date" value={programDetails.programDate} onChange={(e) => handleInputChange('programDate', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="date-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جي تاريخ</Label>
-                <Input id="date-sd" type="date" className="font-sindhi" value={programDateSindhi} onChange={(e) => setProgramDateSindhi(e.target.value)} />
+                <Input id="date-sd" type="date" className="font-sindhi" value={programDetails.programDateSindhi} onChange={(e) => handleInputChange('programDateSindhi', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="time-en">Program Time</Label>
-              <Input id="time-en" type="time" value={programTime} onChange={(e) => setProgramTime(e.target.value)} />
+              <Input id="time-en" type="time" value={programDetails.programTime} onChange={(e) => handleInputChange('programTime', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="time-sd" className="font-sindhi text-lg text-right w-full block">ٿيندڙ پروگرام جو وقت</Label>
-                <Input id="time-sd" type="time" className="font-sindhi text-lg" value={programTimeSindhi} onChange={(e) => setProgramTimeSindhi(e.target.value)}/>
+                <Input id="time-sd" type="time" className="font-sindhi text-lg" value={programDetails.programTimeSindhi} onChange={(e) => handleInputChange('programTimeSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="address-en">Address</Label>
-              <Textarea id="address-en" value={address} onChange={(e) => setAddress(e.target.value)} />
+              <Textarea id="address-en" value={programDetails.address} onChange={(e) => handleInputChange('address', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="address-sd" className="font-sindhi text-lg text-right w-full block">پتو</Label>
-              <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl" value={addressSindhi} onChange={(e) => setAddressSindhi(e.target.value)}/>
+              <Textarea id="address-sd" className="font-sindhi text-lg" dir="rtl" value={programDetails.addressSindhi} onChange={(e) => handleInputChange('addressSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="organizer-en">Organizer</Label>
-              <Input id="organizer-en" type="text" value={organizer} onChange={(e) => setOrganizer(e.target.value)} />
+              <Input id="organizer-en" type="text" value={programDetails.organizer} onChange={(e) => handleInputChange('organizer', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="organizer-sd" className="font-sindhi text-lg text-right w-full block">پروگرام ڪندڙ</Label>
-                <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={organizerSindhi} onChange={(e) => setOrganizerSindhi(e.target.value)}/>
+                <Input id="organizer-sd" type="text" className="font-sindhi text-lg" dir="rtl" value={programDetails.organizerSindhi} onChange={(e) => handleInputChange('organizerSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="phone-en">Phone No</Label>
-              <Input id="phone-en" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <Input id="phone-en" type="tel" value={programDetails.phone} onChange={(e) => handleInputChange('phone', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="phone-sd" className="font-sindhi text-lg text-right w-full block">فون نمبر</Label>
-                <Input id="phone-sd" type="tel" className="font-sindhi text-lg" dir="rtl" value={phoneSindhi} onChange={(e) => setPhoneSindhi(e.target.value)}/>
+                <Input id="phone-sd" type="tel" className="font-sindhi text-lg" dir="rtl" value={programDetails.phoneSindhi} onChange={(e) => handleInputChange('phoneSindhi', e.target.value)}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email-en">Email</Label>
-              <Input id="email-en" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input id="email-en" type="email" value={programDetails.email} onChange={(e) => handleInputChange('email', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="email-sd" className="font-sindhi text-lg text-right w-full block">اي ميل</Label>
-                <Input id="email-sd" type="email" className="font-sindhi text-lg" dir="rtl" value={emailSindhi} onChange={(e) => setEmailSindhi(e.target.value)}/>
+                <Input id="email-sd" type="email" className="font-sindhi text-lg" dir="rtl" value={programDetails.emailSindhi} onChange={(e) => handleInputChange('emailSindhi', e.target.value)}/>
             </div>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
-            <Button onClick={handleSubmitProgram}>Submit</Button>
+            <Button onClick={handleSubmitProgram} disabled={isSubmitting}>
+              {isSubmitting ? 'Submitting...' : 'Submit'}
+            </Button>
         </CardFooter>
       </Card>
       
@@ -238,9 +287,9 @@ export default function AutoInvitationPage() {
                   {submittedPrograms.length > 0 ? (
                     submittedPrograms.map(program => (
                       <TableRow key={program.id}>
-                        <TableCell className="font-medium">{program.topic}</TableCell>
-                        <TableCell>{program.date}</TableCell>
-                        <TableCell>{program.time}</TableCell>
+                        <TableCell className="font-medium">{program.programTopic}</TableCell>
+                        <TableCell>{program.programDate}</TableCell>
+                        <TableCell>{program.programTime}</TableCell>
                       </TableRow>
                     ))
                   ) : (
@@ -342,3 +391,5 @@ export default function AutoInvitationPage() {
     </div>
   );
 }
+
+    
