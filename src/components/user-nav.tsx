@@ -15,13 +15,18 @@ import {
 import { useAuth } from '@/hooks/use-auth';
 import { LogOut, User as UserIcon, Shield, Upload } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 export function UserNav() {
   const { user, logout, updateUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [editedName, setEditedName] = useState(user?.name || '');
 
   if (!user) {
     return null;
@@ -73,7 +78,19 @@ export function UserNav() {
     }
   };
 
+  const handleProfileUpdate = async () => {
+    if (user && editedName) {
+      await updateUser(user.email, { name: editedName });
+      toast({
+        title: 'Profile Updated',
+        description: 'Your name has been updated.',
+      });
+      setIsProfileDialogOpen(false);
+    }
+  };
+
   return (
+    <>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 px-2 flex items-center gap-2">
@@ -106,7 +123,7 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem disabled>
+          <DropdownMenuItem onSelect={() => setIsProfileDialogOpen(true)}>
             <UserIcon className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
@@ -129,5 +146,45 @@ export function UserNav() {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+
+    <Dialog open={isProfileDialogOpen} onOpenChange={setIsProfileDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+            <DialogDescription>
+              Make changes to your profile here. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="name" className="text-right">
+                Name
+              </Label>
+              <Input
+                id="name"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">
+                Email
+              </Label>
+              <Input
+                id="email"
+                value={user.email}
+                className="col-span-3"
+                disabled
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setIsProfileDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" onClick={handleProfileUpdate}>Save changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
