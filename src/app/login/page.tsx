@@ -70,12 +70,13 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="w-full max-w-md">
-        <Card className="shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4">
-              <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={96} height={96} className="h-24 w-24 rounded-full" />
+        <Card className="shadow-2xl overflow-hidden">
+           <div className="bg-primary h-4" />
+          <CardHeader className="text-center pt-8">
+            <div className="mx-auto">
+              <Image src="https://sindh.org/assets/img/logo1.jpg" alt="MHPISSJ-Portal Logo" width={112} height={112} className="h-28 w-28 rounded-full" />
             </div>
-            <CardTitle className="text-3xl font-bold tracking-tight">MHPISSJ-Portal</CardTitle>
+            <CardTitle className="text-3xl font-bold tracking-tight mt-4">MHPISSJ-Portal</CardTitle>
             <CardDescription className="text-primary">M.H. Panhwar Institute App</CardDescription>
           </CardHeader>
           <CardContent>
