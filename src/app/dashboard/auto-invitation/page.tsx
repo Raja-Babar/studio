@@ -352,6 +352,7 @@ export default function AutoInvitationPage() {
                     <TableHead>Program Topic</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Time</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -361,11 +362,17 @@ export default function AutoInvitationPage() {
                         <TableCell className="font-medium">{program.programTopic}</TableCell>
                         <TableCell>{program.programDate}</TableCell>
                         <TableCell>{program.programTime}</TableCell>
+                        <TableCell className="text-right">
+                          <Button variant="ghost" size="sm" onClick={() => generateProgramPDF(program)}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download PDF
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={3} className="h-24 text-center">
+                      <TableCell colSpan={4} className="h-24 text-center">
                         No program records found.
                       </TableCell>
                     </TableRow>
