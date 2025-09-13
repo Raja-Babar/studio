@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Printer, FileDown, Trash2, PlusCircle, Edit, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { useToast } from '@/hooks/use-toast';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -112,7 +112,7 @@ export default function CorrespondencePage() {
             unit: 'pt',
             format: 'a4',
         });
-        
+
         const data = letterData || {
             referenceNo,
             letterHeading, letterHeadingSindhi, recipientPrefix, recipientName, recipientNameSindhi,
@@ -123,13 +123,16 @@ export default function CorrespondencePage() {
             id: `LETTER-${Date.now()}`,
             tableRows,
         };
-            
+
         const tableContent = data.tableRows.length > 0 ? generateTableHTML(data.tableRows) : '';
 
         const sindhiSubjectContent = data.subjectSindhi ? `<p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline; text-align: right;" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : '';
 
         const tempDiv = document.createElement('div');
-        tempDiv.style.width = '595pt'; // A4 width
+        tempDiv.id = 'pdf-container';
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.width = '595pt'; // A4 width in points
         tempDiv.style.padding = '40pt';
         tempDiv.style.fontFamily = 'serif';
         tempDiv.innerHTML = `
@@ -146,9 +149,9 @@ export default function CorrespondencePage() {
                 <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientName.replace(/\n/g, '<br />')}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br />')}</p>
                 <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientDesignation.replace(/\n/g, '<br />')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.recipientDesignationSindhi.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientDesignationSindhi.replace(/\n/g, '<br />')}</p>
                 <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.departmentAddress.replace(/\n/g, '<br />')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;">${data.departmentAddressSindhi.replace(/\n/g, '<br />')}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.departmentAddressSindhi.replace(/\n/g, '<br />')}</p>
             </div>
             <div style="margin-bottom: 1rem;">
                 <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
@@ -170,34 +173,31 @@ export default function CorrespondencePage() {
         `;
         document.body.appendChild(tempDiv);
         
-        doc.html(tempDiv, {
-            callback: function (doc) {
-                if (!silent) {
-                    doc.save(`Official_Letter_${(data.recipientName || 'Generated').replace(/\s+/g, '_')}.pdf`);
-                }
-                
-                if (!letterData) { // Only add to history if it's a new letter
-                    setGeneratedLetters(prev => [data, ...prev]);
-                    toast({
-                        title: 'Letter Saved & Exported',
-                        description: 'The letter has been saved to history and exported as a PDF.',
-                    });
-                } else if (!silent) {
-                    toast({
-                        title: 'PDF Exported',
-                        description: 'The historical letter has been exported as a PDF.',
-                    });
-                }
-                 document.body.removeChild(tempDiv);
+        autoTable(doc, {
+            html: '#pdf-container',
+            didDrawPage: () => {
+                // Ensure fonts are embedded
             },
-            x: 0,
-            y: 0,
-            width: 595,
-            windowWidth: tempDiv.scrollWidth,
-            html2canvas: {
-                scale: 0.75
-            }
         });
+
+        document.body.removeChild(tempDiv);
+
+        if (!silent) {
+            doc.save(`Official_Letter_${(data.recipientName || 'Generated').replace(/\s+/g, '_')}.pdf`);
+        }
+        
+        if (!letterData) { // Only add to history if it's a new letter
+            setGeneratedLetters(prev => [data, ...prev]);
+            toast({
+                title: 'Letter Saved & Exported',
+                description: 'The letter has been saved to history and exported as a PDF.',
+            });
+        } else if (!silent) {
+            toast({
+                title: 'PDF Exported',
+                description: 'The historical letter has been exported as a PDF.',
+            });
+        }
     };
 
     const handleDeleteLetter = (id: string) => {
@@ -519,4 +519,3 @@ export default function CorrespondencePage() {
         </Card>
     </div>
   );
-}
