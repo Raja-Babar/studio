@@ -25,6 +25,7 @@ type GeneratedLetter = {
     recipientName: string;
     subject: string;
     date: string;
+    referenceNo: string;
     letterHeading: string;
     letterHeadingSindhi: string;
     recipientNameSindhi: string;
@@ -47,6 +48,7 @@ type GeneratedLetter = {
 
 export default function CorrespondencePage() {
     const { toast } = useToast();
+    const [referenceNo, setReferenceNo] = useState('MHPISSJ/');
     const [letterHeading, setLetterHeading] = useState('');
     const [recipientName, setRecipientName] = useState('');
     const [recipientDesignation, setRecipientDesignation] = useState('');
@@ -108,6 +110,7 @@ export default function CorrespondencePage() {
         });
         
         const data = letterData || {
+            referenceNo,
             letterHeading, letterHeadingSindhi, recipientName, recipientNameSindhi,
             recipientDesignation, recipientDesignationSindhi, departmentAddress, departmentAddressSindhi,
             subject, subjectSindhi, body, bodySindhi, closing, closingSindhi,
@@ -137,7 +140,7 @@ export default function CorrespondencePage() {
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.5rem;">${data.letterHeadingSindhi}</p>
             </div>
             <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                <span>No: MHPRI/</span>
+                <span>Ref: ${data.referenceNo}</span>
                 <span>Date: ${data.date}</span>
             </div>
             <div style="margin-bottom: 1rem;">
@@ -230,7 +233,7 @@ export default function CorrespondencePage() {
     };
 
     const handleDeleteTableRow = (id: number) => {
-        setTableRows(prev => prev.filter(row => row.id !== id));
+        setTableRows(prev => prev.filter(row => row.id !== id).map((row, index) => ({ ...row, sno: (index + 1).toString() })));
     };
 
 
@@ -249,6 +252,10 @@ export default function CorrespondencePage() {
                     <CardDescription>Fill in the details to generate an official letter.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="referenceNo">Reference No.</Label>
+                        <Input id="referenceNo" value={referenceNo} onChange={e => setReferenceNo(e.target.value)} placeholder="e.g., MHPISSJ/" />
+                    </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="letterHeading">Letter Heading / Title</Label>
@@ -409,7 +416,7 @@ export default function CorrespondencePage() {
                             <p className="font-sindhi text-2xl">{letterHeadingSindhi}</p>
                         </div>
                         <div className="flex justify-between mb-6">
-                            <span>No: MHPRI/</span>
+                            <span>Ref: {referenceNo}</span>
                             <span>Date: {todayDate}</span>
                         </div>
                         <div className="mb-4">
