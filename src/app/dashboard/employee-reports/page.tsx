@@ -216,8 +216,25 @@ export default function EmployeeReportsPage() {
         year: 'numeric',
         month: 'long',
     });
+    
+    const getBase64Image = async (url: string) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            return new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Error fetching or converting image:', error);
+            return '';
+        }
+    };
 
-    const handleExportAllPDF = () => {
+
+    const handleExportAllPDF = async () => {
       const doc = new jsPDF();
       let finalY = 20;
   
@@ -227,14 +244,21 @@ export default function EmployeeReportsPage() {
       doc.text(`A summary of all digitization reports for ${selectedMonthFormatted}.`, 14, finalY);
       finalY += 8;
 
-      reportsByEmployee.forEach(({ employeeName, reports, summary }) => {
+      for (const { employeeName, employeeAvatar, reports, summary } of reportsByEmployee) {
         doc.addPage();
         finalY = 20;
         doc.setPage(doc.internal.getNumberOfPages());
 
+        if (employeeAvatar) {
+            const imageData = await getBase64Image(employeeAvatar);
+            if (imageData) {
+                doc.addImage(imageData, 'PNG', 14, finalY - 4, 10, 10);
+            }
+        }
+
         doc.setFontSize(12);
-        doc.text(`Employee: ${employeeName}`, 14, finalY);
-        finalY += 5;
+        doc.text(employeeName, 26, finalY);
+        finalY += 10;
 
         // Submitted Reports Table
         autoTable(doc, {
@@ -273,23 +297,30 @@ export default function EmployeeReportsPage() {
             });
             finalY = (doc as any).lastAutoTable.finalY;
         }
-      });
+      }
       
       doc.deletePage(1); // Delete the initial blank page
   
       doc.save(`digitization_reports_all_${selectedDate.getFullYear()}_${selectedDate.getMonth() + 1}.pdf`);
     };
     
-    const handleExportSinglePDF = (employeeData: { employeeName: string; reports: CombinedRecord[]; summary: { byStage: { [key: string]: number } } }) => {
-        const { employeeName, reports, summary } = employeeData;
+    const handleExportSinglePDF = async (employeeData: { employeeName: string; employeeAvatar?: string; reports: CombinedRecord[]; summary: { byStage: { [key: string]: number } } }) => {
+        const { employeeName, employeeAvatar, reports, summary } = employeeData;
         const doc = new jsPDF();
         let finalY = 20;
     
         doc.text(`Digitization Report - ${selectedMonthFormatted}`, 14, 16);
         finalY = 22;
         
+        if (employeeAvatar) {
+            const imageData = await getBase64Image(employeeAvatar);
+            if (imageData) {
+                doc.addImage(imageData, 'PNG', 14, finalY - 4, 10, 10);
+            }
+        }
+        
         doc.setFontSize(12);
-        doc.text(`Employee: ${employeeName}`, 14, finalY);
+        doc.text(employeeName, 26, finalY);
         finalY += 10;
 
         // Submitted Reports Table
