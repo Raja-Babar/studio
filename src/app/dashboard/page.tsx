@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal, CalendarOff, ChevronDown, ChevronUp } from 'lucide-react';
+import { BarChart, Briefcase, DollarSign, Users, Clock, FilePlus, Edit, MoreHorizontal, CalendarOff, ChevronDown, ChevronUp, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -71,6 +71,8 @@ export default function DashboardPage() {
       <h1 className="text-3xl font-bold tracking-tight">Welcome, {user.name}!</h1>
       {user.role === 'Admin' ? (
         <AdminDashboard />
+      ) : user.role === 'Accounts' ? (
+        <AccountsDashboard />
       ) : (
         <EmployeeDashboard />
       )}
@@ -503,3 +505,40 @@ function EmployeeDashboard() {
     </div>
   );
 }
+
+function AccountsDashboard() {
+    const adminStats = [
+        { title: 'Salaries Record', value: null, icon: DollarSign, href: '/dashboard/salaries', bold: true },
+        { title: 'Petty Cash', value: null, icon: Wallet, href: '/dashboard/petty-cash', bold: true },
+    ];
+  
+    return (
+      <div className="space-y-6">
+        <h2 className="text-2xl font-semibold">Administration Overview</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {adminStats.map((stat) => {
+              const cardContent = (
+                   <Card>
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className={`text-sm font-medium ${stat.bold ? 'font-bold' : ''}`}>{stat.title}</CardTitle>
+                      <stat.icon className="h-4 w-4 text-muted-foreground" />
+                      </CardHeader>
+                      <CardContent>
+                         <div className="text-2xl font-bold">{stat.value || 'View'}</div>
+                      </CardContent>
+                  </Card>
+              );
+  
+              if (stat.href) {
+                  return (
+                      <Link href={stat.href} key={stat.title}>
+                         {cardContent}
+                      </Link>
+                  )
+              }
+              return <div key={stat.title}>{cardContent}</div>;
+          })}
+        </div>
+      </div>
+    );
+  }
