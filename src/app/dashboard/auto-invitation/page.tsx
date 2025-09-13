@@ -8,46 +8,14 @@ import { Label } from '@/components/ui/label';
 import { Printer } from 'lucide-react';
 
 export default function AutoInvitationPage() {
-
-  const handlePrint = () => {
-    window.print();
-  };
-
   return (
-    <>
-    <style jsx global>{`
-        @media print {
-          body > *:not(.printable-form) {
-            display: none;
-          }
-          .printable-form {
-            display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            background: white;
-            color: black;
-            padding: 2rem;
-          }
-          .no-print {
-            display: none;
-          }
-        }
-      `}</style>
-    <div className="space-y-6 printable-form">
+    <div className="space-y-6">
       <Card>
         <CardHeader className="text-center space-y-4">
           <h1 className="font-bold text-2xl">M.H. Panhwar Institute of Sindh Studies, Jamshoro</h1>
           <CardTitle className="font-sindhi text-3xl">ايم. ايڇ. پنھور انسٽيٽيوٽ آف سنڌ اسٽڊيز، ڄامشورو</CardTitle>
           <p className="text-lg text-muted-foreground">Information about the Program to be held in the Institute</p>
           <CardDescription className="font-sindhi text-xl">اداري ۾ ٿيندڙ پروگرام بابت ڄاڻ</CardDescription>
-          <div className="flex justify-end items-center text-sm px-4">
-            <Button onClick={handlePrint} variant="outline" className="no-print">
-              <Printer className="mr-2 h-4 w-4" />
-              Print / پرنٽ
-            </Button>
-          </div>
         </CardHeader>
         <CardContent>
           <form>
@@ -96,6 +64,5 @@ export default function AutoInvitationPage() {
         </CardContent>
       </Card>
     </div>
-    </>
   );
 }
