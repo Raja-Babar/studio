@@ -125,8 +125,8 @@ export default function CorrespondencePage() {
 
         const bodyTextContent = data.body ? `
             <div style="margin-bottom: 1rem;">
-                <p style="white-space: pre-wrap;">${data.body.replace(/\n/g, '<br>')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br>')}</p>
+                <p style="white-space: pre-wrap;">${data.body}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi}</p>
             </div>` : '';
             
         const tableContent = data.tableRows.length > 0 ? generateTableHTML(data.tableRows) : '';
@@ -159,7 +159,10 @@ export default function CorrespondencePage() {
                 <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
                 ${sindhiSubjectContent}
             </div>
-            ${bodyTextContent}
+            <div style="margin-bottom: 1rem;">
+                <p style="white-space: pre-wrap;">${data.body}</p>
+                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi}</p>
+            </div>
             ${tableContent}
             <div style="margin-top: 2rem;">
                 <p>${data.closing}</p>
@@ -452,8 +455,8 @@ export default function CorrespondencePage() {
                         
                         {body && (
                             <div className="mb-4">
-                                <p className="whitespace-pre-wrap">{body.replace(/\n/g, '<br>')}</p>
-                                <p className="font-sindhi text-lg mt-2 whitespace-pre-wrap" dir="rtl">{bodySindhi.replace(/\n/g, '<br>')}</p>
+                                <p className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: body.replace(/\n/g, '<br />') }} />
+                                <p className="font-sindhi text-lg mt-2 whitespace-pre-wrap" dir="rtl" dangerouslySetInnerHTML={{ __html: bodySindhi.replace(/\n/g, '<br />') }} />
                             </div>
                         )}
 
