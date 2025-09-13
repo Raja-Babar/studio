@@ -27,8 +27,6 @@ type GeneratedLetter = {
     referenceNo: string;
     letterHeading: string;
     letterHeadingSindhi: string;
-    to: string;
-    toSindhi: string;
     recipientNameSindhi: string;
     recipientDesignation: string;
     recipientDesignationSindhi: string;
@@ -51,7 +49,6 @@ export default function CorrespondencePage() {
     const { toast } = useToast();
     const [referenceNo, setReferenceNo] = useState('MHPISSJ/');
     const [letterHeading, setLetterHeading] = useState('');
-    const [to, setTo] = useState('');
     const [recipientName, setRecipientName] = useState('');
     const [recipientDesignation, setRecipientDesignation] = useState('');
     const [departmentAddress, setDepartmentAddress] = useState('');
@@ -62,7 +59,6 @@ export default function CorrespondencePage() {
     const [senderDesignation, setSenderDesignation] = useState('');
 
     const [letterHeadingSindhi, setLetterHeadingSindhi] = useState('');
-    const [toSindhi, setToSindhi] = useState('');
     const [recipientNameSindhi, setRecipientNameSindhi] = useState('');
     const [recipientDesignationSindhi, setRecipientDesignationSindhi] = useState('');
     const [departmentAddressSindhi, setDepartmentAddressSindhi] = useState('');
@@ -114,7 +110,7 @@ export default function CorrespondencePage() {
         
         const data = letterData || {
             referenceNo,
-            letterHeading, letterHeadingSindhi, to, toSindhi, recipientName, recipientNameSindhi,
+            letterHeading, letterHeadingSindhi, recipientName, recipientNameSindhi,
             recipientDesignation, recipientDesignationSindhi, departmentAddress, departmentAddressSindhi,
             subject, subjectSindhi, body, bodySindhi, closing, closingSindhi,
             senderName, senderNameSindhi, senderDesignation, senderDesignationSindhi,
@@ -147,8 +143,6 @@ export default function CorrespondencePage() {
                 <span>Date: ${data.date}</span>
             </div>
             <div style="margin-bottom: 1rem;">
-                <p>${data.to}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.toSindhi}</p>
                 <p style="white-space: pre-wrap;">${data.recipientName.replace(/\n/g, '<br>')}</p>
                 <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br>')}</p>
                 <p>${data.recipientDesignation}</p>
@@ -269,16 +263,6 @@ export default function CorrespondencePage() {
                          <div className="space-y-2">
                             <Label htmlFor="letterHeadingSindhi" className="font-sindhi text-lg float-right">خط جي عنوان</Label>
                             <Input id="letterHeadingSindhi" value={letterHeadingSindhi} onChange={e => setLetterHeadingSindhi(e.target.value)} placeholder="مثال طور، سرڪاري پڌرائي" className="font-sindhi" dir="rtl" />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="to">To</Label>
-                            <Input id="to" value={to} onChange={e => setTo(e.target.value)} placeholder="e.g., The Director" />
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="toSindhi" className="font-sindhi text-lg float-right"> ڏانهن</Label>
-                            <Input id="toSindhi" value={toSindhi} onChange={e => setToSindhi(e.target.value)} placeholder="مثال طور، ڊائريڪٽر" className="font-sindhi" dir="rtl" />
                         </div>
                     </div>
                      <div className="grid grid-cols-2 gap-4">
@@ -435,8 +419,6 @@ export default function CorrespondencePage() {
                             <span>Date: {todayDate}</span>
                         </div>
                         <div className="mb-4">
-                            <p>{to}</p>
-                            <p className="font-sindhi text-lg">{toSindhi}</p>
                             <p className="whitespace-pre-wrap">{recipientName}</p>
                             <p className="font-sindhi text-lg whitespace-pre-wrap" dir="rtl">{recipientNameSindhi}</p>
                             <p>{recipientDesignation}</p>
