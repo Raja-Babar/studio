@@ -284,7 +284,7 @@ export function DashboardNav() {
                     <SidebarMenuButton className='w-full justify-between' isActive={isMhpResearchLibrarySectionOpen}>
                         <div className="flex items-center gap-2">
                              <Library />
-                             <span>MHP- Research library</span>
+                             <span>MHP-Research Library</span>
                         </div>
                         <ChevronDown className={cn('h-4 w-4 transition-transform', isMhpResearchLibrarySectionOpen && 'rotate-180')} />
                     </SidebarMenuButton>
