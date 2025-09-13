@@ -115,6 +115,9 @@ export default function CorrespondencePage() {
             unit: 'pt',
             format: 'a4',
         });
+        
+        // A4 page is 595.28 points wide. Let's use 40pt margins, so 515.28 width.
+        const pdfWidth = doc.internal.pageSize.getWidth() - 80;
 
         const data = letterData || {
             referenceNo,
@@ -136,8 +139,7 @@ export default function CorrespondencePage() {
         const tempContainer = document.createElement('div');
         tempContainer.style.position = 'absolute';
         tempContainer.style.left = '-9999px';
-        tempContainer.style.width = '595pt'; // A4 width
-        tempContainer.style.padding = '40pt';
+        tempContainer.style.width = `${pdfWidth}pt`;
         tempContainer.style.fontFamily = 'serif';
         tempContainer.style.lineHeight = '1.5';
         
@@ -184,8 +186,10 @@ export default function CorrespondencePage() {
 
         await doc.html(tempContainer, {
             autoPaging: 'text',
-            width: 515, // 595pt A4 width - 80pt padding
-            windowWidth: 515,
+            x: 40,
+            y: 40,
+            width: pdfWidth,
+            windowWidth: pdfWidth,
             callback: async (doc) => {
                 if (hasTable) {
                     const tableHTML = generateTableHTML(data.tableRows);
@@ -194,7 +198,7 @@ export default function CorrespondencePage() {
                     const tableElement = tableContainer.querySelector('table');
                     
                     if (tableElement) {
-                        autoTable(doc, { html: tableElement, startY: doc.autoTable.previous.finalY + 10 });
+                        autoTable(doc, { html: tableElement, startY: doc.autoTable.previous.finalY + 10, margin: { left: 40 } });
                     }
                     
                     const closingY = doc.autoTable.previous.finalY + 30;
@@ -208,9 +212,9 @@ export default function CorrespondencePage() {
                     doc.addFont('/MB-Lateefi.ttf', 'MB Lateefi', 'normal');
                     doc.setFont('MB Lateefi');
                     doc.setFontSize(14); // 1.125rem approx
-                    doc.text(data.closingSindhi, 555, closingY, { align: 'right' });
-                    doc.text(data.senderNameSindhi, 555, closingY + 30, { align: 'right' });
-                    doc.text(data.senderDesignationSindhi, 555, closingY + 45, { align: 'right' });
+                    doc.text(data.closingSindhi, doc.internal.pageSize.getWidth() - 40, closingY, { align: 'right' });
+                    doc.text(data.senderNameSindhi, doc.internal.pageSize.getWidth() - 40, closingY + 30, { align: 'right' });
+                    doc.text(data.senderDesignationSindhi, doc.internal.pageSize.getWidth() - 40, closingY + 45, { align: 'right' });
                 }
 
                 document.body.removeChild(tempContainer);
