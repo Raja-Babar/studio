@@ -290,55 +290,24 @@ export default function CorrespondencePage() {
             type: 'Image' as const
         };
 
-        const tempRenderDiv = document.createElement('div');
+        const previewElement = letterPreviewRef.current;
+        if (!previewElement) {
+             toast({ variant: 'destructive', title: 'Image Generation Failed', description: 'Could not find the preview element.' });
+            return;
+        }
+
+        const tempRenderDiv = previewElement.cloneNode(true) as HTMLDivElement;
         tempRenderDiv.style.position = 'absolute';
         tempRenderDiv.style.left = '-9999px';
-        tempRenderDiv.style.width = '794px';
-        tempRenderDiv.style.backgroundColor = 'white';
-        tempRenderDiv.style.color = 'black';
-        tempRenderDiv.style.padding = '32px';
-        tempRenderDiv.style.fontFamily = 'serif';
-        
-        tempRenderDiv.innerHTML = `
-            <div class="text-center font-bold text-xl mb-6" style="text-align: center; font-weight: bold; font-size: 1.25rem; margin-bottom: 1.5rem;">
-                <p>${data.letterHeading.replace(/\n/g, '<br />')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.5rem;">${data.letterHeadingSindhi.replace(/\n/g, '<br />')}</p>
-            </div>
-            <div class="flex justify-between mb-6" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
-                <span>Ref: ${data.referenceNo}</span>
-                <span>Date: ${data.date}</span>
-            </div>
-            <div class="mb-4" style="margin-bottom: 1rem;">
-                <p>${data.recipientPrefix},</p>
-                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientName.replace(/\n/g, '<br />')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientNameSindhi.replace(/\n/g, '<br />')}</p>
-                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.recipientDesignation.replace(/\n/g, '<br />')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.recipientDesignationSindhi.replace(/\n/g, '<br />')}</p>
-                <p style="margin-top: 0.5rem; white-space: pre-wrap;">${data.departmentAddress.replace(/\n/g, '<br />')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; white-space: pre-wrap;" dir="rtl">${data.departmentAddressSindhi.replace(/\n/g, '<br />')}</p>
-            </div>
-            <div class="mb-4" style="margin-bottom: 1rem;">
-                <p style="font-weight: bold; text-decoration: underline;">Subject: ${data.subject}</p>
-                ${data.subjectSindhi ? `<p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; font-weight: bold; text-decoration: underline;" dir="rtl">مضمون: ${data.subjectSindhi}</p>` : ''}
-            </div>
-            <div class="mb-4" style="margin-bottom: 1rem;">
-                <p style="white-space: pre-wrap;">${data.body.replace(/\n/g, '<br />')}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem; margin-top: 0.5rem; text-align: right; white-space: pre-wrap;" dir="rtl">${data.bodySindhi.replace(/\n/g, '<br />')}</p>
-            </div>
-            ${generateTableHTML(data.tableRows)}
-            <div style="margin-top: 2rem;">
-                <p>${data.closing}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.closingSindhi}</p>
-                <p style="margin-top: 1rem;">${data.senderName}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderNameSindhi}</p>
-                <p>${data.senderDesignation}</p>
-                <p style="font-family: 'MB Lateefi', sans-serif; font-size: 1.125rem;">${data.senderDesignationSindhi}</p>
-            </div>
-        `;
+        tempRenderDiv.style.width = '794px'; // A4 width at 96 DPI
         document.body.appendChild(tempRenderDiv);
 
         try {
-            const canvas = await html2canvas(tempRenderDiv, { scale: 2 });
+            const canvas = await html2canvas(tempRenderDiv, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
             const imgData = canvas.toDataURL('image/png');
             
             if (!silent) {
