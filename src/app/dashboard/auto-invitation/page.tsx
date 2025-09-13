@@ -20,7 +20,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 type Contact = {
   id: number;
   name: string;
-  email: string;
   phone: string;
 };
 
@@ -84,18 +83,17 @@ export default function AutoInvitationPage() {
 
 
   const handleAddContact = () => {
-    if (!newContactName || !newContactEmail || !newContactPhone) {
+    if (!newContactName || !newContactPhone) {
       toast({
         variant: 'destructive',
         title: 'Missing Fields',
-        description: 'Please fill in the name, email, and phone number.',
+        description: 'Please fill in the name and phone number.',
       });
       return;
     }
     const newContact: Contact = {
       id: nextContactId,
       name: newContactName,
-      email: newContactEmail,
       phone: newContactPhone,
     };
     setContacts(prev => [...prev, newContact]);
@@ -156,7 +154,7 @@ export default function AutoInvitationPage() {
     try {
         const result = await sendWhatsAppInvitations({
             programDetails,
-            contacts,
+            contacts: contacts.map(c => ({name: c.name, phone: c.phone})),
             whatsappConfig: {
                 apiKey: whatsappApiKey,
                 adminPhoneNumber: ''
@@ -290,10 +288,7 @@ export default function AutoInvitationPage() {
                 <Label htmlFor="date-en">Program Date</Label>
                 <Input id="date-en" type="date" value={programDetails.programDate} onChange={(e) => handleInputChange('programDate', e.target.value)} />
             </div>
-            <div className="space-y-2">
-                <Label htmlFor="date-sd" className="font-sindhi text-lg text-right w-full block">پروگرام جي تاريخ</Label>
-                <Input id="date-sd" type="date" className="font-sindhi" value={programDetails.programDateSindhi} onChange={(e) => handleInputChange('programDateSindhi', e.target.value)} />
-            </div>
+            
             <div className="space-y-2">
                 <div className="flex items-center justify-between">
                     <Label htmlFor="time-en">Program Time</Label>
