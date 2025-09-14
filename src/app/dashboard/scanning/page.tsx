@@ -209,8 +209,8 @@ export default function ScanningPage() {
             ...record, 
             status: editedStatus,
             created_time: editedCreatedTime,
-            last_edited_time: editedLastEditedTime,
-            last_edited_by: editedLastEditedBy,
+            last_edited_time: new Date().toISOString(),
+            last_edited_by: user?.name || null,
           }
         : record
       );
@@ -308,7 +308,7 @@ export default function ScanningPage() {
     const updatedRecords = [recordToAdd, ...scanningRecords];
     setScanningRecords(updatedRecords);
     localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
-    setNewRecord(initialNewRecordState);
+    setNewRecord(initialNewRecordState as any);
     toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
   };
   
@@ -343,6 +343,9 @@ export default function ScanningPage() {
                 </Button>
                 <CardDescription className="mt-4">
                   Your CSV file should have the following columns. The order of columns is important.
+                </CardDescription>
+                 <CardDescription className="mt-2 font-sindhi text-lg" dir="rtl">
+                  توهان جي CSV فائل ۾ هيٺيان ڪالمن هجڻ گهرجن. ڪالمن جي ترتيب اهم آهي.
                 </CardDescription>
                 <div className="overflow-x-auto mt-2">
                     <Table>
