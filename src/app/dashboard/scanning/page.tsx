@@ -412,7 +412,7 @@ export default function ScanningPage() {
           month: newRecord.year ? format(new Date(parseInt(newRecord.year), 0, 1), 'MMMM') : '',
         };
         
-        const updatedRecords = [recordToAdd, ...scanningRecords];
+        const updatedRecords = [...scanningRecords, recordToAdd];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
