@@ -892,15 +892,15 @@ export default function ScanningPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Stage</TableHead>
-                                    <TableHead className="text-right">Count</TableHead>
+                                    <TableHead className="px-2 py-2">Stage</TableHead>
+                                    <TableHead className="text-right px-2 py-2">Count</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {Object.entries(summaryCounts).map(([status, count]) => (
                                     <TableRow key={status}>
-                                        <TableCell className="font-medium capitalize">{status}</TableCell>
-                                        <TableCell className="text-right font-bold">{count}</TableCell>
+                                        <TableCell className="font-medium capitalize px-2 py-1">{status}</TableCell>
+                                        <TableCell className="text-right font-bold px-2 py-1">{count}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
