@@ -98,6 +98,7 @@ export default function PublicationsPage() {
               <Table>
                   <TableHeader>
                       <TableRow>
+                          <TableHead>Sr. No.</TableHead>
                           <TableHead>Bill ID</TableHead>
                           <TableHead>Purchaser Name</TableHead>
                           <TableHead>Books Quantity</TableHead>
@@ -108,8 +109,9 @@ export default function PublicationsPage() {
                   </TableHeader>
                   <TableBody>
                       {generatedBills.length > 0 ? (
-                          generatedBills.map(bill => (
+                          generatedBills.map((bill, index) => (
                               <TableRow key={bill.id}>
+                                  <TableCell>{index + 1}</TableCell>
                                   <TableCell className="font-medium">{bill.id}</TableCell>
                                   <TableCell>{bill.purchaserName}</TableCell>
                                   <TableCell>
@@ -127,7 +129,7 @@ export default function PublicationsPage() {
                           ))
                       ) : (
                           <TableRow>
-                              <TableCell colSpan={6} className="h-24 text-center">
+                              <TableCell colSpan={7} className="h-24 text-center">
                                   No bills have been generated yet.
                               </TableCell>
                           </TableRow>
