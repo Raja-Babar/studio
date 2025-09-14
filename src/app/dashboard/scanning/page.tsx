@@ -898,7 +898,15 @@ export default function ScanningPage() {
                                         <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell>PDF QC</TableCell>
+                                        <TableCell>Scanning-QC</TableCell>
+                                        <TableCell className="text-right font-bold">{summaryCounts['scanning-qc'] || 0}</TableCell>
+                                    </TableRow>
+                                     <TableRow>
+                                        <TableCell>Page Cleaning+Cropping</TableCell>
+                                        <TableCell className="text-right font-bold">{summaryCounts['page cleaning+cropping'] || 0}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>PDF-QC</TableCell>
                                         <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow>
