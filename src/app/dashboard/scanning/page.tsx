@@ -126,7 +126,6 @@ export default function ScanningPage() {
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   
   const initialNewRecordState = {
-    book_id: '',
     file_name: '',
     title_english: '',
     title_sindhi: '',
@@ -349,7 +348,7 @@ export default function ScanningPage() {
     toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
   };
   
-  const handleNewRecordInputChange = (field: keyof typeof newRecord, value: string) => {
+  const handleNewRecordInputChange = (field: keyof Omit<ScanningRecord, 'book_id'>, value: string) => {
     setNewRecord(prev => ({...prev, [field]: value}));
   }
 
@@ -484,7 +483,7 @@ export default function ScanningPage() {
             <CardDescription>Manually add a new book record to the digitization progress table.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-4 max-w-lg">
                 <div className="space-y-2">
                     <Label htmlFor="new-file_name">File Name</Label>
                     <div className="flex gap-2 items-center">
@@ -540,7 +539,7 @@ export default function ScanningPage() {
                     <Input id="new-month" value={newRecord.month} onChange={(e) => handleNewRecordInputChange('month', e.target.value)} />
                 </div>
             </div>
-             <Button onClick={handleAddRecord} className="mt-4">
+             <Button onClick={handleAddRecord} className="mt-4" size="default">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Record
             </Button>
           </CardContent>
@@ -553,7 +552,7 @@ export default function ScanningPage() {
                     <CardDescription>Assign a book to an employee for processing.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-w-lg">
                         <div className="space-y-2">
                             <Label htmlFor="assign-book">Book</Label>
                             <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
@@ -807,5 +806,7 @@ export default function ScanningPage() {
     </div>
   );
 }
+
+    
 
     
