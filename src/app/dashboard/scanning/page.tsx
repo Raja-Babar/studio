@@ -180,7 +180,7 @@ export default function ScanningPage() {
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
-  const RECORDS_TO_SHOW = 10;
+  const RECORDS_TO_SHOW = 3;
 
   const filterOptions = useMemo(() => {
     const options = {
@@ -642,10 +642,10 @@ export default function ScanningPage() {
                 </div>
             </div>
              <div className="flex gap-2 mt-4">
-                <Button onClick={handleAddRecord}>
+                <Button onClick={handleAddRecord} size="lg">
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Record
                 </Button>
-                <Button variant="destructive" onClick={handleClearNewRecord}>
+                <Button variant="destructive" onClick={handleClearNewRecord} size="lg">
                   <X className="mr-2 h-4 w-4" /> Clear Data
                 </Button>
             </div>
@@ -925,6 +925,7 @@ export default function ScanningPage() {
     
 
     
+
 
 
 
