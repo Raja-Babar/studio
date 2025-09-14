@@ -384,26 +384,18 @@ export default function ScanningPage() {
   const handleParseFilename = async () => {
     const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
     
-    // Regex to capture: Author - Title (Year)
-    const regex = /^(.*?)\s*-\s*(.*?)\s*\((\d{4})\)$/;
-    const match = filename.match(regex);
-    
-    let author = '', title = '', year = '';
+    const parts = filename.split('-');
 
-    if (match) {
-        author = match[1]?.trim() || '';
-        title = match[2]?.trim() || '';
-        year = match[3]?.trim() || '';
-    } else {
-        // Fallback for filenames without year or different structure
-        const parts = filename.split('-').map(p => p.trim());
-        if(parts.length >= 2) {
-            author = parts[0];
-            title = parts.slice(1).join(' - ');
-        } else {
-            title = filename;
-        }
+    if (parts.length < 3) {
+      // Not enough parts for Title-Author-Year, maybe we can just get title
+      const title = filename.replace(/[_]/g, ' ').trim();
+      setNewRecord(prev => ({...prev, title_english: title, author_english: '', year: ''}));
+      return;
     }
+
+    const title = parts[0]?.replace(/_/g, ' ').trim() || '';
+    const author = parts[1]?.replace(/_/g, ' ').trim() || '';
+    const year = parts[2]?.trim() || '';
     
     setNewRecord(prev => ({
         ...prev,
@@ -556,7 +548,7 @@ export default function ScanningPage() {
                     <CardDescription>Assign a book to an employee for processing.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-w-sm">
                         <div className="space-y-2">
                             <Label htmlFor="assign-book">Book</Label>
                             <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
