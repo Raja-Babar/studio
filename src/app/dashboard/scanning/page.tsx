@@ -105,6 +105,11 @@ const statusOptions = [
     "Completed"
 ];
 
+const months = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+];
+
 
 export default function ScanningPage() {
   const { user, importScanningRecords, getUsers } = useAuth();
@@ -567,7 +572,14 @@ export default function ScanningPage() {
                         <Label htmlFor="new-month">Month</Label>
                         <Label htmlFor="new-month" className="font-sindhi text-lg">مهينو</Label>
                     </div>
-                    <Input id="new-month" value={newRecord.month} onChange={(e) => handleNewRecordInputChange('month', e.target.value)} />
+                    <Select value={newRecord.month} onValueChange={(v) => handleNewRecordInputChange('month', v)}>
+                        <SelectTrigger id="new-month">
+                            <SelectValue placeholder="Select month" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {months.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
              <Button onClick={handleAddRecord} className="mt-4">
@@ -841,6 +853,7 @@ export default function ScanningPage() {
     
 
     
+
 
 
 
