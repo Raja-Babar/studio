@@ -35,6 +35,7 @@ type BillEntry = {
   bookTitle: string;
   bookTitleSindhi: string;
   date: string;
+  time: string;
   purchaserName: string;
   purchaserNameSindhi: string;
   quantity: number;
@@ -193,14 +194,16 @@ export default function AutoGenerateBillPage() {
       });
       return;
     }
-
+    
+    const now = new Date();
     const newBillEntry: BillEntry = {
       id: nextEntryId,
       bookTitle,
       bookTitleSindhi,
       purchaserName,
       purchaserNameSindhi,
-      date: new Date().toLocaleDateString('en-US'),
+      date: now.toLocaleDateString('en-US'),
+      time: now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
       quantity: qty,
       unitPrice: price,
       discountPercent: isNaN(discount) ? 0 : discount,
@@ -541,7 +544,7 @@ export default function AutoGenerateBillPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Book Title / Author, Editor, Compiler, Translator</TableHead>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Date & Time</TableHead>
                   <TableHead>Purchaser Name</TableHead>
                   <TableHead>Quantity Sold</TableHead>
                   <TableHead>Unit Price (Rs.)</TableHead>
@@ -561,7 +564,7 @@ export default function AutoGenerateBillPage() {
                           {entry.bookTitle}
                           {entry.bookTitleSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.bookTitleSindhi}</div>}
                         </TableCell>
-                        <TableCell>{entry.date}</TableCell>
+                        <TableCell>{entry.date} {entry.time}</TableCell>
                         <TableCell>
                           {entry.purchaserName}
                           {entry.purchaserNameSindhi && <div className="font-sindhi text-sm text-muted-foreground" dir="rtl">{entry.purchaserNameSindhi}</div>}
@@ -740,4 +743,5 @@ export default function AutoGenerateBillPage() {
     
 
     
+
 
