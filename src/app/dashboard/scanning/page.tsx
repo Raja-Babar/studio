@@ -251,9 +251,9 @@ export default function ScanningPage() {
         complete: (results) => {
           try {
             const now = new Date().toISOString();
-            const mappedData = (results.data as any[]).map(row => ({
+            const mappedData = (results.data as any[]).map((row, index) => ({
                 ...row,
-                book_id: `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                book_id: `BK-${Date.now()}-${index}`,
                 created_time: now,
                 last_edited_time: now,
                 last_edited_by: user?.name || null,
@@ -477,7 +477,7 @@ export default function ScanningPage() {
                     <CardDescription>Assign a book to an employee for processing.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div className="space-y-4 max-w-sm">
                         <div className="space-y-2">
                             <Label htmlFor="assign-book">Book</Label>
                             <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
@@ -504,7 +504,7 @@ export default function ScanningPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <Button onClick={handleAssignTask}>
+                        <Button onClick={handleAssignTask} className="w-full">
                             <CalendarClock className="mr-2 h-4 w-4" /> Assign Task
                         </Button>
                     </div>
