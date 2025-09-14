@@ -882,55 +882,18 @@ export default function ScanningPage() {
                     </CardFooter>
                 )}
                  <div className="border-t mt-4 p-6">
-                  <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                      <Card>
-                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                              <CardTitle className="text-sm font-medium">Scanning</CardTitle>
-                              <ScanLine className="h-4 w-4 text-muted-foreground" />
-                          </CardHeader>
-                          <CardContent>
-                              <div className="text-2xl font-bold">{summaryCounts['scanning'] || 0}</div>
-                          </CardContent>
-                      </Card>
-                      <Card>
-                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                              <CardTitle className="text-sm font-medium">PDF QC</CardTitle>
-                              <FileCheck className="h-4 w-4 text-muted-foreground" />
-                          </CardHeader>
-                          <CardContent>
-                              <div className="text-2xl font-bold">{summaryCounts['pdf-qc'] || 0}</div>
-                          </CardContent>
-                      </Card>
-                      <Card>
-                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                              <CardTitle className="text-sm font-medium">Uploading</CardTitle>
-                              <UploadCloud className="h-4 w-4 text-muted-foreground" />
-                          </CardHeader>
-                          <CardContent>
-                              <div className="text-2xl font-bold">{summaryCounts['uploading'] || 0}</div>
-                          </CardContent>
-                      </Card>
-                       <Card>
-                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-                              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-                          </CardHeader>
-                          <CardContent>
-                              <div className="text-2xl font-bold">{summaryCounts['completed'] || 0}</div>
-                          </CardContent>
-                      </Card>
-                      <Card>
-                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                              <CardTitle className="text-sm font-medium">Total Records</CardTitle>
-                              <FileCheck className="h-4 w-4 text-muted-foreground" />
-                          </CardHeader>
-                          <CardContent>
-                              <div className="text-2xl font-bold">{filteredRecords.length}</div>
-                          </CardContent>
-                      </Card>
-                  </div>
-              </div>
+                    <h3 className="text-lg font-semibold mb-2">Summary</h3>
+                    <div className="space-y-1 text-sm text-muted-foreground">
+                        <div className="flex justify-between"><span>Scanning:</span> <span className="font-bold text-foreground">{summaryCounts['scanning'] || 0}</span></div>
+                        <div className="flex justify-between"><span>PDF QC:</span> <span className="font-bold text-foreground">{summaryCounts['pdf-qc'] || 0}</span></div>
+                        <div className="flex justify-between"><span>Uploading:</span> <span className="font-bold text-foreground">{summaryCounts['uploading'] || 0}</span></div>
+                        <div className="flex justify-between"><span>Completed:</span> <span className="font-bold text-foreground">{summaryCounts['completed'] || 0}</span></div>
+                        <div className="flex justify-between pt-2 border-t mt-2 font-bold text-base text-foreground">
+                            <span>Total Records:</span> 
+                            <span>{filteredRecords.length}</span>
+                        </div>
+                    </div>
+                </div>
         </Card>
         
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -985,4 +948,3 @@ export default function ScanningPage() {
     </div>
   );
 }
-
