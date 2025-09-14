@@ -505,8 +505,10 @@ export default function ScanningPage() {
 
       setNewRecord(prev => ({
           ...prev,
-          author_english: author,
-          title_english: title,
+          author_english: isSindhi(author) ? '' : author,
+          author_sindhi: isSindhi(author) ? author : '',
+          title_english: isSindhi(title) ? '' : title,
+          title_sindhi: isSindhi(title) ? title : '',
           year: year,
           language: language,
       }));
@@ -519,7 +521,9 @@ export default function ScanningPage() {
                   setNewRecord(prev => ({
                       ...prev,
                       title_sindhi: result.data.titleSindhi,
-                      author_sindhi: result.data.authorSindhi
+                      author_sindhi: result.data.authorSindhi,
+                      title_english: result.data.titleEnglish,
+                      author_english: result.data.authorEnglish,
                   }));
               } else {
                   toast({ variant: 'destructive', title: 'Translation Failed', description: result.error });
@@ -889,22 +893,24 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="px-2 py-2 font-normal">Stage</TableHead>
-                                    <TableHead className="text-right px-2 py-2 font-normal">Count</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {Object.entries(summaryCounts).map(([status, count]) => (
-                                    <TableRow key={status}>
-                                        <TableCell className="font-medium capitalize px-2 py-1">{status}</TableCell>
-                                        <TableCell className="text-right font-bold px-2 py-1">{count}</TableCell>
+                         <div className="overflow-x-auto">
+                           <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead className="px-2 py-2 font-normal">Stage</TableHead>
+                                        <TableHead className="text-right px-2 py-2 font-normal">Count</TableHead>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                </TableHeader>
+                                <TableBody>
+                                    {Object.entries(summaryCounts).map(([status, count]) => (
+                                        <TableRow key={status}>
+                                            <TableCell className="font-medium capitalize px-2 py-1">{status}</TableCell>
+                                            <TableCell className="text-right font-bold px-2 py-1">{count}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </div>
                 </CardFooter>
         </Card>
@@ -961,3 +967,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
