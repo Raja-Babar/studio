@@ -204,7 +204,7 @@ export default function ScanningPage() {
       assigned_to: Array.from(options.assigned_to).sort(),
       uploaded_by: Array.from(options.uploaded_by).sort(),
       source: Array.from(options.source).sort(),
-      month: Array.from(options.month).sort(),
+      month: months,
     };
   }, [scanningRecords]);
 
@@ -390,6 +390,15 @@ export default function ScanningPage() {
     setNewRecord(prev => ({...prev, [field]: value}));
   }
 
+  const handleClearNewRecord = () => {
+    setNewRecord(initialNewRecordState);
+    setSelectedDate(null);
+    toast({
+        title: 'Form Cleared',
+        description: 'The "Add New Record" form has been cleared.',
+    });
+  };
+
   const handleAssignTask = () => {
     if (!assignTaskBookId || !assignTaskEmployeeId) {
       toast({ variant: 'destructive', title: 'Assignment Failed', description: 'Please select both a book and an employee.' });
@@ -421,15 +430,15 @@ export default function ScanningPage() {
   const handleParseFilename = async () => {
     const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
     
-    const parts = filename.split('-');
+    const parts = filename.split('-').map(p => p.replace(/_/g, ' ').trim());
 
     if (parts.length < 2) {
       return;
     }
 
-    const title = parts[0]?.replace(/_/g, ' ').trim() || '';
-    const author = parts[1]?.replace(/_/g, ' ').trim() || '';
-    const year = parts[2]?.trim() || '';
+    const title = parts[0] || '';
+    const author = parts[1] || '';
+    const year = parts[2] || '';
     
     const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
 
@@ -571,7 +580,7 @@ export default function ScanningPage() {
                             )}
                             >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                            {selectedDate ? format(selectedDate, "PPP") : (newRecord.year ? newRecord.year : <span>Pick a date</span>)}
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0">
@@ -620,9 +629,14 @@ export default function ScanningPage() {
                     <Input id="new-source" value={newRecord.source} onChange={(e) => handleNewRecordInputChange('source', e.target.value)} />
                 </div>
             </div>
-             <Button onClick={handleAddRecord} className="mt-4">
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Record
-            </Button>
+             <div className="flex gap-2 mt-4">
+                <Button onClick={handleAddRecord}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Record
+                </Button>
+                <Button variant="outline" onClick={handleClearNewRecord}>
+                  <X className="mr-2 h-4 w-4" /> Clear Data
+                </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -891,6 +905,7 @@ export default function ScanningPage() {
     
 
     
+
 
 
 
