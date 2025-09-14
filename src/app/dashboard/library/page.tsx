@@ -382,17 +382,17 @@ export default function AutoGenerateBillPage() {
           </CardHeader>
           <CardContent>
             <div className="flex gap-4 items-end mb-4">
-              <div className="flex-1 space-y-2">
-                <Label htmlFor="newBookTitle">Book Title</Label>
-                <Input id="newBookTitle" value={newBookTitle} onChange={e => setNewBookTitle(e.target.value)} placeholder="e.g., History of Sindh" />
-              </div>
-              <div className="flex-1 space-y-2">
-                <Label htmlFor="newBookAuthor">Author</Label>
-                <Input id="newBookAuthor" value={newBookAuthor} onChange={e => setNewBookAuthor(e.target.value)} placeholder="e.g., Dr. Nabi Bux Baloch" />
-              </div>
-              <Button onClick={handleAddBook}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add Book
-              </Button>
+                <div className="flex-1 space-y-2">
+                    <Label htmlFor="newBookTitle">Book Title</Label>
+                    <Input id="newBookTitle" value={newBookTitle} onChange={e => setNewBookTitle(e.target.value)} placeholder="e.g., History of Sindh" />
+                </div>
+                <div className="flex-1 space-y-2">
+                    <Label htmlFor="newBookAuthor">Author</Label>
+                    <Input id="newBookAuthor" value={newBookAuthor} onChange={e => setNewBookAuthor(e.target.value)} placeholder="e.g., Dr. Nabi Bux Baloch" />
+                </div>
+                <Button onClick={handleAddBook} className="self-end">
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Book
+                </Button>
             </div>
             <Table>
               <TableHeader>
@@ -720,6 +720,7 @@ export default function AutoGenerateBillPage() {
   );
 }
     
+
 
 
 
