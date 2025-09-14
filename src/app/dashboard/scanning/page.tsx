@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2, Trash2, ChevronDown, ChevronUp, ScanLine, FileCheck, UploadCloud, CheckCircle } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2, Trash2, ChevronDown, ChevronUp, ScanLine, FileCheck, UploadCloud, CheckCircle, Info } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -169,6 +169,9 @@ export default function ScanningPage() {
   const [assignTaskBookId, setAssignTaskBookId] = useState('');
   const [assignTaskEmployeeId, setAssignTaskEmployeeId] = useState('');
   const [isParsing, setIsParsing] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [detailsRecord, setDetailsRecord] = useState<ScanningRecord | null>(null);
+
 
   const employees = useMemo(() => getUsers().filter(u => u.role === 'I.T & Scanning-Employee'), [getUsers]);
 
@@ -602,7 +605,7 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
-                <p className="mt-2 text-white">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 font-sindhi text-lg text-white">Your CSV file should have the following columns. The order of columns is important.</p>
+                <p className="mt-2 text-white">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 text-white">Your CSV file should have the following columns. The order of columns is important.</p>
                 <div className="mt-2 text-sm text-muted-foreground">
                     <ul className="list-disc list-inside space-y-1">
                         {(isImportListExpanded ? csvColumns : csvColumns.slice(0, 3)).map(col => (
@@ -803,13 +806,7 @@ export default function ScanningPage() {
                             <TableHead><div>Year</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">سال</div></TableHead>
                             <TableHead><div>Language</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ٻولي</div></TableHead>
                             <TableHead><div>Status</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اسٽيٽس</div></TableHead>
-                            <TableHead><div>Link</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">لنڪ</div></TableHead>
-                            <TableHead><div>Scanned By</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اسڪين ڪندڙ</div></TableHead>
-                            <TableHead><div>Assigned To</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">مقرر ٿيل</div></TableHead>
-                            <TableHead><div>Assigned At</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">مقرر وقت</div></TableHead>
-                            <TableHead><div>Uploaded By</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اپلوڊ ڪندڙ</div></TableHead>
-                            <TableHead><div>Source</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ذريعو</div></TableHead>
-                            <TableHead><div>Month</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">مهينو</div></TableHead>
+                            <TableHead><div>Details</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">تفصيل</div></TableHead>
                             {user?.role === 'Admin' && <TableHead>
                                 <span className="sr-only">Actions</span>
                             </TableHead>}
@@ -830,15 +827,12 @@ export default function ScanningPage() {
                                         {record.status}
                                     </Badge>
                                 </TableCell>
-                                <TableCell><a href={record.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Link</a></TableCell>
-                                <TableCell>{record.scanned_by || 'N/A'}</TableCell>
-                                <TableCell>{record.assigned_to || 'N/A'}</TableCell>
                                 <TableCell>
-                                  {record.assigned_date ? `${record.assigned_date} ${record.assigned_time}` : 'N/A'}
+                                    <Button variant="ghost" size="icon" onClick={() => { setDetailsRecord(record); setIsDetailsOpen(true); }}>
+                                        <Info className="h-4 w-4" />
+                                    </Button>
                                 </TableCell>
-                                <TableCell>{record.uploaded_by || 'N/A'}</TableCell>
-                                <TableCell>{record.source}</TableCell>
-                                <TableCell>{record.month}</TableCell>
+
                                 {user?.role === 'Admin' && <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -893,24 +887,22 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                         <div className="overflow-x-auto">
-                           <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="px-2 py-2 font-normal">Stage</TableHead>
-                                        <TableHead className="text-right px-2 py-2 font-normal">Count</TableHead>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="px-2 py-2 font-normal">Stage</TableHead>
+                                    <TableHead className="text-right px-2 py-2 font-normal">Count</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(summaryCounts).map(([status, count]) => (
+                                    <TableRow key={status}>
+                                        <TableCell className="font-medium capitalize px-2 py-1">{status}</TableCell>
+                                        <TableCell className="text-right font-bold px-2 py-1">{count}</TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {Object.entries(summaryCounts).map(([status, count]) => (
-                                        <TableRow key={status}>
-                                            <TableCell className="font-medium capitalize px-2 py-1">{status}</TableCell>
-                                            <TableCell className="text-right font-bold px-2 py-1">{count}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
                 </CardFooter>
         </Card>
@@ -964,10 +956,47 @@ export default function ScanningPage() {
                 </DialogFooter>
             </DialogContent>
       </Dialog>
+
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Details for: {detailsRecord?.title_english}</DialogTitle>
+            </DialogHeader>
+            {detailsRecord && (
+                <div className="grid gap-4 py-4 text-sm">
+                    <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Link:</p>
+                        <a href={detailsRecord.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline truncate">{detailsRecord.link}</a>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Scanned By:</p>
+                        <p>{detailsRecord.scanned_by || 'N/A'}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Assigned To:</p>
+                        <p>{detailsRecord.assigned_to || 'N/A'}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Assigned At:</p>
+                        <p>{detailsRecord.assigned_date ? `${detailsRecord.assigned_date} ${detailsRecord.assigned_time}` : 'N/A'}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Uploaded By:</p>
+                        <p>{detailsRecord.uploaded_by || 'N/A'}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Source:</p>
+                        <p>{detailsRecord.source}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Month:</p>
+                        <p>{detailsRecord.month}</p>
+                    </div>
+                </div>
+            )}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
-
-
-
-
