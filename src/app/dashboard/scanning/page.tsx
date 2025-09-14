@@ -120,8 +120,6 @@ export default function ScanningPage() {
     language: '',
     link: '',
     status: 'Pending',
-    scanned_by: '',
-    uploaded_by: '',
     source: '',
     month: '',
   };
@@ -197,15 +195,17 @@ export default function ScanningPage() {
   };
 
   const handleUpdateRecord = () => {
-    if (selectedRecord) {
+    if (selectedRecord && user) {
       const updatedRecords = scanningRecords.map(record => 
         record.book_id === selectedRecord.book_id
         ? { 
             ...record, 
             status: editedStatus,
+            scanned_by: editedStatus.toLowerCase() === 'scanning' ? user.name : record.scanned_by,
+            uploaded_by: editedStatus.toLowerCase() === 'uploading' ? user.name : record.uploaded_by,
             assigned_to: editedAssignedTo,
             last_edited_time: new Date().toISOString(),
-            last_edited_by: user?.name || null,
+            last_edited_by: user.name,
           }
         : record
       );
@@ -246,7 +246,7 @@ export default function ScanningPage() {
             const now = new Date().toISOString();
             const mappedData = (results.data as any[]).map(row => ({
                 ...row,
-                book_id: row.book_id || `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                book_id: `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 created_time: now,
                 last_edited_time: now,
                 last_edited_by: user?.name || null,
@@ -297,9 +297,9 @@ export default function ScanningPage() {
       created_time: now,
       last_edited_time: now,
       last_edited_by: user?.name || null,
-      scanned_by: newRecord.scanned_by || null,
+      scanned_by: null,
       assigned_to: null,
-      uploaded_by: newRecord.uploaded_by || null,
+      uploaded_by: null,
     };
     
     const updatedRecords = [recordToAdd, ...scanningRecords];
@@ -418,14 +418,6 @@ export default function ScanningPage() {
                             {statusOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
                         </SelectContent>
                     </Select>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="new-scanned_by">Scanned By</Label>
-                    <Input id="new-scanned_by" value={newRecord.scanned_by} onChange={(e) => handleNewRecordInputChange('scanned_by', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="new-uploaded_by">Uploaded By</Label>
-                    <Input id="new-uploaded_by" value={newRecord.uploaded_by} onChange={(e) => handleNewRecordInputChange('uploaded_by', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="new-source">Source</Label>
@@ -614,7 +606,7 @@ export default function ScanningPage() {
                             <Label htmlFor="assigned_to" className="text-right">
                                 Assign To
                             </Label>
-                            <Select onValueChange={(value) => setEditedAssignedTo(value)} defaultValue={editedAssignedTo ?? undefined}>
+                            <Select onValueChange={(value) => setEditedAssignedTo(value === 'null' ? null : value)} defaultValue={editedAssignedTo ?? undefined}>
                                 <SelectTrigger className="col-span-3">
                                     <SelectValue placeholder="Assign to an employee" />
                                 </SelectTrigger>
