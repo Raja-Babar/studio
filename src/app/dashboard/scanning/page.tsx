@@ -369,47 +369,59 @@ export default function ScanningPage() {
         return;
     }
 
-    const isDuplicate = scanningRecords.some(
+    const existingRecord = scanningRecords.find(
         (record) => record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
     );
 
-    if (isDuplicate) {
-        toast({
-            variant: "destructive",
-            title: "Duplicate Record Found",
-            description: "A record with this file name already exists. The existing record is now shown in the table.",
+    if (existingRecord) {
+        const updatedRecords = scanningRecords.map(record => {
+            if (record.book_id === existingRecord.book_id) {
+                return {
+                    ...record,
+                    status: newRecord.status,
+                    last_edited_time: new Date().toISOString(),
+                    last_edited_by: user?.name || null,
+                };
+            }
+            return record;
         });
-        setSearchTerm(newRecord.file_name); // Filter the table to show the duplicate
-        return;
+        setScanningRecords(updatedRecords);
+        localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
+        toast({
+            title: "Record Updated",
+            description: `The status for "${existingRecord.title_english}" has been updated to "${newRecord.status}".`,
+        });
+        setSearchTerm(newRecord.file_name);
+    } else {
+        if (!newRecord.title_english) {
+          toast({
+            variant: "destructive",
+            title: "Missing Fields",
+            description: "English Title is required.",
+          });
+          return;
+        }
+        const now = new Date().toISOString();
+        const recordToAdd: ScanningRecord = {
+          ...newRecord,
+          book_id: `BK-${Date.now()}`,
+          created_time: now,
+          last_edited_time: now,
+          last_edited_by: user?.name || null,
+          scanned_by: newRecord.status.toLowerCase() === 'scanning' ? user?.name || null : null,
+          uploaded_by: newRecord.status.toLowerCase() === 'uploading' ? user?.name || null : null,
+          month: selectedDate ? format(selectedDate, 'MMMM') : '',
+          year: selectedDate ? format(selectedDate, 'yyyy') : newRecord.year
+        };
+        
+        const updatedRecords = [recordToAdd, ...scanningRecords];
+        setScanningRecords(updatedRecords);
+        localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
+        toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
     }
 
-    if (!newRecord.title_english) {
-      toast({
-        variant: "destructive",
-        title: "Missing Fields",
-        description: "English Title is required.",
-      });
-      return;
-    }
-    const now = new Date().toISOString();
-    const recordToAdd: ScanningRecord = {
-      ...newRecord,
-      book_id: `BK-${Date.now()}`,
-      created_time: now,
-      last_edited_time: now,
-      last_edited_by: user?.name || null,
-      scanned_by: newRecord.status.toLowerCase() === 'scanning' ? user?.name || null : null,
-      uploaded_by: newRecord.status.toLowerCase() === 'uploading' ? user?.name || null : null,
-      month: selectedDate ? format(selectedDate, 'MMMM') : '',
-      year: selectedDate ? format(selectedDate, 'yyyy') : newRecord.year
-    };
-    
-    const updatedRecords = [recordToAdd, ...scanningRecords];
-    setScanningRecords(updatedRecords);
-    localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
     setNewRecord(initialNewRecordState);
     setSelectedDate(null);
-    toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
   };
   
   const handleNewRecordInputChange = (field: keyof Omit<ScanningRecord, 'book_id'>, value: string) => {
