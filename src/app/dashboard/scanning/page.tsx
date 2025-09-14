@@ -532,15 +532,6 @@ export default function ScanningPage() {
       }
   };
 
-  const fixedSummary = {
-      scanning: 2,
-      "pdf-qc": 2,
-      pending: 1,
-      "scanning-qc": 1,
-      uploading: 1,
-  };
-
-
   return (
     <div className="space-y-6">
        <div>
@@ -906,29 +897,6 @@ export default function ScanningPage() {
                                 </li>
                             ))}
                         </ul>
-                    </div>
-                     <div className="w-full mt-4">
-                        <h3 className="text-lg font-semibold mb-2">Fixed Summary</h3>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Stage</TableHead>
-                                    <TableHead className="text-right">Count</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {Object.entries(fixedSummary).map(([stage, count]) => (
-                                    <TableRow key={stage}>
-                                        <TableCell className="font-medium capitalize">{stage}</TableCell>
-                                        <TableCell className="text-right font-bold">{count}</TableCell>
-                                    </TableRow>
-                                ))}
-                                <TableRow>
-                                    <TableCell className="font-medium capitalize">Completed</TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['completed'] || 0}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
                     </div>
                 </CardFooter>
         </Card>
