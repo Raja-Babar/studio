@@ -873,16 +873,18 @@ export default function ScanningPage() {
                     </TableBody>
                 </Table>
                 </CardContent>
-                <CardFooter className="flex-col items-center border-t pt-4">
+                <CardFooter className="flex-col items-start border-t pt-4">
                     {hasMoreRecords && (
-                        <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)} className="w-full">
-                            {isExpanded ? 'See Less' : 'See More'}
-                            {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
-                        </Button>
+                        <div className="w-full text-center">
+                            <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)} className="w-full">
+                                {isExpanded ? 'See Less' : 'See More'}
+                                {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                            </Button>
+                        </div>
                     )}
                      <div className="w-full mt-4">
-                        <h3 className="text-lg font-semibold mb-2 text-center">Summary</h3>
-                        <div className="max-w-xs mx-auto">
+                        <h3 className="text-lg font-semibold mb-2">Summary</h3>
+                        <div className="max-w-xs">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
