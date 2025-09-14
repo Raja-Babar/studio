@@ -71,6 +71,7 @@ type ScanningRecord = {
   assigned_to: string | null;
   assigned_date: string | null;
   assigned_time: string | null;
+  deadline: string | null;
   uploaded_by: string | null;
   source: string;
   created_time: string;
@@ -154,6 +155,7 @@ export default function ScanningPage() {
     assigned_to: null,
     assigned_date: null,
     assigned_time: null,
+    deadline: null,
     uploaded_by: null,
     source: '',
     created_time: '',
@@ -169,6 +171,7 @@ export default function ScanningPage() {
   const [assignTaskBookId, setAssignTaskBookId] = useState('');
   const [assignTaskEmployeeId, setAssignTaskEmployeeId] = useState('');
   const [assignTaskStatus, setAssignTaskStatus] = useState('');
+  const [assignTaskDeadline, setAssignTaskDeadline] = useState<Date>();
   const [isParsing, setIsParsing] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [detailsRecord, setDetailsRecord] = useState<ScanningRecord | null>(null);
@@ -339,6 +342,7 @@ export default function ScanningPage() {
                 assigned_to: row.assigned_to || null,
                 assigned_date: null,
                 assigned_time: null,
+                deadline: null,
                 uploaded_by: row.uploaded_by || null,
             }));
             
@@ -474,6 +478,7 @@ export default function ScanningPage() {
           status: assignTaskStatus,
           assigned_date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
           assigned_time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          deadline: assignTaskDeadline ? format(assignTaskDeadline, 'yyyy-MM-dd') : null,
           last_edited_time: new Date().toISOString(),
           last_edited_by: user?.name || null,
         }
@@ -485,6 +490,7 @@ export default function ScanningPage() {
     setAssignTaskBookId('');
     setAssignTaskEmployeeId('');
     setAssignTaskStatus('');
+    setAssignTaskDeadline(undefined);
   };
 
   const handleParseFilename = async () => {
@@ -556,7 +562,7 @@ export default function ScanningPage() {
                     <CardDescription>Assign a book to an employee for processing.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
                         <div className="space-y-2">
                             <Label htmlFor="assign-book">Book</Label>
                             <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
@@ -593,6 +599,31 @@ export default function ScanningPage() {
                                     {statusOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
                                 </SelectContent>
                             </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Deadline</Label>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                    variant={"outline"}
+                                    className={cn(
+                                        "w-full justify-start text-left font-normal",
+                                        !assignTaskDeadline && "text-muted-foreground"
+                                    )}
+                                    >
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {assignTaskDeadline ? format(assignTaskDeadline, "PPP") : <span>Pick a date</span>}
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto p-0">
+                                    <Calendar
+                                    mode="single"
+                                    selected={assignTaskDeadline}
+                                    onSelect={setAssignTaskDeadline}
+                                    initialFocus
+                                    />
+                                </PopoverContent>
+                            </Popover>
                         </div>
                         <Button onClick={handleAssignTask}>
                             <CalendarClock className="mr-2 h-4 w-4" /> Assign Task
@@ -995,6 +1026,10 @@ export default function ScanningPage() {
                         <p>{detailsRecord.assigned_date ? `${detailsRecord.assigned_date} ${detailsRecord.assigned_time}` : 'N/A'}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
+                        <p className="font-semibold">Deadline:</p>
+                        <p>{detailsRecord.deadline ? format(new Date(detailsRecord.deadline), 'PPP') : 'N/A'}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
                         <p className="font-semibold">Uploaded By:</p>
                         <p>{detailsRecord.uploaded_by || 'N/A'}</p>
                     </div>
@@ -1014,4 +1049,3 @@ export default function ScanningPage() {
     </div>
   );
 }
-
