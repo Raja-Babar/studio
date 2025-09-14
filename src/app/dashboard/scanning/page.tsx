@@ -19,7 +19,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X, Upload, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -51,6 +51,8 @@ type ScanningRecord = {
   status: string;
   scanned_by: string | null;
   assigned_to: string | null;
+  assigned_date: string | null;
+  assigned_time: string | null;
   uploaded_by: string | null;
   source: string;
   created_time: string;
@@ -128,6 +130,9 @@ export default function ScanningPage() {
   const [editedStatus, setEditedStatus] = useState('');
   const [editedAssignedTo, setEditedAssignedTo] = useState<string | null>(null);
 
+  const [assignTaskBookId, setAssignTaskBookId] = useState('');
+  const [assignTaskEmployeeId, setAssignTaskEmployeeId] = useState('');
+
   const employees = useMemo(() => getUsers().filter(u => u.role === 'I.T & Scanning-Employee' || u.role === 'Library-Employee'), [getUsers]);
 
 
@@ -204,6 +209,8 @@ export default function ScanningPage() {
             scanned_by: editedStatus.toLowerCase() === 'scanning' ? user.name : record.scanned_by,
             uploaded_by: editedStatus.toLowerCase() === 'uploading' ? user.name : record.uploaded_by,
             assigned_to: editedAssignedTo,
+            assigned_date: record.assigned_to !== editedAssignedTo ? new Date().toLocaleDateString('en-CA') : record.assigned_date,
+            assigned_time: record.assigned_to !== editedAssignedTo ? new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : record.assigned_time,
             last_edited_time: new Date().toISOString(),
             last_edited_by: user.name,
           }
@@ -252,6 +259,8 @@ export default function ScanningPage() {
                 last_edited_by: user?.name || null,
                 scanned_by: row.scanned_by || null,
                 assigned_to: row.assigned_to || null,
+                assigned_date: null,
+                assigned_time: null,
                 uploaded_by: row.uploaded_by || null,
             }));
             
@@ -299,6 +308,8 @@ export default function ScanningPage() {
       last_edited_by: user?.name || null,
       scanned_by: null,
       assigned_to: null,
+      assigned_date: null,
+      assigned_time: null,
       uploaded_by: null,
     };
     
@@ -312,6 +323,34 @@ export default function ScanningPage() {
   const handleNewRecordInputChange = (field: keyof typeof newRecord, value: string) => {
     setNewRecord(prev => ({...prev, [field]: value}));
   }
+
+  const handleAssignTask = () => {
+    if (!assignTaskBookId || !assignTaskEmployeeId) {
+      toast({ variant: 'destructive', title: 'Assignment Failed', description: 'Please select both a book and an employee.' });
+      return;
+    }
+
+    const employee = employees.find(e => e.id === assignTaskEmployeeId);
+    if (!employee) return;
+
+    const updatedRecords = scanningRecords.map(record => 
+      record.book_id === assignTaskBookId
+      ? { 
+          ...record, 
+          assigned_to: employee.name,
+          assigned_date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
+          assigned_time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+          last_edited_time: new Date().toISOString(),
+          last_edited_by: user?.name || null,
+        }
+      : record
+    );
+    setScanningRecords(updatedRecords);
+    localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
+    toast({ title: 'Task Assigned', description: `Task has been assigned to ${employee.name}.` });
+    setAssignTaskBookId('');
+    setAssignTaskEmployeeId('');
+  };
 
 
   return (
@@ -357,9 +396,6 @@ export default function ScanningPage() {
                                 <TableHead>language</TableHead>
                                 <TableHead>link</TableHead>
                                 <TableHead>status</TableHead>
-                                <TableHead>scanned_by</TableHead>
-                                <TableHead>assigned_to</TableHead>
-                                <TableHead>uploaded_by</TableHead>
                                 <TableHead>source</TableHead>
                                 <TableHead>month</TableHead>
                             </TableRow>
@@ -374,7 +410,7 @@ export default function ScanningPage() {
             <CardTitle>Add New Record</CardTitle>
             <CardDescription>Manually add a new book record to the digitization progress table.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <div className="space-y-4 max-w-lg">
                 <div className="space-y-2">
                     <Label htmlFor="new-file_name">File Name</Label>
@@ -386,7 +422,7 @@ export default function ScanningPage() {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="new-title_sindhi">Title (Sindhi)</Label>
-                    <Input id="new-title_sindhi" value={newRecord.title_sindhi} onChange={(e) => handleNewRecordInputChange('title_sindhi', e.target.value)} />
+                    <Input id="new-title_sindhi" className="font-sindhi" dir="rtl" value={newRecord.title_sindhi} onChange={(e) => handleNewRecordInputChange('title_sindhi', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="new-author_english">Author (English)</Label>
@@ -394,7 +430,7 @@ export default function ScanningPage() {
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="new-author_sindhi">Author (Sindhi)</Label>
-                    <Input id="new-author_sindhi" value={newRecord.author_sindhi} onChange={(e) => handleNewRecordInputChange('author_sindhi', e.target.value)} />
+                    <Input id="new-author_sindhi" className="font-sindhi" dir="rtl" value={newRecord.author_sindhi} onChange={(e) => handleNewRecordInputChange('author_sindhi', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="new-year">Year</Label>
@@ -433,6 +469,48 @@ export default function ScanningPage() {
             </Button>
           </CardContent>
         </Card>
+
+        {user?.role === 'Admin' && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Assign Task</CardTitle>
+                    <CardDescription>Assign a book to an employee for processing.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div className="space-y-2">
+                            <Label htmlFor="assign-book">Book</Label>
+                            <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
+                                <SelectTrigger id="assign-book">
+                                    <SelectValue placeholder="Select a book to assign" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {scanningRecords.map(rec => (
+                                        <SelectItem key={rec.book_id} value={rec.book_id}>{rec.title_english}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="assign-employee">Assign To</Label>
+                            <Select value={assignTaskEmployeeId} onValueChange={setAssignTaskEmployeeId}>
+                                <SelectTrigger id="assign-employee">
+                                    <SelectValue placeholder="Select an employee" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {employees.map(emp => (
+                                        <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Button onClick={handleAssignTask}>
+                            <CalendarClock className="mr-2 h-4 w-4" /> Assign Task
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+        )}
 
 
         <Card>
@@ -523,6 +601,7 @@ export default function ScanningPage() {
                             <TableHead>Link</TableHead>
                             <TableHead>Scanned By</TableHead>
                             <TableHead>Assigned To</TableHead>
+                            <TableHead>Assigned At</TableHead>
                             <TableHead>Uploaded By</TableHead>
                             <TableHead>Source</TableHead>
                             <TableHead>Month</TableHead>
@@ -549,6 +628,9 @@ export default function ScanningPage() {
                                 <TableCell><a href={record.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Link</a></TableCell>
                                 <TableCell>{record.scanned_by || 'N/A'}</TableCell>
                                 <TableCell>{record.assigned_to || 'N/A'}</TableCell>
+                                <TableCell>
+                                  {record.assigned_date ? `${record.assigned_date} ${record.assigned_time}` : 'N/A'}
+                                </TableCell>
                                 <TableCell>{record.uploaded_by || 'N/A'}</TableCell>
                                 <TableCell>{record.source}</TableCell>
                                 <TableCell>{record.month}</TableCell>
