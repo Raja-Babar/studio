@@ -50,12 +50,27 @@ type GeneratedBill = {
     entries: BillEntry[];
 };
 
+type Book = {
+  id: number;
+  title: string;
+  author: string;
+};
+
 export default function AutoGenerateBillPage() {
   const { toast } = useToast();
   const [billEntries, setBillEntries] = useState<BillEntry[]>([]);
   const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>([]);
   const [nextEntryId, setNextEntryId] = useState(1);
   const [nextBillId, setNextBillId] = useState(1);
+  
+  const [books, setBooks] = useState<Book[]>([]);
+  const [nextBookId, setNextBookId] = useState(1);
+  const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookAuthor, setNewBookAuthor] = useState('');
+  const [isBookEditDialogOpen, setIsBookEditDialogOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  const [editedBookTitle, setEditedBookTitle] = useState('');
+  const [editedBookAuthor, setEditedBookAuthor] = useState('');
 
   const [bookTitle, setBookTitle] = useState('');
   const [bookTitleSindhi, setBookTitleSindhi] = useState('');
@@ -80,6 +95,8 @@ export default function AutoGenerateBillPage() {
   useEffect(() => {
     try {
       const storedBills = localStorage.getItem('generatedBills');
+      const storedBooks = localStorage.getItem('libraryBooks');
+
       if (storedBills) {
         const parsedBills = JSON.parse(storedBills);
         setGeneratedBills(parsedBills);
@@ -88,18 +105,67 @@ export default function AutoGenerateBillPage() {
             setNextBillId(maxId + 1);
         }
       }
+      if (storedBooks) {
+        const parsedBooks = JSON.parse(storedBooks);
+        setBooks(parsedBooks);
+        if (parsedBooks.length > 0) {
+          const maxId = Math.max(...parsedBooks.map((b: Book) => b.id));
+          setNextBookId(maxId + 1);
+        }
+      }
     } catch (e) {
-      console.error("Error loading bills from localStorage", e);
+      console.error("Error loading data from localStorage", e);
     }
   }, []);
 
   useEffect(() => {
     try {
       localStorage.setItem('generatedBills', JSON.stringify(generatedBills));
+      localStorage.setItem('libraryBooks', JSON.stringify(books));
     } catch (e) {
-      console.error("Error saving bills to localStorage", e);
+      console.error("Error saving data to localStorage", e);
     }
-  }, [generatedBills]);
+  }, [generatedBills, books]);
+  
+  const handleAddBook = () => {
+    if (!newBookTitle || !newBookAuthor) {
+      toast({
+        variant: 'destructive',
+        title: 'Missing Fields',
+        description: 'Please provide both title and author.',
+      });
+      return;
+    }
+    setBooks(prev => [...prev, {id: nextBookId, title: newBookTitle, author: newBookAuthor}]);
+    setNextBookId(prev => prev + 1);
+    setNewBookTitle('');
+    setNewBookAuthor('');
+    toast({ title: 'Book Added', description: `"${newBookTitle}" has been added to your library.` });
+  };
+  
+  const handleDeleteBook = (id: number) => {
+    setBooks(prev => prev.filter(book => book.id !== id));
+    toast({ title: 'Book Removed', description: 'The book has been removed from your library.' });
+  };
+  
+  const handleEditBookClick = (book: Book) => {
+    setSelectedBook(book);
+    setEditedBookTitle(book.title);
+    setEditedBookAuthor(book.author);
+    setIsBookEditDialogOpen(true);
+  };
+
+  const handleUpdateBook = () => {
+    if (selectedBook) {
+      setBooks(prev => prev.map(book =>
+        book.id === selectedBook.id ? { ...book, title: editedBookTitle, author: editedBookAuthor } : book
+      ));
+      setIsBookEditDialogOpen(false);
+      setSelectedBook(null);
+      toast({ title: 'Book Updated', description: 'The book details have been updated.' });
+    }
+  };
+
 
   const handleAddEntry = () => {
     const qty = parseFloat(quantity);
@@ -308,6 +374,59 @@ export default function AutoGenerateBillPage() {
           <h1 className="text-3xl font-bold tracking-tight">Auto-Generate-Bill</h1>
           <p className="text-muted-foreground mt-2">Create and manage bills for book sales.</p>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Manage Books</CardTitle>
+            <CardDescription>Add, edit, or delete books from your library inventory.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-4 items-end mb-4">
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="newBookTitle">Book Title</Label>
+                <Input id="newBookTitle" value={newBookTitle} onChange={e => setNewBookTitle(e.target.value)} placeholder="e.g., History of Sindh" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <Label htmlFor="newBookAuthor">Author</Label>
+                <Input id="newBookAuthor" value={newBookAuthor} onChange={e => setNewBookAuthor(e.target.value)} placeholder="e.g., Dr. Nabi Bux Baloch" />
+              </div>
+              <Button onClick={handleAddBook}>
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Book
+              </Button>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Book Title</TableHead>
+                  <TableHead>Author</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {books.length > 0 ? (
+                  books.map(book => (
+                    <TableRow key={book.id}>
+                      <TableCell className="font-medium">{book.title}</TableCell>
+                      <TableCell>{book.author}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleEditBookClick(book)}>
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteBook(book.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="h-24 text-center">No books added yet.</TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -571,12 +690,37 @@ export default function AutoGenerateBillPage() {
                   </DialogFooter>
               </DialogContent>
           </Dialog>
+
+          <Dialog open={isBookEditDialogOpen} onOpenChange={setIsBookEditDialogOpen}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Edit Book</DialogTitle>
+                    <DialogDescription>
+                        Make changes to the book details here. Click save when you're done.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-book-title" className="text-right">Title</Label>
+                        <Input id="edit-book-title" value={editedBookTitle} onChange={e => setEditedBookTitle(e.target.value)} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-book-author" className="text-right">Author</Label>
+                        <Input id="edit-book-author" value={editedBookAuthor} onChange={e => setEditedBookAuthor(e.target.value)} className="col-span-3" />
+                    </div>
+                </div>
+                <DialogFooter>
+                    <Button type="button" variant="secondary" onClick={() => setIsBookEditDialogOpen(false)}>Cancel</Button>
+                    <Button type="submit" onClick={handleUpdateBook}>Save changes</Button>
+                </DialogFooter>
+            </DialogContent>
+          </Dialog>
       </div>
     </>
   );
 }
     
-    
+
 
 
 
