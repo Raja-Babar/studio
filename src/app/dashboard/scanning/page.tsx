@@ -882,36 +882,38 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2 text-center">Summary</h3>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Count</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell>Scanning</TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>PDF QC</TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Uploading</TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell>Completed</TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['completed'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow className="bg-muted font-bold">
-                                    <TableCell>Total Records</TableCell>
-                                    <TableCell className="text-right">{filteredRecords.length}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                        <div className="max-w-xs mx-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Count</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell>Scanning</TableCell>
+                                        <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>PDF QC</TableCell>
+                                        <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Uploading</TableCell>
+                                        <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell>Completed</TableCell>
+                                        <TableCell className="text-right font-bold">{summaryCounts['completed'] || 0}</TableCell>
+                                    </TableRow>
+                                    <TableRow className="bg-muted font-bold">
+                                        <TableCell>Total Records</TableCell>
+                                        <TableCell className="text-right">{filteredRecords.length}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </div>
                     </div>
                 </CardFooter>
         </Card>
