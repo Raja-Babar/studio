@@ -426,7 +426,7 @@ export default function ScanningPage() {
           month: newRecord.year ? format(new Date(parseInt(newRecord.year), 0, 1), 'MMMM') : '',
         };
         
-        const updatedRecords = [...scanningRecords, recordToAdd];
+        const updatedRecords = [recordToAdd, ...scanningRecords];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -476,53 +476,67 @@ export default function ScanningPage() {
   };
 
   const handleParseFilename = async () => {
-    const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
-    
-    const parts = filename.split(/[-_]/).map(p => p.trim());
+      const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
+      const parts = filename.split('-');
 
-    if (parts.length < 2) {
-      setNewRecord(prev => ({...prev, year: ''}));
-      return;
-    }
+      let title = '';
+      let author = '';
+      let year = '';
 
-    const title = parts[0]?.replace(/_/g, ' ') || '';
-    const author = parts[1]?.replace(/_/g, ' ') || '';
-    const year = parts.find(p => /^\d{4}$/.test(p)) || '';
-    
-    const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
-
-    let language = 'English';
-    if (isSindhi(title) || isSindhi(author)) {
-      language = 'Sindhi';
-    }
-
-    setNewRecord(prev => ({
-        ...prev,
-        author_english: author,
-        title_english: title,
-        year: year,
-        language: language,
-    }));
-    
-    if (title || author) {
-        setIsParsing(true);
-        try {
-            const result = await parseAndTranslate(title, author);
-            if (result.success && result.data) {
-                setNewRecord(prev => ({
-                    ...prev,
-                    title_sindhi: result.data.titleSindhi,
-                    author_sindhi: result.data.authorSindhi
-                }));
-            } else {
-                toast({ variant: 'destructive', title: 'Translation Failed', description: result.error });
-            }
-        } catch (error) {
-            toast({ variant: 'destructive', title: 'Error', description: 'Failed to contact translation service.' });
-        } finally {
-            setIsParsing(false);
+      if (parts.length > 0) {
+        title = parts[0]?.replace(/_/g, ' ').trim() || '';
+      }
+      if (parts.length > 1) {
+        author = parts[1]?.replace(/_/g, ' ').trim() || '';
+      }
+      if (parts.length > 2 && /^\d{4}$/.test(parts[parts.length - 1])) {
+        year = parts[parts.length - 1];
+        // If year is the last part, the author part might contain the year as well
+        const authorParts = author.split(' ');
+        if(authorParts[authorParts.length - 1] === year) {
+            author = authorParts.slice(0, -1).join(' ');
         }
-    }
+      } else {
+        const yearPart = filename.match(/(\d{4})/);
+        if (yearPart) {
+          year = yearPart[0];
+        }
+      }
+
+      const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
+
+      let language = 'English';
+      if (isSindhi(title) || isSindhi(author)) {
+          language = 'Sindhi';
+      }
+
+      setNewRecord(prev => ({
+          ...prev,
+          author_english: author,
+          title_english: title,
+          year: year,
+          language: language,
+      }));
+
+      if (title || author) {
+          setIsParsing(true);
+          try {
+              const result = await parseAndTranslate(title, author);
+              if (result.success && result.data) {
+                  setNewRecord(prev => ({
+                      ...prev,
+                      title_sindhi: result.data.titleSindhi,
+                      author_sindhi: result.data.authorSindhi
+                  }));
+              } else {
+                  toast({ variant: 'destructive', title: 'Translation Failed', description: result.error });
+              }
+          } catch (error) {
+              toast({ variant: 'destructive', title: 'Error', description: 'Failed to contact translation service.' });
+          } finally {
+              setIsParsing(false);
+          }
+      }
   };
 
 
