@@ -84,16 +84,20 @@ export default function EmployeeTaskRecordPage() {
 
   const filteredTasks = useMemo(() => {
     return assignedTasks.filter(task => {
-      return (
-        task.title_english.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        task.assigned_to?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const searchLower = searchTerm.toLowerCase();
+      const titleMatch = task.title_english.toLowerCase().includes(searchLower);
+      
+      if (user?.role === 'Admin') {
+        return titleMatch || task.assigned_to?.toLowerCase().includes(searchLower);
+      }
+      
+      return titleMatch;
     }).sort((a, b) => {
         const dateA = a.assigned_date ? new Date(a.assigned_date).getTime() : 0;
         const dateB = b.assigned_date ? new Date(b.assigned_date).getTime() : 0;
         return dateB - dateA;
     });
-  }, [assignedTasks, searchTerm]);
+  }, [assignedTasks, searchTerm, user]);
   
   const handleExportPDF = () => {
     if (filteredTasks.length === 0) {
@@ -144,7 +148,7 @@ export default function EmployeeTaskRecordPage() {
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="search"
-                  placeholder="Search tasks or employees..."
+                  placeholder={user?.role === 'Admin' ? "Search tasks or employees..." : "Search tasks..."}
                   className="w-full rounded-lg bg-background pl-8"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -161,7 +165,7 @@ export default function EmployeeTaskRecordPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Book Title</TableHead>
-                <TableHead>Assigned To</TableHead>
+                {user?.role === 'Admin' && <TableHead>Assigned To</TableHead>}
                 <TableHead>Assigned At</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
@@ -171,7 +175,7 @@ export default function EmployeeTaskRecordPage() {
                 filteredTasks.map((task) => (
                   <TableRow key={task.book_id}>
                     <TableCell className="font-medium">{task.title_english}</TableCell>
-                    <TableCell>{task.assigned_to}</TableCell>
+                    {user?.role === 'Admin' && <TableCell>{task.assigned_to}</TableCell>}
                     <TableCell>
                       {task.assigned_date ? `${task.assigned_date} ${task.assigned_time}` : 'N/A'}
                     </TableCell>
@@ -182,7 +186,7 @@ export default function EmployeeTaskRecordPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
+                  <TableCell colSpan={user?.role === 'Admin' ? 4 : 3} className="h-24 text-center">
                     No assigned tasks found.
                   </TableCell>
                 </TableRow>
