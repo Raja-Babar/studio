@@ -168,6 +168,7 @@ export default function ScanningPage() {
 
   const [assignTaskBookId, setAssignTaskBookId] = useState('');
   const [assignTaskEmployeeId, setAssignTaskEmployeeId] = useState('');
+  const [assignTaskStatus, setAssignTaskStatus] = useState('');
   const [isParsing, setIsParsing] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [detailsRecord, setDetailsRecord] = useState<ScanningRecord | null>(null);
@@ -457,8 +458,8 @@ export default function ScanningPage() {
   };
 
   const handleAssignTask = () => {
-    if (!assignTaskBookId || !assignTaskEmployeeId) {
-      toast({ variant: 'destructive', title: 'Assignment Failed', description: 'Please select both a book and an employee.' });
+    if (!assignTaskBookId || !assignTaskEmployeeId || !assignTaskStatus) {
+      toast({ variant: 'destructive', title: 'Assignment Failed', description: 'Please select a book, an employee, and a task.' });
       return;
     }
 
@@ -470,6 +471,7 @@ export default function ScanningPage() {
       ? { 
           ...record, 
           assigned_to: employee.name,
+          status: assignTaskStatus,
           assigned_date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
           assigned_time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
           last_edited_time: new Date().toISOString(),
@@ -479,9 +481,10 @@ export default function ScanningPage() {
     );
     setScanningRecords(updatedRecords);
     localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
-    toast({ title: 'Task Assigned', description: `Task has been assigned to ${employee.name}.` });
+    toast({ title: 'Task Assigned', description: `Task "${assignTaskStatus}" has been assigned to ${employee.name}.` });
     setAssignTaskBookId('');
     setAssignTaskEmployeeId('');
+    setAssignTaskStatus('');
   };
 
   const handleParseFilename = async () => {
@@ -553,12 +556,12 @@ export default function ScanningPage() {
                     <CardDescription>Assign a book to an employee for processing.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4 max-w-lg">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         <div className="space-y-2">
                             <Label htmlFor="assign-book">Book</Label>
                             <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
                                 <SelectTrigger id="assign-book">
-                                    <SelectValue placeholder="Select a book to assign" />
+                                    <SelectValue placeholder="Select a book" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {scanningRecords.map(rec => (
@@ -577,6 +580,17 @@ export default function ScanningPage() {
                                     {employees.map(emp => (
                                         <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
                                     ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="assign-task">Task</Label>
+                            <Select value={assignTaskStatus} onValueChange={setAssignTaskStatus}>
+                                <SelectTrigger id="assign-task">
+                                    <SelectValue placeholder="Select a task" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {statusOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -1000,3 +1014,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
