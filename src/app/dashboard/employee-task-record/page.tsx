@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { Download, Search, ChevronDown, ChevronUp } from 'lucide-react';
+import { Download, Search, ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/use-auth';
@@ -184,6 +184,20 @@ export default function EmployeeTaskRecordPage() {
         .join('');
     };
 
+    const handleMarkComplete = (bookId: string) => {
+        setScanningRecords(prevRecords => {
+            const updatedRecords = prevRecords.map(record =>
+                record.book_id === bookId ? { ...record, status: 'Completed' } : record
+            );
+            localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
+            return updatedRecords;
+        });
+        toast({
+            title: 'Task Completed',
+            description: 'The task has been marked as complete.',
+        });
+    };
+
   return (
     <div className="space-y-6">
       <div className="flex items-start md:items-center justify-between flex-col md:flex-row gap-4">
@@ -243,6 +257,7 @@ export default function EmployeeTaskRecordPage() {
                             <TableHead>Book Title</TableHead>
                             <TableHead>Assigned At</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -254,6 +269,14 @@ export default function EmployeeTaskRecordPage() {
                                 </TableCell>
                                 <TableCell>
                                   <Badge className={getStatusClasses(task.status)}>{task.status}</Badge>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {user?.id === employeeData.employeeId && task.status !== 'Completed' && (
+                                        <Button variant="outline" size="sm" onClick={() => handleMarkComplete(task.book_id)}>
+                                            <CheckCircle className="mr-2 h-4 w-4" />
+                                            Mark as Complete
+                                        </Button>
+                                    )}
                                 </TableCell>
                               </TableRow>
                             ))}
