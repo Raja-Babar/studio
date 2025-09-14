@@ -381,6 +381,7 @@ export default function ScanningPage() {
                 if (record.book_id === existingRecord.book_id) {
                     return {
                         ...record,
+                        ...newRecord, // Apply all changes from the form
                         status: newRecord.status,
                         last_edited_time: new Date().toISOString(),
                         last_edited_by: user?.name || null,
@@ -398,7 +399,7 @@ export default function ScanningPage() {
              toast({
                 variant: "destructive",
                 title: "Duplicate Record",
-                description: `A record for "${newRecord.file_name}" already exists with a status of "${existingRecord.status}", which is not behind the new status.`,
+                description: `A record for "${newRecord.file_name}" already exists with a status of "${existingRecord.status}", which is not behind the new status. No update was made.`,
             });
             setSearchTerm(newRecord.file_name);
             return;
@@ -425,7 +426,7 @@ export default function ScanningPage() {
           month: newRecord.year ? format(new Date(parseInt(newRecord.year), 0, 1), 'MMMM') : '',
         };
         
-        const updatedRecords = [recordToAdd, ...scanningRecords];
+        const updatedRecords = [...scanningRecords, recordToAdd];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -885,7 +886,7 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <div className="max-w-xs">
+                        <div className="max-w-md">
                             <Table>
                                 <TableHeader>
                                     <TableRow>
