@@ -799,14 +799,14 @@ export default function ScanningPage() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>File Name|فائل جو نالو</TableHead>
-                            <TableHead><div>Title (English)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">عنوان (انگريزي)</div></TableHead>
-                            <TableHead><div className="font-sindhi">Title (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">عنوان (سنڌي)</div></TableHead>
-                            <TableHead><div>Author (English)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ليکڪ (انگريزي)</div></TableHead>
-                            <TableHead><div className="font-sindhi">Author (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ليکڪ (سنڌي)</div></TableHead>
-                            <TableHead><div>Year</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">سال</div></TableHead>
-                            <TableHead><div>Language</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ٻولي</div></TableHead>
-                            <TableHead><div>Status</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اسٽيٽس</div></TableHead>
-                            <TableHead><div>Details</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">تفصيل</div></TableHead>
+                            <TableHead>Title (English)|عنوان (انگريزي)</TableHead>
+                            <TableHead>Title (Sindhi)|عنوان (سنڌي)</TableHead>
+                            <TableHead>Author (English)|ليکڪ (انگريزي)</TableHead>
+                            <TableHead>Author (Sindhi)|ليکڪ (سنڌي)</TableHead>
+                            <TableHead>Year|سال</TableHead>
+                            <TableHead>Language|ٻولي</TableHead>
+                            <TableHead>Status|اسٽيٽس</TableHead>
+                            <TableHead>Details|تفصيل</TableHead>
                             {user?.role === 'Admin' && <TableHead>
                                 <span className="sr-only">Actions</span>
                             </TableHead>}
