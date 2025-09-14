@@ -14,7 +14,6 @@ export const scanningProgressRecords = JSON.stringify(
     {
       "book_id": "BK001",
       "file_name": "history_of_sindh.pdf",
-      "file_name_sindhi": "تاريخ_سنڌ.pdf",
       "title_english": "History of Sindh",
       "title_sindhi": "سنڌ جي تاريخ",
       "author_english": "Dr. Nabi Bux Baloch",
@@ -35,7 +34,6 @@ export const scanningProgressRecords = JSON.stringify(
     {
       "book_id": "BK002",
       "file_name": "sindh_through_centuries.pdf",
-      "file_name_sindhi": "صدين_کان_سنڌ.pdf",
       "title_english": "Sindh Through Centuries",
       "title_sindhi": "صدين کان سنڌ",
       "author_english": "M.H. Panhwar",
@@ -56,7 +54,6 @@ export const scanningProgressRecords = JSON.stringify(
     {
       "book_id": "BK003",
       "file_name": "panhwar_contributions.pdf",
-      "file_name_sindhi": "پنهور_جو_حصو.pdf",
       "title_english": "Panhwar Contributions",
       "title_sindhi": "پنهور جو حصو",
       "author_english": "Various",
@@ -77,7 +74,6 @@ export const scanningProgressRecords = JSON.stringify(
     {
       "book_id": "BK004",
       "file_name": "indus_valley.pdf",
-      "file_name_sindhi": "سنڌو_ماٿري.pdf",
       "title_english": "Indus Valley Civilization",
       "title_sindhi": "سنڌو ماٿري جي تهذيب",
       "author_english": "Sir Mortimer Wheeler",

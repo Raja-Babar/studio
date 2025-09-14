@@ -42,7 +42,6 @@ import Papa from 'papaparse';
 type ScanningRecord = {
   book_id: string;
   file_name: string;
-  file_name_sindhi: string;
   title_english: string;
   title_sindhi: string;
   author_english: string;
@@ -283,7 +282,6 @@ export default function ScanningPage() {
                             <TableRow>
                                 <TableHead>book_id</TableHead>
                                 <TableHead>file_name</TableHead>
-                                <TableHead>file_name_sindhi</TableHead>
                                 <TableHead>title_english</TableHead>
                                 <TableHead>title_sindhi</TableHead>
                                 <TableHead>author_english</TableHead>
@@ -384,7 +382,7 @@ export default function ScanningPage() {
                  <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>File Name | فائيل نالو</TableHead>
+                            <TableHead>File Name</TableHead>
                             <TableHead>Title (English)</TableHead>
                             <TableHead>Title (Sindhi)</TableHead>
                             <TableHead>Author (English)</TableHead>
@@ -409,7 +407,7 @@ export default function ScanningPage() {
                     <TableBody>
                         {filteredRecords.map((record) => (
                             <TableRow key={record.book_id}>
-                                <TableCell className="font-medium">{record.file_name} | {record.file_name_sindhi}</TableCell>
+                                <TableCell className="font-medium">{record.file_name}</TableCell>
                                 <TableCell>{record.title_english}</TableCell>
                                 <TableCell>{record.title_sindhi}</TableCell>
                                 <TableCell>{record.author_english}</TableCell>
