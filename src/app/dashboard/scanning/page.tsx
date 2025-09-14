@@ -889,14 +889,22 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <ul className="space-y-1">
-                            {Object.entries(summaryCounts).map(([status, count]) => (
-                                <li key={status} className="flex items-center justify-between p-2 rounded-lg bg-card-foreground/5">
-                                    <span className="font-medium capitalize">{status}</span>
-                                    <span className="font-bold text-lg">{count}</span>
-                                </li>
-                            ))}
-                        </ul>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Stage</TableHead>
+                                    <TableHead className="text-right">Count</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(summaryCounts).map(([status, count]) => (
+                                    <TableRow key={status}>
+                                        <TableCell className="font-medium capitalize">{status}</TableCell>
+                                        <TableCell className="text-right font-bold">{count}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
                 </CardFooter>
         </Card>
