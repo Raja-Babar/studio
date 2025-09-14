@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -33,23 +33,28 @@ type BillEntry = {
 };
 
 type GeneratedBill = {
-  id: string;
+  id: number;
   purchaserName: string;
   date: string;
   totalAmount: number;
   entries: BillEntry[];
 };
 
-const dummyBills: GeneratedBill[] = [
-    { id: 'BILL-16278401', purchaserName: 'Ali Khan', date: '2024-07-30', totalAmount: 450.00, entries: [{ id: 1, bookTitle: 'History of Sindh', quantity: 1, unitPrice: 500, discountPercent: 10 }] },
-    { id: 'BILL-16278402', purchaserName: 'Fatima Ahmed', date: '2024-07-29', totalAmount: 1200.00, entries: [{ id: 1, bookTitle: 'Sindh Through Centuries', quantity: 2, unitPrice: 600, discountPercent: 0 }] },
-];
-// End of dummy data
-
 
 export default function PublicationsPage() {
-  const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>(dummyBills);
+  const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>([]);
   const { appLogo } = useAuth();
+
+  useEffect(() => {
+    try {
+        const storedBills = localStorage.getItem('generatedBills');
+        if (storedBills) {
+            setGeneratedBills(JSON.parse(storedBills));
+        }
+    } catch (e) {
+        console.error("Error loading bills from localStorage", e);
+    }
+  }, []);
 
   const generateAndSavePDF = (bill: GeneratedBill) => {
     const doc = new jsPDF();

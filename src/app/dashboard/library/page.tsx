@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Card,
   CardContent,
@@ -43,7 +43,7 @@ type BillEntry = {
 };
 
 type GeneratedBill = {
-    id: string;
+    id: number;
     purchaserName: string;
     date: string;
     totalAmount: number;
@@ -55,6 +55,7 @@ export default function AutoGenerateBillPage() {
   const [billEntries, setBillEntries] = useState<BillEntry[]>([]);
   const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>([]);
   const [nextEntryId, setNextEntryId] = useState(1);
+  const [nextBillId, setNextBillId] = useState(1);
 
   const [bookTitle, setBookTitle] = useState('');
   const [bookTitleSindhi, setBookTitleSindhi] = useState('');
@@ -75,6 +76,30 @@ export default function AutoGenerateBillPage() {
     unitPrice: '',
     discountPercent: '',
   });
+  
+  useEffect(() => {
+    try {
+      const storedBills = localStorage.getItem('generatedBills');
+      if (storedBills) {
+        const parsedBills = JSON.parse(storedBills);
+        setGeneratedBills(parsedBills);
+        if (parsedBills.length > 0) {
+            const maxId = Math.max(...parsedBills.map((b: GeneratedBill) => b.id));
+            setNextBillId(maxId + 1);
+        }
+      }
+    } catch (e) {
+      console.error("Error loading bills from localStorage", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('generatedBills', JSON.stringify(generatedBills));
+    } catch (e) {
+      console.error("Error saving bills to localStorage", e);
+    }
+  }, [generatedBills]);
 
   const handleAddEntry = () => {
     const qty = parseFloat(quantity);
@@ -184,7 +209,7 @@ export default function AutoGenerateBillPage() {
     const doc = new jsPDF();
     const { id, purchaserName, date, totalAmount, entries } = bill;
     
-    doc.text(`Bill for ${purchaserName} (ID: ${id})`, 14, 16);
+    doc.text(`Bill for ${purchaserName} (Invoice No: ${id})`, 14, 16);
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
@@ -241,21 +266,22 @@ export default function AutoGenerateBillPage() {
     const billDate = new Date().toLocaleDateString('en-US');
     const purchaserName = billEntries.length > 0 ? billEntries[0].purchaserName : 'Customer';
     const newBill: GeneratedBill = {
-        id: `BILL-${Date.now()}`,
+        id: nextBillId,
         purchaserName,
         date: billDate,
         totalAmount: overallTotal,
         entries: [...billEntries],
     };
-
+    
     setGeneratedBills(prev => [newBill, ...prev]);
+    setNextBillId(prev => prev + 1);
 
     setBillEntries([]);
     setNextEntryId(1);
     
     toast({
         title: 'Bill Recorded',
-        description: `Bill ${newBill.id} has been recorded in history.`,
+        description: `Bill #${newBill.id} has been recorded in history.`,
     });
   };
 
@@ -459,7 +485,7 @@ export default function AutoGenerateBillPage() {
               <Table>
                   <TableHeader>
                       <TableRow>
-                          <TableHead>Bill ID</TableHead>
+                          <TableHead>Invoice No.</TableHead>
                           <TableHead>Purchaser Name</TableHead>
                           <TableHead>Book Title(s)</TableHead>
                           <TableHead>Date</TableHead>
@@ -549,3 +575,4 @@ export default function AutoGenerateBillPage() {
 }
     
     
+
