@@ -630,7 +630,7 @@ export default function AutoGenerateBillPage() {
                           <TableHead>Invoice No.</TableHead>
                           <TableHead>Purchaser Name</TableHead>
                           <TableHead>Book Title(s)</TableHead>
-                          <TableHead>Date</TableHead>
+                          <TableHead>Date & Time</TableHead>
                           <TableHead>Total Amount (Rs.)</TableHead>
                           <TableHead><span className="sr-only">Actions</span></TableHead>
                       </TableRow>
@@ -645,7 +645,7 @@ export default function AutoGenerateBillPage() {
                                       {bill.entries[0]?.bookTitle}
                                       {bill.entries.length > 1 && ` (+${bill.entries.length - 1} more)`}
                                   </TableCell>
-                                  <TableCell>{bill.date}</TableCell>
+                                  <TableCell>{bill.entries[0]?.date} {bill.entries[0]?.time}</TableCell>
                                   <TableCell className="font-semibold">{bill.totalAmount.toFixed(2)}</TableCell>
                                   <TableCell className="text-right">
                                       <Button variant="ghost" size="sm" onClick={() => generateAndSavePDF(bill)}>
@@ -743,5 +743,6 @@ export default function AutoGenerateBillPage() {
     
 
     
+
 
 
