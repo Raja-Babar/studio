@@ -63,13 +63,14 @@ export default function PublicationsPage() {
     const img = new window.Image()
     img.src = appLogo;
     img.onload = () => {
+        const pageWidth = doc.internal.pageSize.getWidth();
         doc.addImage(img, 'PNG', 14, 10, 20, 20);
         
         doc.setFontSize(14);
         doc.text(`Bill for ${purchaserName}`, 14, 40);
         doc.setFontSize(10);
-        doc.text(`Invoice No.: ${id}`, 14, 46);
-        doc.text(`Date: ${date}`, 14, 52);
+        doc.text(`Invoice No: ${id}`, pageWidth - 14, 40, { align: 'right' });
+        doc.text(`Date: ${date}`, 14, 46);
 
         (doc as any).autoTable({
           head: [['Sr. No.', 'Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
@@ -86,7 +87,7 @@ export default function PublicationsPage() {
               totalAmount.toFixed(2),
             ];
           }),
-          startY: 55,
+          startY: 52,
           foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
           footStyles: {
             fillColor: [230, 230, 230],
@@ -121,7 +122,7 @@ export default function PublicationsPage() {
                           <TableHead>Books Quantity</TableHead>
                           <TableHead>Date</TableHead>
                           <TableHead>Total Amount (Rs.)</TableHead>
-                          <TableHead><span className="sr-only">Actions</span></TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                   </TableHeader>
                   <TableBody>
