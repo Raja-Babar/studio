@@ -53,6 +53,7 @@ type ScanningRecord = {
   status: string;
   scanned_by: string | null;
   assigned_to: string | null;
+  uploaded_by: string | null;
   source: string;
   created_time: string;
   last_edited_time: string;
@@ -117,6 +118,7 @@ export default function ScanningPage() {
     status: '',
     scanned_by: '',
     assigned_to: '',
+    uploaded_by: '',
     source: '',
     month: '',
   });
@@ -127,6 +129,7 @@ export default function ScanningPage() {
       status: new Set<string>(),
       scanned_by: new Set<string>(),
       assigned_to: new Set<string>(),
+      uploaded_by: new Set<string>(),
       source: new Set<string>(),
       month: new Set<string>(),
     };
@@ -135,6 +138,7 @@ export default function ScanningPage() {
       if (record.status) options.status.add(record.status);
       if (record.scanned_by) options.scanned_by.add(record.scanned_by);
       if (record.assigned_to) options.assigned_to.add(record.assigned_to);
+      if (record.uploaded_by) options.uploaded_by.add(record.uploaded_by);
       if (record.source) options.source.add(record.source);
       if (record.month) options.month.add(record.month);
     });
@@ -143,6 +147,7 @@ export default function ScanningPage() {
       status: Array.from(options.status).sort(),
       scanned_by: Array.from(options.scanned_by).sort(),
       assigned_to: Array.from(options.assigned_to).sort(),
+      uploaded_by: Array.from(options.uploaded_by).sort(),
       source: Array.from(options.source).sort(),
       month: Array.from(options.month).sort(),
     };
@@ -156,6 +161,7 @@ export default function ScanningPage() {
         (filters.status ? record.status === filters.status : true) &&
         (filters.scanned_by ? record.scanned_by === filters.scanned_by : true) &&
         (filters.assigned_to ? record.assigned_to === filters.assigned_to : true) &&
+        (filters.uploaded_by ? record.uploaded_by === filters.uploaded_by : true) &&
         (filters.source ? record.source === filters.source : true) &&
         (filters.month ? record.month === filters.month : true)
       );
@@ -200,6 +206,7 @@ export default function ScanningPage() {
       status: '',
       scanned_by: '',
       assigned_to: '',
+      uploaded_by: '',
       source: '',
       month: '',
     });
@@ -215,7 +222,9 @@ export default function ScanningPage() {
         skipEmptyLines: true,
         complete: (results) => {
           try {
+            // @ts-ignore
             importScanningRecords(results.data as ScanningRecord[]);
+            // @ts-ignore
             setScanningRecords(results.data as ScanningRecord[]);
             toast({
               title: "Import Successful",
@@ -290,7 +299,7 @@ export default function ScanningPage() {
                     </div>
                 </div>
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2 pt-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-2 pt-4">
                   <Select value={filters.year} onValueChange={(v) => handleFilterChange('year', v)}>
                     <SelectTrigger><SelectValue placeholder="Year" /></SelectTrigger>
                     <SelectContent>
@@ -313,6 +322,12 @@ export default function ScanningPage() {
                     <SelectTrigger><SelectValue placeholder="Assigned To" /></SelectTrigger>
                     <SelectContent>
                       {filterOptions.assigned_to.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  <Select value={filters.uploaded_by} onValueChange={(v) => handleFilterChange('uploaded_by', v)}>
+                    <SelectTrigger><SelectValue placeholder="Uploaded By" /></SelectTrigger>
+                    <SelectContent>
+                      {filterOptions.uploaded_by.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
                     </SelectContent>
                   </Select>
                   <Select value={filters.source} onValueChange={(v) => handleFilterChange('source', v)}>
@@ -379,7 +394,7 @@ export default function ScanningPage() {
                                 <TableCell><a href={record.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Link</a></TableCell>
                                 <TableCell>{record.scanned_by || 'N/A'}</TableCell>
                                 <TableCell>{record.assigned_to || 'N/A'}</TableCell>
-                                <TableCell></TableCell>
+                                <TableCell>{record.uploaded_by || 'N/A'}</TableCell>
                                 <TableCell>{record.source}</TableCell>
                                 <TableCell>{formatDateTime(record.created_time)}</TableCell>
                                 <TableCell>{formatDateTime(record.last_edited_time)}</TableCell>
