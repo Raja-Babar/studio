@@ -27,6 +27,7 @@ import {
   Database,
   Calendar,
   Send,
+  ClipboardCheck,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useState } from 'react';
@@ -43,6 +44,7 @@ const itScanningItems = [
     { href: '/dashboard/scanning', icon: ScanLine, label: 'Digitization Progress' },
     { href: '/dashboard/employee-reports', icon: FileSignature, label: 'Digitization Report' },
     { href: '/dashboard/attendance', icon: CalendarCheck, label: 'Attendance' },
+    { href: '/dashboard/employee-task-record', icon: ClipboardCheck, label: 'Employee Task Record' },
 ];
 
 const administrationItems = [
@@ -80,7 +82,7 @@ export function DashboardNav() {
   const { user } = useAuth();
   
   const [isItSectionOpen, setIsItSectionOpen] = useState(
-    pathname.startsWith('/dashboard/scanning') || pathname.startsWith('/dashboard/employee-reports') || pathname.startsWith('/dashboard/attendance')
+    pathname.startsWith('/dashboard/scanning') || pathname.startsWith('/dashboard/employee-reports') || pathname.startsWith('/dashboard/attendance') || pathname.startsWith('/dashboard/employee-task-record')
   );
   
   const [isAdministrationSectionOpen, setIsAdministrationSectionOpen] = useState(
