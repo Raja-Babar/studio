@@ -892,8 +892,8 @@ export default function ScanningPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="px-2 py-2">Stage</TableHead>
-                                    <TableHead className="text-right px-2 py-2">Count</TableHead>
+                                    <TableHead className="px-2 py-2 font-normal">Stage</TableHead>
+                                    <TableHead className="text-right px-2 py-2 font-normal">Count</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
