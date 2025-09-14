@@ -373,24 +373,37 @@ export default function ScanningPage() {
     );
 
     if (existingRecord) {
-        const updatedRecords = scanningRecords.map(record => {
-            if (record.book_id === existingRecord.book_id) {
-                return {
-                    ...record,
-                    status: newRecord.status,
-                    last_edited_time: new Date().toISOString(),
-                    last_edited_by: user?.name || null,
-                };
-            }
-            return record;
-        });
-        setScanningRecords(updatedRecords);
-        localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
-        toast({
-            title: "Record Updated",
-            description: `The status for "${existingRecord.title_english}" has been updated to "${newRecord.status}".`,
-        });
-        setSearchTerm(newRecord.file_name);
+        const existingStatusIndex = statusOptions.findIndex(s => s.toLowerCase() === existingRecord.status.toLowerCase());
+        const newStatusIndex = statusOptions.findIndex(s => s.toLowerCase() === newRecord.status.toLowerCase());
+
+        if (newStatusIndex > existingStatusIndex) {
+            const updatedRecords = scanningRecords.map(record => {
+                if (record.book_id === existingRecord.book_id) {
+                    return {
+                        ...record,
+                        status: newRecord.status,
+                        last_edited_time: new Date().toISOString(),
+                        last_edited_by: user?.name || null,
+                    };
+                }
+                return record;
+            });
+            setScanningRecords(updatedRecords);
+            localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
+            toast({
+                title: "Record Updated",
+                description: `The status for "${existingRecord.title_english}" has been updated to "${newRecord.status}".`,
+            });
+        } else {
+             toast({
+                variant: "destructive",
+                title: "Duplicate Record",
+                description: `A record for "${newRecord.file_name}" already exists with a status of "${existingRecord.status}", which is not behind the new status.`,
+            });
+            setSearchTerm(newRecord.file_name);
+            return;
+        }
+
     } else {
         if (!newRecord.title_english) {
           toast({
@@ -412,7 +425,7 @@ export default function ScanningPage() {
           month: newRecord.year ? format(new Date(parseInt(newRecord.year), 0, 1), 'MMMM') : '',
         };
         
-        const updatedRecords = [...scanningRecords, recordToAdd];
+        const updatedRecords = [recordToAdd, ...scanningRecords];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -900,10 +913,6 @@ export default function ScanningPage() {
                                     <TableRow>
                                         <TableCell>Uploading</TableCell>
                                         <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell>Completed</TableCell>
-                                        <TableCell className="text-right font-bold">{summaryCounts['completed'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow className="bg-muted font-bold">
                                         <TableCell>Total Completed</TableCell>
