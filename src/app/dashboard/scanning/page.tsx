@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X, Upload } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload, PlusCircle } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -110,6 +110,26 @@ export default function ScanningPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
+  
+  const initialNewRecordState = {
+    book_id: '',
+    file_name: '',
+    title_english: '',
+    title_sindhi: '',
+    author_english: '',
+    author_sindhi: '',
+    year: '',
+    language: '',
+    link: '',
+    status: 'Pending',
+    scanned_by: '',
+    assigned_to: '',
+    uploaded_by: '',
+    source: '',
+    month: '',
+  };
+  const [newRecord, setNewRecord] = useState(initialNewRecordState);
+  
   const [editedStatus, setEditedStatus] = useState('');
   const [editedCreatedTime, setEditedCreatedTime] = useState('');
   const [editedLastEditedTime, setEditedLastEditedTime] = useState('');
@@ -171,12 +191,6 @@ export default function ScanningPage() {
     });
   }, [scanningRecords, searchTerm, filters]);
 
-
-  const formatDateTime = (isoString: string) => {
-    if (!isoString) return 'N/A';
-    const date = new Date(isoString);
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-  }
 
   const handleEditClick = (record: ScanningRecord) => {
     setSelectedRecord(record);
@@ -270,6 +284,37 @@ export default function ScanningPage() {
       });
     }
   };
+  
+  const handleAddRecord = () => {
+    if (!newRecord.book_id || !newRecord.title_english) {
+      toast({
+        variant: "destructive",
+        title: "Missing Fields",
+        description: "Book ID and English Title are required.",
+      });
+      return;
+    }
+    const now = new Date().toISOString();
+    const recordToAdd: ScanningRecord = {
+      ...newRecord,
+      created_time: now,
+      last_edited_time: now,
+      last_edited_by: user?.name || null,
+      scanned_by: newRecord.scanned_by || null,
+      assigned_to: newRecord.assigned_to || null,
+      uploaded_by: newRecord.uploaded_by || null,
+    };
+    
+    const updatedRecords = [recordToAdd, ...scanningRecords];
+    setScanningRecords(updatedRecords);
+    localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
+    setNewRecord(initialNewRecordState);
+    toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
+  };
+  
+  const handleNewRecordInputChange = (field: keyof typeof newRecord, value: string) => {
+    setNewRecord(prev => ({...prev, [field]: value}));
+  }
 
 
   return (
@@ -324,6 +369,88 @@ export default function ScanningPage() {
                 </div>
             </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Add New Record</CardTitle>
+            <CardDescription>Manually add a new book record to the digitization progress table.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="new-book_id">Book ID</Label>
+                    <Input id="new-book_id" value={newRecord.book_id} onChange={(e) => handleNewRecordInputChange('book_id', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-file_name">File Name</Label>
+                    <Input id="new-file_name" value={newRecord.file_name} onChange={(e) => handleNewRecordInputChange('file_name', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-title_english">Title (English)</Label>
+                    <Input id="new-title_english" value={newRecord.title_english} onChange={(e) => handleNewRecordInputChange('title_english', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-title_sindhi">Title (Sindhi)</Label>
+                    <Input id="new-title_sindhi" value={newRecord.title_sindhi} onChange={(e) => handleNewRecordInputChange('title_sindhi', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-author_english">Author (English)</Label>
+                    <Input id="new-author_english" value={newRecord.author_english} onChange={(e) => handleNewRecordInputChange('author_english', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="new-author_sindhi">Author (Sindhi)</Label>
+                    <Input id="new-author_sindhi" value={newRecord.author_sindhi} onChange={(e) => handleNewRecordInputChange('author_sindhi', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="new-year">Year</Label>
+                    <Input id="new-year" value={newRecord.year} onChange={(e) => handleNewRecordInputChange('year', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-language">Language</Label>
+                    <Input id="new-language" value={newRecord.language} onChange={(e) => handleNewRecordInputChange('language', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="new-link">Link</Label>
+                    <Input id="new-link" value={newRecord.link} onChange={(e) => handleNewRecordInputChange('link', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-status">Status</Label>
+                    <Select value={newRecord.status} onValueChange={(v) => handleNewRecordInputChange('status', v)}>
+                        <SelectTrigger id="new-status">
+                            <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {statusOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-scanned_by">Scanned By</Label>
+                    <Input id="new-scanned_by" value={newRecord.scanned_by} onChange={(e) => handleNewRecordInputChange('scanned_by', e.target.value)} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="new-assigned_to">Assigned To</Label>
+                    <Input id="new-assigned_to" value={newRecord.assigned_to} onChange={(e) => handleNewRecordInputChange('assigned_to', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-uploaded_by">Uploaded By</Label>
+                    <Input id="new-uploaded_by" value={newRecord.uploaded_by} onChange={(e) => handleNewRecordInputChange('uploaded_by', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-source">Source</Label>
+                    <Input id="new-source" value={newRecord.source} onChange={(e) => handleNewRecordInputChange('source', e.target.value)} />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="new-month">Month</Label>
+                    <Input id="new-month" value={newRecord.month} onChange={(e) => handleNewRecordInputChange('month', e.target.value)} />
+                </div>
+            </div>
+             <Button onClick={handleAddRecord} className="mt-4">
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Record
+            </Button>
+          </CardContent>
+        </Card>
+
 
         <Card>
             <CardHeader>
@@ -519,3 +646,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
