@@ -543,39 +543,6 @@ export default function ScanningPage() {
             <p className="text-muted-foreground mt-2">Monitor the book scanning and digitization workflow.</p>
        </div>
 
-        <Card>
-            <CardHeader>
-                <CardTitle>Import from CSV</CardTitle>
-                <CardDescription>Upload a CSV file to populate the digitization progress table.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                 <Input
-                    type="file"
-                    accept=".csv"
-                    className="hidden"
-                    ref={fileInputRef}
-                    onChange={handleFileUpload}
-                />
-                <Button onClick={() => fileInputRef.current?.click()}>
-                    <Upload className="mr-2 h-4 w-4" />
-                    Import CSV
-                </Button>
-                <p className="mt-2 text-white">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 font-sindhi text-lg text-white">Your CSV file should have the following columns. The order of columns is important.</p>
-                <div className="mt-2 text-sm text-muted-foreground">
-                    <ul className="list-disc list-inside space-y-1">
-                        {(isImportListExpanded ? csvColumns : csvColumns.slice(0, 3)).map(col => (
-                            <li key={col}>{col}</li>
-                        ))}
-                    </ul>
-                    {csvColumns.length > 3 && (
-                        <Button variant="link" size="sm" onClick={() => setIsImportListExpanded(!isImportListExpanded)} className="p-0 h-auto mt-1">
-                            {isImportListExpanded ? 'See Less' : 'See More'}
-                        </Button>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
-        
         {user?.role === 'Admin' && (
             <Card>
                 <CardHeader>
@@ -617,6 +584,39 @@ export default function ScanningPage() {
                 </CardContent>
             </Card>
         )}
+
+        <Card>
+            <CardHeader>
+                <CardTitle>Import from CSV</CardTitle>
+                <CardDescription>Upload a CSV file to populate the digitization progress table.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <Input
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleFileUpload}
+                />
+                <Button onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import CSV
+                </Button>
+                <p className="mt-2 text-white">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 font-sindhi text-lg text-white">Your CSV file should have the following columns. The order of columns is important.</p>
+                <div className="mt-2 text-sm text-muted-foreground">
+                    <ul className="list-disc list-inside space-y-1">
+                        {(isImportListExpanded ? csvColumns : csvColumns.slice(0, 3)).map(col => (
+                            <li key={col}>{col}</li>
+                        ))}
+                    </ul>
+                    {csvColumns.length > 3 && (
+                        <Button variant="link" size="sm" onClick={() => setIsImportListExpanded(!isImportListExpanded)} className="p-0 h-auto mt-1">
+                            {isImportListExpanded ? 'See Less' : 'See More'}
+                        </Button>
+                    )}
+                </div>
+            </CardContent>
+        </Card>
         
         <Card>
           <CardHeader>
@@ -967,6 +967,7 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
 
 
