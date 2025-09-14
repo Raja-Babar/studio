@@ -21,6 +21,7 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { useAuth } from '@/hooks/use-auth';
 
 // Dummy data for generated bills - replace with your actual data source
 type BillEntry = {
@@ -48,39 +49,49 @@ const dummyBills: GeneratedBill[] = [
 
 export default function PublicationsPage() {
   const [generatedBills, setGeneratedBills] = useState<GeneratedBill[]>(dummyBills);
+  const { appLogo } = useAuth();
 
   const generateAndSavePDF = (bill: GeneratedBill) => {
     const doc = new jsPDF();
     const { id, purchaserName, date, totalAmount, entries } = bill;
-    
-    doc.text(`Bill for ${purchaserName} (ID: ${id})`, 14, 16);
-    doc.text(`Date: ${date}`, 14, 22);
 
-    (doc as any).autoTable({
-      head: [['Sr. No.', 'Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
-      body: entries.map((entry, index) => {
-        const discountAmount = entry.unitPrice * (entry.discountPercent / 100);
-        const discountedPrice = entry.unitPrice - discountAmount;
-        const totalAmount = discountedPrice * entry.quantity;
-        return [
-          index + 1,
-          entry.bookTitle,
-          entry.quantity,
-          entry.unitPrice.toFixed(2),
-          `${entry.discountPercent}%`,
-          totalAmount.toFixed(2),
-        ];
-      }),
-      startY: 30,
-      foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
-      footStyles: {
-        fillColor: [230, 230, 230],
-        textColor: 20,
-        fontStyle: 'bold',
-      },
-    });
+    const img = new window.Image()
+    img.src = appLogo;
+    img.onload = () => {
+        doc.addImage(img, 'PNG', 14, 10, 20, 20);
+        
+        doc.setFontSize(14);
+        doc.text(`Bill for ${purchaserName}`, 40, 16);
+        doc.setFontSize(10);
+        doc.text(`ID: ${id}`, 40, 22);
+        doc.text(`Date: ${date}`, 40, 28);
 
-    doc.save(`bill_${purchaserName.replace(/\s+/g, '_')}_${id}.pdf`);
+        (doc as any).autoTable({
+          head: [['Sr. No.', 'Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+          body: entries.map((entry, index) => {
+            const discountAmount = entry.unitPrice * (entry.discountPercent / 100);
+            const discountedPrice = entry.unitPrice - discountAmount;
+            const totalAmount = discountedPrice * entry.quantity;
+            return [
+              index + 1,
+              entry.bookTitle,
+              entry.quantity,
+              entry.unitPrice.toFixed(2),
+              `${entry.discountPercent}%`,
+              totalAmount.toFixed(2),
+            ];
+          }),
+          startY: 40,
+          foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
+          footStyles: {
+            fillColor: [230, 230, 230],
+            textColor: 20,
+            fontStyle: 'bold',
+          },
+        });
+
+        doc.save(`bill_${purchaserName.replace(/\s+/g, '_')}_${id}.pdf`);
+    };
   };
 
   return (
