@@ -226,9 +226,12 @@ export default function ScanningPage() {
         skipEmptyLines: true,
         complete: (results) => {
           try {
+            const now = new Date().toISOString();
             const mappedData = (results.data as any[]).map(row => ({
                 ...row,
-                last_edited_by: row.last_edited_by || null,
+                created_time: now,
+                last_edited_time: now,
+                last_edited_by: user?.name || null,
                 scanned_by: row.scanned_by || null,
                 assigned_to: row.assigned_to || null,
                 uploaded_by: row.uploaded_by || null,
@@ -306,9 +309,6 @@ export default function ScanningPage() {
                                 <TableHead>assigned_to</TableHead>
                                 <TableHead>uploaded_by</TableHead>
                                 <TableHead>source</TableHead>
-                                <TableHead>created_time</TableHead>
-                                <TableHead>last_edited_time</TableHead>
-                                <TableHead>last_edited_by</TableHead>
                                 <TableHead>month</TableHead>
                             </TableRow>
                         </TableHeader>
