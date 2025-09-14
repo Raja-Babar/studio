@@ -930,8 +930,8 @@ export default function ScanningPage() {
                                         <TableCell className="text-right font-bold">{summaryCounts['completed'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow className="bg-muted font-bold">
-                                        <TableCell>Total Records</TableCell>
-                                        <TableCell className="text-right">{filteredRecords.length}</TableCell>
+                                        <TableCell>Total Completed</TableCell>
+                                        <TableCell className="text-right">{summaryCounts['completed'] || 0}</TableCell>
                                     </TableRow>
                                 </TableBody>
                             </Table>
