@@ -893,34 +893,34 @@ export default function ScanningPage() {
                          <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-1/2">Stage</TableHead>
-                                    <TableHead className="text-right">Count</TableHead>
+                                    <TableHead className="py-2 px-3 w-1/2">Stage</TableHead>
+                                    <TableHead className="py-2 px-3 text-right">Count</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span className="font-medium">Scanning</span></div></TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
+                                    <TableCell className="py-2 px-3"><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span className="font-medium">Scanning</span></div></TableCell>
+                                    <TableCell className="py-2 px-3 text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
                                 </TableRow>
                                 <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span className="font-medium">Scanning-QC</span></div></TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['scanning-qc'] || 0}</TableCell>
+                                    <TableCell className="py-2 px-3"><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span className="font-medium">Scanning-QC</span></div></TableCell>
+                                    <TableCell className="py-2 px-3 text-right font-bold">{summaryCounts['scanning-qc'] || 0}</TableCell>
                                 </TableRow>
                                 <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span className="font-medium">Page Cleaning+Cropping</span></div></TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['page cleaning+cropping'] || 0}</TableCell>
+                                    <TableCell className="py-2 px-3"><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span className="font-medium">Page Cleaning+Cropping</span></div></TableCell>
+                                    <TableCell className="py-2 px-3 text-right font-bold">{summaryCounts['page cleaning+cropping'] || 0}</TableCell>
                                 </TableRow>
                                 <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span className="font-medium">PDF-QC</span></div></TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
+                                    <TableCell className="py-2 px-3"><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span className="font-medium">PDF-QC</span></div></TableCell>
+                                    <TableCell className="py-2 px-3 text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
                                 </TableRow>
                                 <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell><div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span className="font-medium">Uploading</span></div></TableCell>
-                                    <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
+                                    <TableCell className="py-2 px-3"><div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span className="font-medium">Uploading</span></div></TableCell>
+                                    <TableCell className="py-2 px-3 text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
                                 </TableRow>
                                 <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell><div className="flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" /> <span className="font-medium">Total Completed</span></div></TableCell>
-                                    <TableCell className="text-right font-bold text-primary">{summaryCounts['completed'] || 0}</TableCell>
+                                    <TableCell className="py-2 px-3"><div className="flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" /> <span className="font-medium">Total Completed</span></div></TableCell>
+                                    <TableCell className="py-2 px-3 text-right font-bold text-primary">{summaryCounts['completed'] || 0}</TableCell>
                                 </TableRow>
                             </TableBody>
                         </Table>
@@ -980,12 +980,3 @@ export default function ScanningPage() {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
