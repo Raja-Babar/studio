@@ -133,7 +133,7 @@ export default function ScanningPage() {
   const [assignTaskBookId, setAssignTaskBookId] = useState('');
   const [assignTaskEmployeeId, setAssignTaskEmployeeId] = useState('');
 
-  const employees = useMemo(() => getUsers().filter(u => u.role === 'I.T & Scanning-Employee' || u.role === 'Library-Employee'), [getUsers]);
+  const employees = useMemo(() => getUsers().filter(u => u.role === 'I.T & Scanning-Employee'), [getUsers]);
 
 
   const [filters, setFilters] = useState({
