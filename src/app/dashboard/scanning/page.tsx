@@ -820,9 +820,9 @@ export default function ScanningPage() {
                             <TableRow key={record.book_id}>
                                 <TableCell className="font-medium">{record.file_name}</TableCell>
                                 <TableCell>{record.title_english}</TableCell>
-                                <TableCell>{record.title_sindhi}</TableCell>
+                                <TableCell className="font-sindhi" dir="rtl">{record.title_sindhi}</TableCell>
                                 <TableCell>{record.author_english}</TableCell>
-                                <TableCell>{record.author_sindhi}</TableCell>
+                                <TableCell className="font-sindhi" dir="rtl">{record.author_sindhi}</TableCell>
                                 <TableCell>{record.year}</TableCell>
                                 <TableCell>{record.language}</TableCell>
                                 <TableCell>
@@ -967,4 +967,5 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
