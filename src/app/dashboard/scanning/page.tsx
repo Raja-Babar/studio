@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2, Trash2, ChevronDown, ChevronUp, ScanLine, FileCheck, UploadCloud, CheckCircle } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -226,6 +226,20 @@ export default function ScanningPage() {
       );
     });
   }, [scanningRecords, searchTerm, filters]);
+  
+  const summaryCounts = useMemo(() => {
+    return filteredRecords.reduce((acc, record) => {
+        const status = record.status?.toLowerCase();
+        if (status) {
+            if (!acc[status]) {
+                acc[status] = 0;
+            }
+            acc[status]++;
+        }
+        return acc;
+    }, {} as { [key: string]: number });
+  }, [filteredRecords]);
+
 
   const visibleRecords = useMemo(() => {
     if (isExpanded) {
@@ -642,10 +656,10 @@ export default function ScanningPage() {
                 </div>
             </div>
              <div className="flex gap-2 mt-4">
-                <Button onClick={handleAddRecord} size="lg">
+                <Button onClick={handleAddRecord}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Record
                 </Button>
-                <Button variant="destructive" onClick={handleClearNewRecord} size="lg">
+                <Button variant="destructive" onClick={handleClearNewRecord}>
                   <X className="mr-2 h-4 w-4" /> Clear Data
                 </Button>
             </div>
@@ -858,6 +872,56 @@ export default function ScanningPage() {
                         ))}
                     </TableBody>
                 </Table>
+                <div className="border-t mt-4 pt-4">
+                  <h3 className="text-lg font-semibold mb-2">Summary</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      <Card>
+                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                              <CardTitle className="text-sm font-medium">Scanning</CardTitle>
+                              <ScanLine className="h-4 w-4 text-muted-foreground" />
+                          </CardHeader>
+                          <CardContent>
+                              <div className="text-2xl font-bold">{summaryCounts['scanning'] || 0}</div>
+                          </CardContent>
+                      </Card>
+                      <Card>
+                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                              <CardTitle className="text-sm font-medium">PDF QC</CardTitle>
+                              <FileCheck className="h-4 w-4 text-muted-foreground" />
+                          </CardHeader>
+                          <CardContent>
+                              <div className="text-2xl font-bold">{summaryCounts['pdf-qc'] || 0}</div>
+                          </CardContent>
+                      </Card>
+                      <Card>
+                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                              <CardTitle className="text-sm font-medium">Uploading</CardTitle>
+                              <UploadCloud className="h-4 w-4 text-muted-foreground" />
+                          </CardHeader>
+                          <CardContent>
+                              <div className="text-2xl font-bold">{summaryCounts['uploading'] || 0}</div>
+                          </CardContent>
+                      </Card>
+                       <Card>
+                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                              <CardTitle className="text-sm font-medium">Completed</CardTitle>
+                              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+                          </CardHeader>
+                          <CardContent>
+                              <div className="text-2xl font-bold">{summaryCounts['completed'] || 0}</div>
+                          </CardContent>
+                      </Card>
+                      <Card>
+                          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                              <CardTitle className="text-sm font-medium">Total Records</CardTitle>
+                              <FileCheck className="h-4 w-4 text-muted-foreground" />
+                          </CardHeader>
+                          <CardContent>
+                              <div className="text-2xl font-bold">{filteredRecords.length}</div>
+                          </CardContent>
+                      </Card>
+                  </div>
+              </div>
                  {hasMoreRecords && (
                     <CardFooter className="justify-center border-t pt-4">
                         <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)}>
@@ -921,19 +985,3 @@ export default function ScanningPage() {
     </div>
   );
 }
-
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
