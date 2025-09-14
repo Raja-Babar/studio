@@ -81,7 +81,7 @@ export default function PublicationsPage() {
               totalAmount.toFixed(2),
             ];
           }),
-          startY: 60,
+          startY: 55,
           foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
           footStyles: {
             fillColor: [230, 230, 230],
