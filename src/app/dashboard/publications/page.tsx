@@ -57,12 +57,13 @@ export default function PublicationsPage() {
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
-      head: [['Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
-      body: entries.map(entry => {
+      head: [['Sr. No.', 'Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
+      body: entries.map((entry, index) => {
         const discountAmount = entry.unitPrice * (entry.discountPercent / 100);
         const discountedPrice = entry.unitPrice - discountAmount;
         const totalAmount = discountedPrice * entry.quantity;
         return [
+          index + 1,
           entry.bookTitle,
           entry.quantity,
           entry.unitPrice.toFixed(2),
@@ -71,7 +72,7 @@ export default function PublicationsPage() {
         ];
       }),
       startY: 30,
-      foot: [['', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
+      foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
       footStyles: {
         fillColor: [230, 230, 230],
         textColor: 20,
