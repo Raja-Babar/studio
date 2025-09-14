@@ -1,3 +1,4 @@
+
 // src/app/dashboard/scanning/page.tsx
 'use client';
 
@@ -19,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2 } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -36,6 +37,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/use-auth';
 import Papa from 'papaparse';
+import { parseAndTranslate } from './actions';
 
 
 type ScanningRecord = {
@@ -132,6 +134,7 @@ export default function ScanningPage() {
 
   const [assignTaskBookId, setAssignTaskBookId] = useState('');
   const [assignTaskEmployeeId, setAssignTaskEmployeeId] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
 
   const employees = useMemo(() => getUsers().filter(u => u.role === 'I.T & Scanning-Employee'), [getUsers]);
 
@@ -352,6 +355,58 @@ export default function ScanningPage() {
     setAssignTaskEmployeeId('');
   };
 
+  const handleParseFilename = async () => {
+    const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
+    
+    // Regex to capture: Author - Title (Year)
+    const regex = /^(.*?)\s*-\s*(.*?)\s*\((\d{4})\)$/;
+    const match = filename.match(regex);
+    
+    let author = '', title = '', year = '';
+
+    if (match) {
+        author = match[1]?.trim() || '';
+        title = match[2]?.trim() || '';
+        year = match[3]?.trim() || '';
+    } else {
+        // Fallback for filenames without year or different structure
+        const parts = filename.split('-').map(p => p.trim());
+        if(parts.length >= 2) {
+            author = parts[0];
+            title = parts.slice(1).join(' - ');
+        } else {
+            title = filename;
+        }
+    }
+    
+    setNewRecord(prev => ({
+        ...prev,
+        author_english: author,
+        title_english: title,
+        year: year,
+    }));
+
+    if (title || author) {
+        setIsParsing(true);
+        try {
+            const result = await parseAndTranslate(title, author);
+            if (result.success && result.data) {
+                setNewRecord(prev => ({
+                    ...prev,
+                    title_sindhi: result.data.titleSindhi,
+                    author_sindhi: result.data.authorSindhi
+                }));
+            } else {
+                toast({ variant: 'destructive', title: 'Translation Failed', description: result.error });
+            }
+        } catch (error) {
+            toast({ variant: 'destructive', title: 'Error', description: 'Failed to contact translation service.' });
+        } finally {
+            setIsParsing(false);
+        }
+    }
+  };
+
 
   return (
     <div className="space-y-6">
@@ -414,7 +469,10 @@ export default function ScanningPage() {
             <div className="space-y-4 max-w-lg">
                 <div className="space-y-2">
                     <Label htmlFor="new-file_name">File Name</Label>
-                    <Input id="new-file_name" value={newRecord.file_name} onChange={(e) => handleNewRecordInputChange('file_name', e.target.value)} />
+                    <div className="flex gap-2">
+                      <Input id="new-file_name" value={newRecord.file_name} onChange={(e) => handleNewRecordInputChange('file_name', e.target.value)} onBlur={handleParseFilename} />
+                      {isParsing && <Loader2 className="animate-spin" />}
+                    </div>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="new-title_english">Title (English)</Label>
@@ -711,3 +769,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
