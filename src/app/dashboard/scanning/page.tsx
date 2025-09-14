@@ -346,8 +346,8 @@ export default function ScanningPage() {
                             <TableHead>Author (Sindhi)</TableHead>
                             <TableHead>Year</TableHead>
                             <TableHead>Language</TableHead>
-                            <TableHead>Link</TableHead>
                             <TableHead>Status</TableHead>
+                            <TableHead>Link</TableHead>
                             <TableHead>Scanned By</TableHead>
                             <TableHead>Assigned To</TableHead>
                             <TableHead>Uploaded By</TableHead>
@@ -371,12 +371,12 @@ export default function ScanningPage() {
                                 <TableCell>{record.author_sindhi}</TableCell>
                                 <TableCell>{record.year}</TableCell>
                                 <TableCell>{record.language}</TableCell>
-                                <TableCell><a href={record.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Link</a></TableCell>
                                 <TableCell>
                                      <Badge className={cn(getStatusClasses(record.status))}>
                                         {record.status}
                                     </Badge>
                                 </TableCell>
+                                <TableCell><a href={record.link} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Link</a></TableCell>
                                 <TableCell>{record.scanned_by || 'N/A'}</TableCell>
                                 <TableCell>{record.assigned_to || 'N/A'}</TableCell>
                                 <TableCell></TableCell>
