@@ -432,7 +432,7 @@ export default function ScanningPage() {
           month: newRecord.year ? new Date(parseInt(newRecord.year), 0, 1).toLocaleString('default', { month: 'long' }) : '',
         };
         
-        const updatedRecords = [recordToAdd, ...scanningRecords];
+        const updatedRecords = [...scanningRecords, recordToAdd];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -890,7 +890,7 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-sm">
+                        <div className="flex flex-col gap-1 text-sm">
                             <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-1.5"><ScanLine className="h-4 w-4 text-blue-500" /> <span className="font-medium">Scanning</span></div>
                                 <span className="font-semibold">{summaryCounts['scanning'] || 0}</span>
@@ -972,6 +972,7 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
 
 
