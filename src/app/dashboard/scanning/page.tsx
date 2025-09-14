@@ -386,10 +386,7 @@ export default function ScanningPage() {
     
     const parts = filename.split('-');
 
-    if (parts.length < 3) {
-      // Not enough parts for Title-Author-Year, maybe we can just get title
-      const title = filename.replace(/[_]/g, ' ').trim();
-      setNewRecord(prev => ({...prev, title_english: title, author_english: '', year: ''}));
+    if (parts.length < 2) {
       return;
     }
 
@@ -397,11 +394,19 @@ export default function ScanningPage() {
     const author = parts[1]?.replace(/_/g, ' ').trim() || '';
     const year = parts[2]?.trim() || '';
     
+    const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
+
+    let language = 'English';
+    if (isSindhi(title) || isSindhi(author)) {
+      language = 'Sindhi';
+    }
+
     setNewRecord(prev => ({
         ...prev,
         author_english: author,
         title_english: title,
         year: year,
+        language: language,
     }));
 
     if (title || author) {
@@ -479,10 +484,10 @@ export default function ScanningPage() {
             <CardDescription>Manually add a new book record to the digitization progress table.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4 max-w-lg">
+            <div className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="new-file_name">File Name</Label>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 items-center">
                       <Input id="new-file_name" value={newRecord.file_name} onChange={(e) => handleNewRecordInputChange('file_name', e.target.value)} onBlur={handleParseFilename} />
                       {isParsing && <Loader2 className="animate-spin" />}
                     </div>
@@ -548,7 +553,7 @@ export default function ScanningPage() {
                     <CardDescription>Assign a book to an employee for processing.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4 max-w-sm">
+                    <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="assign-book">Book</Label>
                             <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
@@ -802,3 +807,5 @@ export default function ScanningPage() {
     </div>
   );
 }
+
+    
