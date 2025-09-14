@@ -423,10 +423,10 @@ export default function ScanningPage() {
           last_edited_by: user?.name || null,
           scanned_by: newRecord.status.toLowerCase() === 'scanning' ? user?.name || null : null,
           uploaded_by: newRecord.status.toLowerCase() === 'uploading' ? user?.name || null : null,
-          month: newRecord.year ? format(new Date(parseInt(newRecord.year), 0, 1), 'MMMM') : '',
+          month: newRecord.year ? new Date(parseInt(newRecord.year), 0, 1).toLocaleString('default', { month: 'long' }) : '',
         };
         
-        const updatedRecords = [...scanningRecords, recordToAdd];
+        const updatedRecords = [recordToAdd, ...scanningRecords];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -477,35 +477,20 @@ export default function ScanningPage() {
 
   const handleParseFilename = async () => {
       const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
-      const parts = filename.split(/[-_]/);
+      const parts = filename.split('-');
 
       let title = '';
       let author = '';
       let year = '';
       
-      const yearPart = filename.match(/(\d{4})/);
-      if (yearPart) {
-        year = yearPart[0];
-      }
-
       if (parts.length > 0) {
-        // Assume the part before the first hyphen or the whole string if no hyphen is the title
-        const titleParts = filename.split('-');
-        title = titleParts[0]?.replace(/_/g, ' ').trim() || '';
-
-        if (titleParts.length > 1) {
-            // Everything between the first and last hyphen (or end of string if no last hyphen)
-            const authorAndMaybeYear = titleParts.slice(1).join('-').replace(/_/g, ' ').trim();
-            const authorParts = authorAndMaybeYear.split(' ');
-            const lastPart = authorParts[authorParts.length - 1];
-
-            if (/\d{4}/.test(lastPart) && !year) {
-                year = lastPart;
-                author = authorParts.slice(0, -1).join(' ').trim();
-            } else {
-                author = authorAndMaybeYear.replace(year, '').trim();
-            }
-        }
+        title = parts[0]?.replace(/_/g, ' ').trim() || '';
+      }
+      if (parts.length > 1) {
+        author = parts[1]?.replace(/_/g, ' ').trim() || '';
+      }
+      if (parts.length > 2) {
+        year = parts[2]?.trim() || '';
       }
 
       const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
@@ -905,41 +890,31 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <div className="max-w-md">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Count</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell><div className="flex items-center gap-2"><ScanLine className="h-4 w-4" /> Scanning</div></TableCell>
-                                        <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell><div className="flex items-center gap-2"><FileCheck className="h-4 w-4" /> Scanning-QC</div></TableCell>
-                                        <TableCell className="text-right font-bold">{summaryCounts['scanning-qc'] || 0}</TableCell>
-                                    </TableRow>
-                                     <TableRow>
-                                        <TableCell><div className="flex items-center gap-2"><ScanLine className="h-4 w-4" /> Page Cleaning+Cropping</div></TableCell>
-                                        <TableCell className="text-right font-bold">{summaryCounts['page cleaning+cropping'] || 0}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell><div className="flex items-center gap-2"><FileCheck className="h-4 w-4" /> PDF-QC</div></TableCell>
-                                        <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell><div className="flex items-center gap-2"><UploadCloud className="h-4 w-4" /> Uploading</div></TableCell>
-                                        <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
-                                    </TableRow>
-                                    <TableRow className="bg-muted font-bold">
-                                        <TableCell><div className="flex items-center gap-2"><CheckCircle className="h-4 w-4" /> Total Completed</div></TableCell>
-                                        <TableCell className="text-right">{summaryCounts['completed'] || 0}</TableCell>
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div className="p-4 bg-background rounded-lg shadow-md border border-border flex items-center justify-between">
+                                <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span>Scanning</span></div>
+                                <span className="font-bold text-lg">{summaryCounts['scanning'] || 0}</span>
+                            </div>
+                            <div className="p-4 bg-background rounded-lg shadow-md border border-border flex items-center justify-between">
+                                <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span>Scanning-QC</span></div>
+                                <span className="font-bold text-lg">{summaryCounts['scanning-qc'] || 0}</span>
+                            </div>
+                            <div className="p-4 bg-background rounded-lg shadow-md border border-border flex items-center justify-between">
+                                <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span>Page Cleaning+Cropping</span></div>
+                                <span className="font-bold text-lg">{summaryCounts['page cleaning+cropping'] || 0}</span>
+                            </div>
+                            <div className="p-4 bg-background rounded-lg shadow-md border border-border flex items-center justify-between">
+                                <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span>PDF-QC</span></div>
+                                <span className="font-bold text-lg">{summaryCounts['pdf-qc'] || 0}</span>
+                            </div>
+                            <div className="p-4 bg-background rounded-lg shadow-md border border-border flex items-center justify-between">
+                                <div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span>Uploading</span></div>
+                                <span className="font-bold text-lg">{summaryCounts['uploading'] || 0}</span>
+                            </div>
+                            <div className="p-4 bg-primary/10 rounded-lg shadow-md border border-primary/50 flex items-center justify-between">
+                                <div className="flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" /> <span>Total Completed</span></div>
+                                <span className="font-bold text-lg text-primary">{summaryCounts['completed'] || 0}</span>
+                            </div>
                         </div>
                     </div>
                 </CardFooter>
@@ -997,3 +972,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
