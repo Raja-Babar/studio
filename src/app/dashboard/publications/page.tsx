@@ -61,10 +61,10 @@ export default function PublicationsPage() {
         doc.addImage(img, 'PNG', 14, 10, 20, 20);
         
         doc.setFontSize(14);
-        doc.text(`Bill for ${purchaserName}`, 40, 16);
+        doc.text(`Bill for ${purchaserName}`, 14, 40);
         doc.setFontSize(10);
-        doc.text(`ID: ${id}`, 40, 22);
-        doc.text(`Date: ${date}`, 40, 28);
+        doc.text(`ID: ${id}`, 14, 46);
+        doc.text(`Date: ${date}`, 14, 52);
 
         (doc as any).autoTable({
           head: [['Sr. No.', 'Book Title', 'Qty', 'Unit Price', 'Discount %', 'Total']],
@@ -81,7 +81,7 @@ export default function PublicationsPage() {
               totalAmount.toFixed(2),
             ];
           }),
-          startY: 40,
+          startY: 60,
           foot: [['', '', '', '', 'Overall Total (Rs.)', totalAmount.toFixed(2)]],
           footStyles: {
             fillColor: [230, 230, 230],
