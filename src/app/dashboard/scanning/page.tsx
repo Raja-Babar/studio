@@ -157,7 +157,6 @@ export default function ScanningPage() {
     month: '',
   };
   const [newRecord, setNewRecord] = useState(initialNewRecordState);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   
   const [editedStatus, setEditedStatus] = useState('');
   const [editedAssignedTo, setEditedAssignedTo] = useState<string | null>(null);
@@ -370,7 +369,7 @@ export default function ScanningPage() {
     }
 
     const existingRecord = scanningRecords.find(
-        (record) => record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
+        (record) => record.file_name && record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
     );
 
     if (existingRecord) {
@@ -420,7 +419,6 @@ export default function ScanningPage() {
     }
 
     setNewRecord(initialNewRecordState);
-    setSelectedDate(null);
   };
   
   const handleNewRecordInputChange = (field: keyof Omit<ScanningRecord, 'book_id'>, value: string) => {
@@ -429,7 +427,6 @@ export default function ScanningPage() {
 
   const handleClearNewRecord = () => {
     setNewRecord(initialNewRecordState);
-    setSelectedDate(null);
     toast({
         title: 'Form Cleared',
         description: 'The "Add New Record" form has been cleared.',
@@ -471,7 +468,6 @@ export default function ScanningPage() {
 
     if (parts.length < 2) {
       setNewRecord(prev => ({...prev, year: ''}));
-      setSelectedDate(new Date());
       return;
     }
 
@@ -494,19 +490,6 @@ export default function ScanningPage() {
         language: language,
     }));
     
-    if (year) {
-        const dateFromYear = new Date(parseInt(year, 10), 0, 1);
-        if (!isNaN(dateFromYear.getTime())) {
-            setSelectedDate(dateFromYear);
-        } else {
-            setSelectedDate(new Date());
-            setNewRecord(prev => ({...prev, year: ''}));
-        }
-    } else {
-        setSelectedDate(new Date());
-        setNewRecord(prev => ({...prev, year: ''}));
-    }
-
     if (title || author) {
         setIsParsing(true);
         try {
@@ -985,5 +968,3 @@ export default function ScanningPage() {
     </div>
   );
 }
-
-    
