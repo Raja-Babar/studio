@@ -100,7 +100,7 @@ export default function PublicationsPage() {
                       <TableRow>
                           <TableHead>Bill ID</TableHead>
                           <TableHead>Purchaser Name</TableHead>
-                          <TableHead>Book Title(s)</TableHead>
+                          <TableHead>Books Quantity</TableHead>
                           <TableHead>Date</TableHead>
                           <TableHead>Total Amount (Rs.)</TableHead>
                           <TableHead><span className="sr-only">Actions</span></TableHead>
@@ -113,8 +113,7 @@ export default function PublicationsPage() {
                                   <TableCell className="font-medium">{bill.id}</TableCell>
                                   <TableCell>{bill.purchaserName}</TableCell>
                                   <TableCell>
-                                      {bill.entries[0]?.bookTitle}
-                                      {bill.entries.length > 1 && ` (+${bill.entries.length - 1} more)`}
+                                    {bill.entries.reduce((total, entry) => total + entry.quantity, 0)}
                                   </TableCell>
                                   <TableCell>{bill.date}</TableCell>
                                   <TableCell className="font-semibold">{bill.totalAmount.toFixed(2)}</TableCell>
