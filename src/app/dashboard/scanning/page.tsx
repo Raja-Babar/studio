@@ -873,27 +873,47 @@ export default function ScanningPage() {
                     </TableBody>
                 </Table>
                 </CardContent>
-                {hasMoreRecords && (
-                    <CardFooter className="justify-center border-t pt-4">
-                        <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)}>
+                <CardFooter className="flex-col items-center border-t pt-4">
+                    {hasMoreRecords && (
+                        <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)} className="w-full">
                             {isExpanded ? 'See Less' : 'See More'}
                             {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
                         </Button>
-                    </CardFooter>
-                )}
-                 <div className="border-t mt-4 p-6">
-                    <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                        <div className="flex justify-between"><span>Scanning:</span> <span className="font-bold text-foreground">{summaryCounts['scanning'] || 0}</span></div>
-                        <div className="flex justify-between"><span>PDF QC:</span> <span className="font-bold text-foreground">{summaryCounts['pdf-qc'] || 0}</span></div>
-                        <div className="flex justify-between"><span>Uploading:</span> <span className="font-bold text-foreground">{summaryCounts['uploading'] || 0}</span></div>
-                        <div className="flex justify-between"><span>Completed:</span> <span className="font-bold text-foreground">{summaryCounts['completed'] || 0}</span></div>
-                        <div className="flex justify-between pt-2 border-t mt-2 font-bold text-base text-foreground">
-                            <span>Total Records:</span> 
-                            <span>{filteredRecords.length}</span>
-                        </div>
+                    )}
+                     <div className="w-full mt-4">
+                        <h3 className="text-lg font-semibold mb-2 text-center">Summary</h3>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">Count</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell>Scanning</TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>PDF QC</TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Uploading</TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell>Completed</TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['completed'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow className="bg-muted font-bold">
+                                    <TableCell>Total Records</TableCell>
+                                    <TableCell className="text-right">{filteredRecords.length}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
-                </div>
+                </CardFooter>
         </Card>
         
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
