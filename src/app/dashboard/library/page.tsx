@@ -53,6 +53,7 @@ type GeneratedBill = {
 type Book = {
   id: number;
   title: string;
+  unitPrice: number;
 };
 
 export default function AutoGenerateBillPage() {
@@ -65,9 +66,11 @@ export default function AutoGenerateBillPage() {
   const [books, setBooks] = useState<Book[]>([]);
   const [nextBookId, setNextBookId] = useState(1);
   const [newBookTitle, setNewBookTitle] = useState('');
+  const [newBookPrice, setNewBookPrice] = useState('');
   const [isBookEditDialogOpen, setIsBookEditDialogOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [editedBookTitle, setEditedBookTitle] = useState('');
+  const [editedBookPrice, setEditedBookPrice] = useState('');
 
   const [bookTitle, setBookTitle] = useState('');
   const [bookTitleSindhi, setBookTitleSindhi] = useState('');
@@ -125,17 +128,19 @@ export default function AutoGenerateBillPage() {
   }, [generatedBills, books]);
   
   const handleAddBook = () => {
-    if (!newBookTitle) {
+    const price = parseFloat(newBookPrice);
+    if (!newBookTitle || isNaN(price) || price < 0) {
       toast({
         variant: 'destructive',
-        title: 'Missing Field',
-        description: 'Please provide a title.',
+        title: 'Missing or Invalid Fields',
+        description: 'Please provide a title and a valid price.',
       });
       return;
     }
-    setBooks(prev => [...prev, {id: nextBookId, title: newBookTitle}]);
+    setBooks(prev => [...prev, {id: nextBookId, title: newBookTitle, unitPrice: price}]);
     setNextBookId(prev => prev + 1);
     setNewBookTitle('');
+    setNewBookPrice('');
     toast({ title: 'Book Added', description: `"${newBookTitle}" has been added to your library.` });
   };
   
@@ -147,13 +152,15 @@ export default function AutoGenerateBillPage() {
   const handleEditBookClick = (book: Book) => {
     setSelectedBook(book);
     setEditedBookTitle(book.title);
+    setEditedBookPrice(book.unitPrice.toString());
     setIsBookEditDialogOpen(true);
   };
 
   const handleUpdateBook = () => {
-    if (selectedBook) {
+    const price = parseFloat(editedBookPrice);
+    if (selectedBook && !isNaN(price)) {
       setBooks(prev => prev.map(book =>
-        book.id === selectedBook.id ? { ...book, title: editedBookTitle } : book
+        book.id === selectedBook.id ? { ...book, title: editedBookTitle, unitPrice: price } : book
       ));
       setIsBookEditDialogOpen(false);
       setSelectedBook(null);
@@ -376,10 +383,14 @@ export default function AutoGenerateBillPage() {
             <CardDescription>Add, edit, or delete books from your library inventory.</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex gap-4 items-end mb-4">
-                <div className="flex-1 space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-4">
+                <div className="md:col-span-1 space-y-2">
                     <Label htmlFor="newBookTitle">Book Title / Author, Editor, Compiler, Translator</Label>
                     <Input id="newBookTitle" value={newBookTitle} onChange={e => setNewBookTitle(e.target.value)} placeholder="e.g., History of Sindh" />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="newBookPrice">Unit Price (Rs.)</Label>
+                    <Input id="newBookPrice" type="number" value={newBookPrice} onChange={e => setNewBookPrice(e.target.value)} placeholder="e.g., 500" />
                 </div>
                 <Button onClick={handleAddBook} className="self-end">
                     <PlusCircle className="mr-2 h-4 w-4" /> Add Book
@@ -389,6 +400,7 @@ export default function AutoGenerateBillPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Book Title / Author, Editor, Compiler, Translator</TableHead>
+                  <TableHead>Unit Price (Rs.)</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -397,6 +409,7 @@ export default function AutoGenerateBillPage() {
                   books.map(book => (
                     <TableRow key={book.id}>
                       <TableCell className="font-medium">{book.title}</TableCell>
+                      <TableCell>{book.unitPrice.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleEditBookClick(book)}>
                             <Edit className="h-4 w-4" />
@@ -409,7 +422,7 @@ export default function AutoGenerateBillPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={2} className="h-24 text-center">No books added yet.</TableCell>
+                    <TableCell colSpan={3} className="h-24 text-center">No books added yet.</TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -693,6 +706,10 @@ export default function AutoGenerateBillPage() {
                         <Label htmlFor="edit-book-title" className="text-right">Title</Label>
                         <Input id="edit-book-title" value={editedBookTitle} onChange={e => setEditedBookTitle(e.target.value)} className="col-span-3" />
                     </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="edit-book-price" className="text-right">Unit Price</Label>
+                        <Input id="edit-book-price" type="number" value={editedBookPrice} onChange={e => setEditedBookPrice(e.target.value)} className="col-span-3" />
+                    </div>
                 </div>
                 <DialogFooter>
                     <Button type="button" variant="secondary" onClick={() => setIsBookEditDialogOpen(false)}>Cancel</Button>
@@ -705,6 +722,7 @@ export default function AutoGenerateBillPage() {
   );
 }
     
+
 
 
 
