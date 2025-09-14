@@ -208,8 +208,10 @@ export default function AutoGenerateBillPage() {
   const generateAndSavePDF = (bill: GeneratedBill) => {
     const doc = new jsPDF();
     const { id, purchaserName, date, totalAmount, entries } = bill;
+    const pageWidth = doc.internal.pageSize.getWidth();
     
-    doc.text(`Bill for ${purchaserName} (Invoice No: ${id})`, 14, 16);
+    doc.text(`Bill for ${purchaserName}`, 14, 16);
+    doc.text(`Invoice No: ${id}`, pageWidth - 14, 16, { align: 'right' });
     doc.text(`Date: ${date}`, 14, 22);
 
     (doc as any).autoTable({
@@ -575,4 +577,5 @@ export default function AutoGenerateBillPage() {
 }
     
     
+
 
