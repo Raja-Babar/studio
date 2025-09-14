@@ -111,6 +111,10 @@ export default function ScanningPage() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   const [editedStatus, setEditedStatus] = useState('');
+  const [editedCreatedTime, setEditedCreatedTime] = useState('');
+  const [editedLastEditedTime, setEditedLastEditedTime] = useState('');
+  const [editedLastEditedBy, setEditedLastEditedBy] = useState('');
+
 
   const [filters, setFilters] = useState({
     year: '',
@@ -177,24 +181,28 @@ export default function ScanningPage() {
   const handleEditClick = (record: ScanningRecord) => {
     setSelectedRecord(record);
     setEditedStatus(record.status);
+    setEditedCreatedTime(record.created_time);
+    setEditedLastEditedTime(record.last_edited_time);
+    setEditedLastEditedBy(record.last_edited_by || '');
     setIsEditDialogOpen(true);
   };
 
   const handleUpdateStatus = () => {
-    if (selectedRecord && user) {
+    if (selectedRecord) {
       const updatedRecords = scanningRecords.map(record => 
         record.book_id === selectedRecord.book_id
         ? { 
             ...record, 
-            status: editedStatus, 
-            last_edited_time: new Date().toISOString(),
-            last_edited_by: user.name,
+            status: editedStatus,
+            created_time: editedCreatedTime,
+            last_edited_time: editedLastEditedTime,
+            last_edited_by: editedLastEditedBy,
           }
         : record
       );
       setScanningRecords(updatedRecords);
       localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
-      toast({ title: 'Status Updated', description: `Status for "${selectedRecord.title_english}" has been updated.` });
+      toast({ title: 'Record Updated', description: `Record for "${selectedRecord.title_english}" has been updated.` });
       setIsEditDialogOpen(false);
       setSelectedRecord(null);
     }
@@ -460,11 +468,11 @@ export default function ScanningPage() {
         </Card>
         
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Edit Book Status</DialogTitle>
+                    <DialogTitle>Edit Book Record</DialogTitle>
                     <DialogDescription>
-                        Update the scanning status for <span className="font-semibold">{selectedRecord?.title_english}</span>.
+                        Update the record for <span className="font-semibold">{selectedRecord?.title_english}</span>.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -483,9 +491,23 @@ export default function ScanningPage() {
                             </SelectContent>
                         </Select>
                     </div>
-                     <div className="text-sm text-muted-foreground col-span-4 mt-4 text-center">
-                        <p>Created: {selectedRecord ? formatDateTime(selectedRecord.created_time) : 'N/A'}</p>
-                        <p>Last Edited: {selectedRecord ? formatDateTime(selectedRecord.last_edited_time) : 'N/A'} by {selectedRecord?.last_edited_by || 'N/A'}</p>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="createdTime" className="text-right">
+                            Created Time
+                        </Label>
+                        <Input id="createdTime" value={editedCreatedTime} onChange={(e) => setEditedCreatedTime(e.target.value)} className="col-span-3" />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="lastEditedTime" className="text-right">
+                            Last Edited Time
+                        </Label>
+                        <Input id="lastEditedTime" value={editedLastEditedTime} onChange={(e) => setEditedLastEditedTime(e.target.value)} className="col-span-3" />
+                    </div>
+                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="lastEditedBy" className="text-right">
+                            Last Edited By
+                        </Label>
+                        <Input id="lastEditedBy" value={editedLastEditedBy} onChange={(e) => setEditedLastEditedBy(e.target.value)} className="col-span-3" />
                     </div>
                 </div>
                 <DialogFooter>
