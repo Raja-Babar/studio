@@ -334,6 +334,29 @@ export default function ScanningPage() {
   };
   
   const handleAddRecord = () => {
+    if (!newRecord.file_name) {
+        toast({
+            variant: "destructive",
+            title: "Missing File Name",
+            description: "File Name is required to check for duplicates.",
+        });
+        return;
+    }
+
+    const isDuplicate = scanningRecords.some(
+        (record) => record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
+    );
+
+    if (isDuplicate) {
+        toast({
+            variant: "destructive",
+            title: "Duplicate Record Found",
+            description: "A record with this file name already exists. The existing record is now shown in the table.",
+        });
+        setSearchTerm(newRecord.file_name); // Filter the table to show the duplicate
+        return;
+    }
+
     if (!newRecord.title_english) {
       toast({
         variant: "destructive",
@@ -868,6 +891,7 @@ export default function ScanningPage() {
     
 
     
+
 
 
 
