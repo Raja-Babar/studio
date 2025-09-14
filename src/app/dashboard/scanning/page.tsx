@@ -9,6 +9,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from '@/components/ui/card';
 import {
   Table,
@@ -20,7 +21,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2, Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -178,6 +179,9 @@ export default function ScanningPage() {
     month: '',
   });
 
+  const [isExpanded, setIsExpanded] = useState(false);
+  const RECORDS_TO_SHOW = 10;
+
   const filterOptions = useMemo(() => {
     const options = {
       year: new Set<string>(),
@@ -223,6 +227,14 @@ export default function ScanningPage() {
     });
   }, [scanningRecords, searchTerm, filters]);
 
+  const visibleRecords = useMemo(() => {
+    if (isExpanded) {
+      return filteredRecords;
+    }
+    return filteredRecords.slice(0, RECORDS_TO_SHOW);
+  }, [isExpanded, filteredRecords]);
+
+  const hasMoreRecords = filteredRecords.length > RECORDS_TO_SHOW;
 
   const handleEditClick = (record: ScanningRecord) => {
     setSelectedRecord(record);
@@ -430,14 +442,14 @@ export default function ScanningPage() {
   const handleParseFilename = async () => {
     const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
     
-    const parts = filename.split('-').map(p => p.replace(/_/g, ' ').trim());
+    const parts = filename.split(/[-_]/).map(p => p.trim());
 
     if (parts.length < 2) {
       return;
     }
 
-    const title = parts[0] || '';
-    const author = parts[1] || '';
+    const title = parts[0]?.replace(/_/g, ' ') || '';
+    const author = parts[1]?.replace(/_/g, ' ') || '';
     const year = parts[2] || '';
     
     const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
@@ -781,7 +793,7 @@ export default function ScanningPage() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredRecords.map((record) => (
+                        {visibleRecords.map((record) => (
                             <TableRow key={record.book_id}>
                                 <TableCell className="font-medium">{record.file_name}</TableCell>
                                 <TableCell>{record.title_english}</TableCell>
@@ -846,6 +858,14 @@ export default function ScanningPage() {
                         ))}
                     </TableBody>
                 </Table>
+                 {hasMoreRecords && (
+                    <CardFooter className="justify-center border-t pt-4">
+                        <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)}>
+                            {isExpanded ? 'See Less' : 'See More'}
+                            {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                        </Button>
+                    </CardFooter>
+                )}
             </CardContent>
         </Card>
         
@@ -905,6 +925,7 @@ export default function ScanningPage() {
     
 
     
+
 
 
 
