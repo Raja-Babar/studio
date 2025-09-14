@@ -63,7 +63,7 @@ export default function PublicationsPage() {
         doc.setFontSize(14);
         doc.text(`Bill for ${purchaserName}`, 14, 40);
         doc.setFontSize(10);
-        doc.text(`ID: ${id}`, 14, 46);
+        doc.text(`Invoice No.: ${id}`, 14, 46);
         doc.text(`Date: ${date}`, 14, 52);
 
         (doc as any).autoTable({
@@ -111,7 +111,7 @@ export default function PublicationsPage() {
                   <TableHeader>
                       <TableRow>
                           <TableHead>Sr. No.</TableHead>
-                          <TableHead>Bill ID</TableHead>
+                          <TableHead>Invoice No.</TableHead>
                           <TableHead>Purchaser Name</TableHead>
                           <TableHead>Books Quantity</TableHead>
                           <TableHead>Date</TableHead>
