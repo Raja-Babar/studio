@@ -49,6 +49,10 @@ import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/use-auth';
 import Papa from 'papaparse';
 import { parseAndTranslate } from './actions';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 
 
 type ScanningRecord = {
@@ -152,6 +156,7 @@ export default function ScanningPage() {
     month: '',
   };
   const [newRecord, setNewRecord] = useState(initialNewRecordState);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   
   const [editedStatus, setEditedStatus] = useState('');
   const [editedAssignedTo, setEditedAssignedTo] = useState<string | null>(null);
@@ -346,12 +351,15 @@ export default function ScanningPage() {
       last_edited_by: user?.name || null,
       scanned_by: newRecord.status.toLowerCase() === 'scanning' ? user?.name || null : null,
       uploaded_by: newRecord.status.toLowerCase() === 'uploading' ? user?.name || null : null,
+      month: selectedDate ? format(selectedDate, 'MMMM') : '',
+      year: selectedDate ? format(selectedDate, 'yyyy') : newRecord.year
     };
     
     const updatedRecords = [recordToAdd, ...scanningRecords];
     setScanningRecords(updatedRecords);
     localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
     setNewRecord(initialNewRecordState);
+    setSelectedDate(null);
     toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
   };
   
@@ -461,7 +469,7 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
-                <CardDescription className="mt-2 text-primary">Your CSV file should have the following columns. The order of columns is important.</CardDescription><CardDescription className="mt-2 font-sindhi text-lg text-primary">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</CardDescription>
+                <p className="mt-2 text-primary">Your CSV file should have the following columns. The order of columns is important.</p><p className="mt-2 font-sindhi text-lg text-primary">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p>
                 <div className="mt-2 text-sm text-muted-foreground">
                     <ul className="list-disc list-inside space-y-1">
                         <li>file_name</li>
@@ -527,10 +535,31 @@ export default function ScanningPage() {
                 </div>
                 <div className="space-y-2">
                      <div className="flex justify-between items-center">
-                        <Label htmlFor="new-year">Year</Label>
+                        <Label htmlFor="new-year">Date</Label>
                         <Label htmlFor="new-year" className="font-sindhi text-lg">سال</Label>
                     </div>
-                    <Input id="new-year" value={newRecord.year} onChange={(e) => handleNewRecordInputChange('year', e.target.value)} />
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !selectedDate && "text-muted-foreground"
+                            )}
+                            >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                            mode="single"
+                            selected={selectedDate}
+                            onSelect={setSelectedDate}
+                            initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
                 </div>
                 <div className="space-y-2">
                     <div className="flex justify-between items-center">
@@ -566,20 +595,6 @@ export default function ScanningPage() {
                         <Label htmlFor="new-source" className="font-sindhi text-lg">ذريعو</Label>
                     </div>
                     <Input id="new-source" value={newRecord.source} onChange={(e) => handleNewRecordInputChange('source', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                     <div className="flex justify-between items-center">
-                        <Label htmlFor="new-month">Month</Label>
-                        <Label htmlFor="new-month" className="font-sindhi text-lg">مهينو</Label>
-                    </div>
-                    <Select value={newRecord.month} onValueChange={(v) => handleNewRecordInputChange('month', v)}>
-                        <SelectTrigger id="new-month">
-                            <SelectValue placeholder="Select month" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {months.map(opt => <SelectItem key={opt} value={opt}>{opt}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
                 </div>
             </div>
              <Button onClick={handleAddRecord} className="mt-4">
@@ -723,9 +738,9 @@ export default function ScanningPage() {
                             <TableHead><div>Uploaded By</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اپلوڊ ڪندڙ</div></TableHead>
                             <TableHead><div>Source</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ذريعو</div></TableHead>
                             <TableHead><div>Month</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">مهينو</div></TableHead>
-                            <TableHead>
+                            {user?.role === 'Admin' && <TableHead>
                                 <span className="sr-only">Actions</span>
-                            </TableHead>
+                            </TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -752,7 +767,7 @@ export default function ScanningPage() {
                                 <TableCell>{record.uploaded_by || 'N/A'}</TableCell>
                                 <TableCell>{record.source}</TableCell>
                                 <TableCell>{record.month}</TableCell>
-                                <TableCell>
+                                {user?.role === 'Admin' && <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                         <Button
@@ -789,7 +804,7 @@ export default function ScanningPage() {
                                             </AlertDialog>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
-                                </TableCell>
+                                </TableCell>}
                             </TableRow>
                         ))}
                     </TableBody>
@@ -853,6 +868,7 @@ export default function ScanningPage() {
     
 
     
+
 
 
 
