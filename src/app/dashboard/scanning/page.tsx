@@ -515,7 +515,7 @@ export default function ScanningPage() {
                     <Label htmlFor="new-language">Language</Label>
                     <Input id="new-language" value={newRecord.language} onChange={(e) => handleNewRecordInputChange('language', e.target.value)} />
                 </div>
-                <div className="space-y-2">
+                 <div className="space-y-2">
                     <Label htmlFor="new-link">Link</Label>
                     <Input id="new-link" value={newRecord.link} onChange={(e) => handleNewRecordInputChange('link', e.target.value)} />
                 </div>
@@ -665,21 +665,21 @@ export default function ScanningPage() {
                  <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>File Name</TableHead>
-                            <TableHead>Title (English)</TableHead>
-                            <TableHead>Title (Sindhi)</TableHead>
-                            <TableHead>Author (English)</TableHead>
-                            <TableHead>Author (Sindhi)</TableHead>
-                            <TableHead>Year</TableHead>
-                            <TableHead>Language</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Link</TableHead>
-                            <TableHead>Scanned By</TableHead>
-                            <TableHead>Assigned To</TableHead>
-                            <TableHead>Assigned At</TableHead>
-                            <TableHead>Uploaded By</TableHead>
-                            <TableHead>Source</TableHead>
-                            <TableHead>Month</TableHead>
+                            <TableHead><div>File Name</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">فائل جو نالو</div></TableHead>
+                            <TableHead><div>Title (English)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">عنوان (انگريزي)</div></TableHead>
+                            <TableHead><div>Title (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">عنوان (سنڌي)</div></TableHead>
+                            <TableHead><div>Author (English)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ليکڪ (انگريزي)</div></TableHead>
+                            <TableHead><div>Author (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ليکڪ (سنڌي)</div></TableHead>
+                            <TableHead><div>Year</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">سال</div></TableHead>
+                            <TableHead><div>Language</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ٻولي</div></TableHead>
+                            <TableHead><div>Status</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اسٽيٽس</div></TableHead>
+                            <TableHead><div>Link</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">لنڪ</div></TableHead>
+                            <TableHead><div>Scanned By</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اسڪين ڪندڙ</div></TableHead>
+                            <TableHead><div>Assigned To</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">مقرر ٿيل</div></TableHead>
+                            <TableHead><div>Assigned At</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">مقرر وقت</div></TableHead>
+                            <TableHead><div>Uploaded By</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اپلوڊ ڪندڙ</div></TableHead>
+                            <TableHead><div>Source</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ذريعو</div></TableHead>
+                            <TableHead><div>Month</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">مهينو</div></TableHead>
                             <TableHead>
                                 <span className="sr-only">Actions</span>
                             </TableHead>
