@@ -456,7 +456,7 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
-                <CardDescription className="mt-2">Your CSV file should have the following columns. The order of columns is important.</CardDescription><CardDescription className="mt-2 font-sindhi text-lg">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</CardDescription>
+                <CardDescription className="mt-2 text-primary">Your CSV file should have the following columns. The order of columns is important.</CardDescription><CardDescription className="mt-2 font-sindhi text-lg text-primary">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</CardDescription>
                 <div className="mt-2 text-sm text-muted-foreground">
                     <ul className="list-disc list-inside space-y-1">
                         <li>file_name</li>
@@ -570,7 +570,7 @@ export default function ScanningPage() {
                     <Input id="new-month" value={newRecord.month} onChange={(e) => handleNewRecordInputChange('month', e.target.value)} />
                 </div>
             </div>
-             <Button onClick={handleAddRecord} className="mt-4" size="default">
+             <Button onClick={handleAddRecord} className="mt-4">
               <PlusCircle className="mr-2 h-4 w-4" /> Add Record
             </Button>
           </CardContent>
@@ -841,6 +841,7 @@ export default function ScanningPage() {
     
 
     
+
 
 
 
