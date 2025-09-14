@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { scanningProgressRecords as scanningProgressRecordsJSON } from '@/lib/placeholder-data';
-import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Search, X, Upload, PlusCircle, CalendarClock, Loader2, Trash2 } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -28,6 +28,17 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -115,6 +126,7 @@ export default function ScanningPage() {
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   
   const initialNewRecordState = {
+    book_id: '',
     file_name: '',
     title_english: '',
     title_sindhi: '',
@@ -124,7 +136,15 @@ export default function ScanningPage() {
     language: '',
     link: '',
     status: 'Pending',
+    scanned_by: null,
+    assigned_to: null,
+    assigned_date: null,
+    assigned_time: null,
+    uploaded_by: null,
     source: '',
+    created_time: '',
+    last_edited_time: '',
+    last_edited_by: null,
     month: '',
   };
   const [newRecord, setNewRecord] = useState(initialNewRecordState);
@@ -200,6 +220,17 @@ export default function ScanningPage() {
     setEditedStatus(record.status);
     setEditedAssignedTo(record.assigned_to);
     setIsEditDialogOpen(true);
+  };
+  
+    const handleDeleteRecord = (book_id: string) => {
+    const updatedRecords = scanningRecords.filter(record => record.book_id !== book_id);
+    setScanningRecords(updatedRecords);
+    localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
+    toast({
+      title: 'Record Deleted',
+      description: 'The digitization record has been successfully deleted.',
+      variant: 'destructive'
+    });
   };
 
   const handleUpdateRecord = () => {
@@ -309,17 +340,12 @@ export default function ScanningPage() {
       created_time: now,
       last_edited_time: now,
       last_edited_by: user?.name || null,
-      scanned_by: null,
-      assigned_to: null,
-      assigned_date: null,
-      assigned_time: null,
-      uploaded_by: null,
     };
     
     const updatedRecords = [recordToAdd, ...scanningRecords];
     setScanningRecords(updatedRecords);
     localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
-    setNewRecord(initialNewRecordState as any);
+    setNewRecord(initialNewRecordState);
     toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
   };
   
@@ -432,12 +458,7 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
-                <CardDescription className="mt-2">
-                  Your CSV file should have the following columns. The order of columns is important.
-                </CardDescription>
-                <CardDescription className="mt-2 font-sindhi text-lg">
-                  توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔
-                </CardDescription>
+                <CardDescription className="mt-2">Your CSV file should have the following columns. The order of columns is important.</CardDescription><CardDescription className="mt-2 font-sindhi text-lg">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي.</CardDescription>
                 <div className="overflow-x-auto mt-2">
                     <Table>
                         <TableHeader>
@@ -535,7 +556,7 @@ export default function ScanningPage() {
                     <CardDescription>Assign a book to an employee for processing.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="space-y-4 max-w-sm">
+                    <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="assign-book">Book</Label>
                             <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
@@ -562,7 +583,7 @@ export default function ScanningPage() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <Button onClick={handleAssignTask} className="w-full">
+                        <Button onClick={handleAssignTask}>
                             <CalendarClock className="mr-2 h-4 w-4" /> Assign Task
                         </Button>
                     </div>
@@ -707,6 +728,26 @@ export default function ScanningPage() {
                                         <DropdownMenuContent align="end">
                                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                             <DropdownMenuItem onClick={() => handleEditClick(record)}>Edit</DropdownMenuItem>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                                                        <Trash2 className="mr-2 h-4 w-4 text-destructive" />
+                                                        <span className="text-destructive">Delete</span>
+                                                    </DropdownMenuItem>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete Record</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Are you sure you want to delete this record? This action cannot be undone.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDeleteRecord(record.book_id)}>Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
                                 </TableCell>
@@ -769,4 +810,3 @@ export default function ScanningPage() {
     </div>
   );
 }
-
