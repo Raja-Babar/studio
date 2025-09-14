@@ -369,7 +369,7 @@ export default function ScanningPage() {
     }
 
     const existingRecord = scanningRecords.find(
-      (record) => record.file_name && record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
+      (record) => record && record.file_name && record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
     );
 
     if (existingRecord) {
@@ -479,19 +479,16 @@ export default function ScanningPage() {
       const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
       const parts = filename.split('-');
 
-      let title = '';
-      let author = '';
+      let titleWithUnderscores = '';
+      let authorWithUnderscores = '';
       let year = '';
+
+      if (parts.length > 0) titleWithUnderscores = parts[0]?.trim() || '';
+      if (parts.length > 1) authorWithUnderscores = parts[1]?.trim() || '';
+      if (parts.length > 2) year = parts[2]?.trim() || '';
       
-      if (parts.length > 0) {
-        title = parts[0]?.replace(/_/g, ' ').trim() || '';
-      }
-      if (parts.length > 1) {
-        author = parts[1]?.replace(/_/g, ' ').trim() || '';
-      }
-      if (parts.length > 2) {
-        year = parts[2]?.trim() || '';
-      }
+      const title = titleWithUnderscores.replace(/_/g, ' ');
+      const author = authorWithUnderscores.replace(/_/g, ' ');
 
       const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
 
@@ -890,29 +887,29 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <div className="space-y-2">
-                            <div className="flex items-center justify-between p-2 rounded-md bg-background hover:bg-muted/50">
-                                <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span>Scanning</span></div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-blue-500/50 hover:shadow-blue-500/20 transition-shadow duration-300">
+                                <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span className="text-sm font-medium">Scanning</span></div>
                                 <span className="font-bold text-lg">{summaryCounts['scanning'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded-md bg-background hover:bg-muted/50">
-                                <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span>Scanning-QC</span></div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-yellow-500/50 hover:shadow-yellow-500/20 transition-shadow duration-300">
+                                <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span className="text-sm font-medium">Scanning-QC</span></div>
                                 <span className="font-bold text-lg">{summaryCounts['scanning-qc'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded-md bg-background hover:bg-muted/50">
-                                <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span>Page Cleaning+Cropping</span></div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-purple-500/50 hover:shadow-purple-500/20 transition-shadow duration-300">
+                                <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span className="text-sm font-medium">Page Cleaning+Cropping</span></div>
                                 <span className="font-bold text-lg">{summaryCounts['page cleaning+cropping'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded-md bg-background hover:bg-muted/50">
-                                <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span>PDF-QC</span></div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-orange-500/50 hover:shadow-orange-500/20 transition-shadow duration-300">
+                                <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span className="text-sm font-medium">PDF-QC</span></div>
                                 <span className="font-bold text-lg">{summaryCounts['pdf-qc'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-2 rounded-md bg-background hover:bg-muted/50">
-                                <div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span>Uploading</span></div>
+                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-teal-500/50 hover:shadow-teal-500/20 transition-shadow duration-300">
+                                <div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span className="text-sm font-medium">Uploading</span></div>
                                 <span className="font-bold text-lg">{summaryCounts['uploading'] || 0}</span>
                             </div>
-                             <div className="flex items-center justify-between p-2 rounded-md bg-primary/10 text-primary">
-                                <div className="flex items-center gap-2"><CheckCircle className="h-5 w-5" /> <span>Total Completed</span></div>
+                             <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-primary/50 hover:shadow-primary/20 transition-shadow duration-300 text-primary">
+                                <div className="flex items-center gap-2"><CheckCircle className="h-5 w-5" /> <span className="text-sm font-medium">Total Completed</span></div>
                                 <span className="font-bold text-lg">{summaryCounts['completed'] || 0}</span>
                             </div>
                         </div>
@@ -972,5 +969,6 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
 
