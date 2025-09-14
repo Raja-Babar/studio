@@ -410,8 +410,7 @@ export default function ScanningPage() {
           last_edited_by: user?.name || null,
           scanned_by: newRecord.status.toLowerCase() === 'scanning' ? user?.name || null : null,
           uploaded_by: newRecord.status.toLowerCase() === 'uploading' ? user?.name || null : null,
-          month: selectedDate ? format(selectedDate, 'MMMM') : '',
-          year: selectedDate ? format(selectedDate, 'yyyy') : newRecord.year,
+          month: newRecord.year ? format(new Date(parseInt(newRecord.year), 0, 1), 'MMMM') : '',
         };
         
         const updatedRecords = [recordToAdd, ...scanningRecords];
@@ -619,32 +618,11 @@ export default function ScanningPage() {
                     <Input id="new-author_sindhi" className="font-sindhi" dir="rtl" value={newRecord.author_sindhi} onChange={(e) => handleNewRecordInputChange('author_sindhi', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                     <div className="flex justify-between items-center">
-                        <Label htmlFor="new-year">Date</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-year">Year</Label>
                         <Label htmlFor="new-year" className="font-sindhi text-lg">سال</Label>
                     </div>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                            variant={"outline"}
-                            className={cn(
-                                "w-full justify-start text-left font-normal",
-                                !selectedDate && "text-muted-foreground"
-                            )}
-                            >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {selectedDate ? format(selectedDate, "PPP") : (newRecord.year ? newRecord.year : <span>Pick a date</span>)}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                            <Calendar
-                            mode="single"
-                            selected={selectedDate}
-                            onSelect={setSelectedDate}
-                            initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
+                    <Input id="new-year" value={newRecord.year} onChange={(e) => handleNewRecordInputChange('year', e.target.value)} placeholder="e.g., 2023" />
                 </div>
                 <div className="space-y-2">
                     <div className="flex justify-between items-center">
@@ -1007,3 +985,5 @@ export default function ScanningPage() {
     </div>
   );
 }
+
+    
