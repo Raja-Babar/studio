@@ -798,11 +798,11 @@ export default function ScanningPage() {
                  <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>File Name|فائل جو نالو</TableHead>
+                            <TableHead>File Name</TableHead>
                             <TableHead>Title (English)</TableHead>
-                            <TableHead>Title (Sindhi)</TableHead>
+                            <TableHead className="font-sindhi" dir="rtl">عنوان (سنڌي)</TableHead>
                             <TableHead>Author (English)</TableHead>
-                            <TableHead>Author (Sindhi)</TableHead>
+                            <TableHead className="font-sindhi" dir="rtl">ليکڪ (سنڌي)</TableHead>
                             <TableHead>Year</TableHead>
                             <TableHead>Language</TableHead>
                             <TableHead>Status</TableHead>
