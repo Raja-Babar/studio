@@ -532,6 +532,14 @@ export default function ScanningPage() {
       }
   };
 
+  const fixedSummary = {
+      scanning: 2,
+      "pdf-qc": 2,
+      pending: 1,
+      "scanning-qc": 1,
+      uploading: 1,
+  };
+
 
   return (
     <div className="space-y-6">
@@ -890,14 +898,37 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                         <ul className="space-y-2">
+                        <ul className="space-y-1">
                             {Object.entries(summaryCounts).map(([status, count]) => (
-                                <li key={status} className="flex items-center justify-between p-2 rounded-lg bg-card">
+                                <li key={status} className="flex items-center justify-between p-2 rounded-lg bg-card-foreground/5">
                                     <span className="font-medium capitalize">{status}</span>
                                     <span className="font-bold text-lg">{count}</span>
                                 </li>
                             ))}
                         </ul>
+                    </div>
+                     <div className="w-full mt-4">
+                        <h3 className="text-lg font-semibold mb-2">Fixed Summary</h3>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Stage</TableHead>
+                                    <TableHead className="text-right">Count</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(fixedSummary).map(([stage, count]) => (
+                                    <TableRow key={stage}>
+                                        <TableCell className="font-medium capitalize">{stage}</TableCell>
+                                        <TableCell className="text-right font-bold">{count}</TableCell>
+                                    </TableRow>
+                                ))}
+                                <TableRow>
+                                    <TableCell className="font-medium capitalize">Completed</TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['completed'] || 0}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
                 </CardFooter>
         </Card>
