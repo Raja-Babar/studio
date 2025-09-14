@@ -168,6 +168,15 @@ export default function AutoGenerateBillPage() {
     }
   };
 
+  const handleSelectBookForBill = (book: Book) => {
+    setBookTitle(book.title);
+    setUnitPrice(book.unitPrice.toString());
+    toast({
+        title: 'Book Selected',
+        description: `"${book.title}" has been added to the form.`,
+    });
+  };
+
 
   const handleAddEntry = () => {
     const qty = parseFloat(quantity);
@@ -411,6 +420,9 @@ export default function AutoGenerateBillPage() {
                       <TableCell className="font-medium">{book.title}</TableCell>
                       <TableCell>{book.unitPrice.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
+                        <Button variant="outline" size="sm" className="mr-2" onClick={() => handleSelectBookForBill(book)}>
+                            <PlusCircle className="mr-2 h-4 w-4" /> Add to Bill
+                        </Button>
                         <Button variant="ghost" size="icon" onClick={() => handleEditBookClick(book)}>
                             <Edit className="h-4 w-4" />
                         </Button>
@@ -723,9 +735,4 @@ export default function AutoGenerateBillPage() {
 }
     
 
-
-
-
-
-
-
+    
