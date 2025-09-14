@@ -93,7 +93,7 @@ const statusOptions = [
 
 
 export default function ScanningPage() {
-  const { importScanningRecords } = useAuth();
+  const { user, importScanningRecords } = useAuth();
   const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -181,10 +181,15 @@ export default function ScanningPage() {
   };
 
   const handleUpdateStatus = () => {
-    if (selectedRecord) {
+    if (selectedRecord && user) {
       const updatedRecords = scanningRecords.map(record => 
         record.book_id === selectedRecord.book_id
-        ? { ...record, status: editedStatus, last_edited_time: new Date().toISOString() }
+        ? { 
+            ...record, 
+            status: editedStatus, 
+            last_edited_time: new Date().toISOString(),
+            last_edited_by: user.name,
+          }
         : record
       );
       setScanningRecords(updatedRecords);
@@ -221,10 +226,17 @@ export default function ScanningPage() {
         skipEmptyLines: true,
         complete: (results) => {
           try {
-            // @ts-ignore
-            importScanningRecords(results.data as ScanningRecord[]);
-            // @ts-ignore
-            setScanningRecords(results.data as ScanningRecord[]);
+            const mappedData = (results.data as any[]).map(row => ({
+                ...row,
+                last_edited_by: row.last_edited_by || null,
+                scanned_by: row.scanned_by || null,
+                assigned_to: row.assigned_to || null,
+                uploaded_by: row.uploaded_by || null,
+            }));
+            
+            importScanningRecords(mappedData as ScanningRecord[]);
+            setScanningRecords(mappedData as ScanningRecord[]);
+
             toast({
               title: "Import Successful",
               description: `${results.data.length} records have been imported.`,
@@ -395,9 +407,6 @@ export default function ScanningPage() {
                             <TableHead>Assigned To</TableHead>
                             <TableHead>Uploaded By</TableHead>
                             <TableHead>Source</TableHead>
-                            <TableHead>Created time</TableHead>
-                            <TableHead>Last edited time</TableHead>
-                            <TableHead>Last edited by</TableHead>
                             <TableHead>Month</TableHead>
                             <TableHead>
                                 <span className="sr-only">Actions</span>
@@ -424,9 +433,6 @@ export default function ScanningPage() {
                                 <TableCell>{record.assigned_to || 'N/A'}</TableCell>
                                 <TableCell>{record.uploaded_by || 'N/A'}</TableCell>
                                 <TableCell>{record.source}</TableCell>
-                                <TableCell>{formatDateTime(record.created_time)}</TableCell>
-                                <TableCell>{formatDateTime(record.last_edited_time)}</TableCell>
-                                <TableCell>{record.last_edited_by || 'N/A'}</TableCell>
                                 <TableCell>{record.month}</TableCell>
                                 <TableCell>
                                     <DropdownMenu>
@@ -476,6 +482,10 @@ export default function ScanningPage() {
                                 ))}
                             </SelectContent>
                         </Select>
+                    </div>
+                     <div className="text-sm text-muted-foreground col-span-4 mt-4 text-center">
+                        <p>Created: {selectedRecord ? formatDateTime(selectedRecord.created_time) : 'N/A'}</p>
+                        <p>Last Edited: {selectedRecord ? formatDateTime(selectedRecord.last_edited_time) : 'N/A'} by {selectedRecord?.last_edited_by || 'N/A'}</p>
                     </div>
                 </div>
                 <DialogFooter>
