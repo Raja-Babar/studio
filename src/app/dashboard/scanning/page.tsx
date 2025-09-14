@@ -92,7 +92,7 @@ const statusOptions = [
 
 
 export default function ScanningPage() {
-  const { user, importScanningRecords } = useAuth();
+  const { user, importScanningRecords, getUsers } = useAuth();
   const [scanningRecords, setScanningRecords] = useState<ScanningRecord[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -121,7 +121,6 @@ export default function ScanningPage() {
     link: '',
     status: 'Pending',
     scanned_by: '',
-    assigned_to: '',
     uploaded_by: '',
     source: '',
     month: '',
@@ -129,6 +128,9 @@ export default function ScanningPage() {
   const [newRecord, setNewRecord] = useState(initialNewRecordState);
   
   const [editedStatus, setEditedStatus] = useState('');
+  const [editedAssignedTo, setEditedAssignedTo] = useState<string | null>(null);
+
+  const employees = useMemo(() => getUsers().filter(u => u.role === 'I.T & Scanning-Employee' || u.role === 'Library-Employee'), [getUsers]);
 
 
   const [filters, setFilters] = useState({
@@ -190,16 +192,18 @@ export default function ScanningPage() {
   const handleEditClick = (record: ScanningRecord) => {
     setSelectedRecord(record);
     setEditedStatus(record.status);
+    setEditedAssignedTo(record.assigned_to);
     setIsEditDialogOpen(true);
   };
 
-  const handleUpdateStatus = () => {
+  const handleUpdateRecord = () => {
     if (selectedRecord) {
       const updatedRecords = scanningRecords.map(record => 
         record.book_id === selectedRecord.book_id
         ? { 
             ...record, 
             status: editedStatus,
+            assigned_to: editedAssignedTo,
             last_edited_time: new Date().toISOString(),
             last_edited_by: user?.name || null,
           }
@@ -294,7 +298,7 @@ export default function ScanningPage() {
       last_edited_time: now,
       last_edited_by: user?.name || null,
       scanned_by: newRecord.scanned_by || null,
-      assigned_to: newRecord.assigned_to || null,
+      assigned_to: null,
       uploaded_by: newRecord.uploaded_by || null,
     };
     
@@ -418,10 +422,6 @@ export default function ScanningPage() {
                 <div className="space-y-2">
                     <Label htmlFor="new-scanned_by">Scanned By</Label>
                     <Input id="new-scanned_by" value={newRecord.scanned_by} onChange={(e) => handleNewRecordInputChange('scanned_by', e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="new-assigned_to">Assigned To</Label>
-                    <Input id="new-assigned_to" value={newRecord.assigned_to} onChange={(e) => handleNewRecordInputChange('assigned_to', e.target.value)} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="new-uploaded_by">Uploaded By</Label>
@@ -609,10 +609,28 @@ export default function ScanningPage() {
                             </SelectContent>
                         </Select>
                     </div>
+                     {user?.role === 'Admin' && (
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="assigned_to" className="text-right">
+                                Assign To
+                            </Label>
+                            <Select onValueChange={(value) => setEditedAssignedTo(value)} defaultValue={editedAssignedTo ?? undefined}>
+                                <SelectTrigger className="col-span-3">
+                                    <SelectValue placeholder="Assign to an employee" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="null">Unassign</SelectItem>
+                                    {employees.map(emp => (
+                                        <SelectItem key={emp.id} value={emp.name}>{emp.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                 </div>
                 <DialogFooter>
                     <Button type="button" variant="secondary" onClick={() => setIsEditDialogOpen(false)}>Cancel</Button>
-                    <Button type="submit" onClick={handleUpdateStatus}>Save changes</Button>
+                    <Button type="submit" onClick={handleUpdateRecord}>Save changes</Button>
                 </DialogFooter>
             </DialogContent>
       </Dialog>
