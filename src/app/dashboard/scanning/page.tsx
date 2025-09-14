@@ -576,6 +576,48 @@ export default function ScanningPage() {
             </CardContent>
         </Card>
         
+        {user?.role === 'Admin' && (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Assign Task</CardTitle>
+                    <CardDescription>Assign a book to an employee for processing.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4 max-w-lg">
+                        <div className="space-y-2">
+                            <Label htmlFor="assign-book">Book</Label>
+                            <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
+                                <SelectTrigger id="assign-book">
+                                    <SelectValue placeholder="Select a book to assign" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {scanningRecords.map(rec => (
+                                        <SelectItem key={rec.book_id} value={rec.book_id}>{rec.title_english}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="assign-employee">Assign To</Label>
+                            <Select value={assignTaskEmployeeId} onValueChange={setAssignTaskEmployeeId}>
+                                <SelectTrigger id="assign-employee">
+                                    <SelectValue placeholder="Select an employee" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {employees.map(emp => (
+                                        <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Button onClick={handleAssignTask}>
+                            <CalendarClock className="mr-2 h-4 w-4" /> Assign Task
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+        )}
+        
         <Card>
           <CardHeader>
             <CardTitle>Add New Record</CardTitle>
@@ -675,48 +717,6 @@ export default function ScanningPage() {
           </CardContent>
         </Card>
 
-        {user?.role === 'Admin' && (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Assign Task</CardTitle>
-                    <CardDescription>Assign a book to an employee for processing.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4 max-w-lg">
-                        <div className="space-y-2">
-                            <Label htmlFor="assign-book">Book</Label>
-                            <Select value={assignTaskBookId} onValueChange={setAssignTaskBookId}>
-                                <SelectTrigger id="assign-book">
-                                    <SelectValue placeholder="Select a book to assign" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {scanningRecords.map(rec => (
-                                        <SelectItem key={rec.book_id} value={rec.book_id}>{rec.title_english}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="assign-employee">Assign To</Label>
-                            <Select value={assignTaskEmployeeId} onValueChange={setAssignTaskEmployeeId}>
-                                <SelectTrigger id="assign-employee">
-                                    <SelectValue placeholder="Select an employee" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {employees.map(emp => (
-                                        <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <Button onClick={handleAssignTask}>
-                            <CalendarClock className="mr-2 h-4 w-4" /> Assign Task
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        )}
-
 
         <Card>
             <CardHeader>
@@ -797,9 +797,9 @@ export default function ScanningPage() {
                         <TableRow>
                             <TableHead><div>File Name</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">فائل جو نالو</div></TableHead>
                             <TableHead><div>Title (English)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">عنوان (انگريزي)</div></TableHead>
-                            <TableHead><div>Title (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">عنوان (سنڌي)</div></TableHead>
+                            <TableHead><div className="font-sindhi">Title (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">عنوان (سنڌي)</div></TableHead>
                             <TableHead><div>Author (English)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ليکڪ (انگريزي)</div></TableHead>
-                            <TableHead><div>Author (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ليکڪ (سنڌي)</div></TableHead>
+                            <TableHead><div className="font-sindhi">Author (Sindhi)</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ليکڪ (سنڌي)</div></TableHead>
                             <TableHead><div>Year</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">سال</div></TableHead>
                             <TableHead><div>Language</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">ٻولي</div></TableHead>
                             <TableHead><div>Status</div><div className="font-sindhi text-sm text-muted-foreground" dir="rtl">اسٽيٽس</div></TableHead>
@@ -967,5 +967,6 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
 
