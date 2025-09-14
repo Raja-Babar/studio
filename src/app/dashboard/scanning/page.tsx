@@ -426,7 +426,7 @@ export default function ScanningPage() {
           month: newRecord.year ? new Date(parseInt(newRecord.year), 0, 1).toLocaleString('default', { month: 'long' }) : '',
         };
         
-        const updatedRecords = [recordToAdd, ...scanningRecords];
+        const updatedRecords = [...scanningRecords, recordToAdd];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -887,30 +887,30 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <div className="flex flex-col gap-2">
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-blue-500/50 hover:shadow-blue-500/20 transition-shadow duration-300">
+                        <div className="space-y-1">
+                            <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span className="text-sm font-medium">Scanning</span></div>
-                                <span className="font-bold text-lg">{summaryCounts['scanning'] || 0}</span>
+                                <span className="font-semibold text-lg">{summaryCounts['scanning'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-yellow-500/50 hover:shadow-yellow-500/20 transition-shadow duration-300">
+                            <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span className="text-sm font-medium">Scanning-QC</span></div>
-                                <span className="font-bold text-lg">{summaryCounts['scanning-qc'] || 0}</span>
+                                <span className="font-semibold text-lg">{summaryCounts['scanning-qc'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-purple-500/50 hover:shadow-purple-500/20 transition-shadow duration-300">
+                            <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span className="text-sm font-medium">Page Cleaning+Cropping</span></div>
-                                <span className="font-bold text-lg">{summaryCounts['page cleaning+cropping'] || 0}</span>
+                                <span className="font-semibold text-lg">{summaryCounts['page cleaning+cropping'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-orange-500/50 hover:shadow-orange-500/20 transition-shadow duration-300">
+                            <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span className="text-sm font-medium">PDF-QC</span></div>
-                                <span className="font-bold text-lg">{summaryCounts['pdf-qc'] || 0}</span>
+                                <span className="font-semibold text-lg">{summaryCounts['pdf-qc'] || 0}</span>
                             </div>
-                            <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-teal-500/50 hover:shadow-teal-500/20 transition-shadow duration-300">
+                            <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span className="text-sm font-medium">Uploading</span></div>
-                                <span className="font-bold text-lg">{summaryCounts['uploading'] || 0}</span>
+                                <span className="font-semibold text-lg">{summaryCounts['uploading'] || 0}</span>
                             </div>
-                             <div className="flex items-center justify-between p-3 rounded-lg bg-background shadow-md border border-primary/50 hover:shadow-primary/20 transition-shadow duration-300 text-primary">
-                                <div className="flex items-center gap-2"><CheckCircle className="h-5 w-5" /> <span className="text-sm font-medium">Total Completed</span></div>
-                                <span className="font-bold text-lg">{summaryCounts['completed'] || 0}</span>
+                             <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50">
+                                <div className="flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" /> <span className="text-sm font-medium">Total Completed</span></div>
+                                <span className="font-bold text-lg text-primary">{summaryCounts['completed'] || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -969,6 +969,7 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
 
 
