@@ -557,7 +557,7 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
-                <p className="mt-2 text-purple-500">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 font-sindhi text-lg text-purple-500">Your CSV file should have the following columns. The order of columns is important.</p>
+                <p className="mt-2 text-white">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 font-sindhi text-lg text-white">Your CSV file should have the following columns. The order of columns is important.</p>
                 <div className="mt-2 text-sm text-muted-foreground">
                     <ul className="list-disc list-inside space-y-1">
                         {(isImportListExpanded ? csvColumns : csvColumns.slice(0, 3)).map(col => (
@@ -890,40 +890,62 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="py-2 px-1 w-full">Stage</TableHead>
-                                    <TableHead className="py-2 px-1 text-right">Count</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell className="py-2 px-1"><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span className="font-medium">Scanning</span></div></TableCell>
-                                    <TableCell className="py-2 px-1 text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell className="py-2 px-1"><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span className="font-medium">Scanning-QC</span></div></TableCell>
-                                    <TableCell className="py-2 px-1 text-right font-bold">{summaryCounts['scanning-qc'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell className="py-2 px-1"><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span className="font-medium">Page Cleaning+Cropping</span></div></TableCell>
-                                    <TableCell className="py-2 px-1 text-right font-bold">{summaryCounts['page cleaning+cropping'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell className="py-2 px-1"><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span className="font-medium">PDF-QC</span></div></TableCell>
-                                    <TableCell className="py-2 px-1 text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell className="py-2 px-1"><div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span className="font-medium">Uploading</span></div></TableCell>
-                                    <TableCell className="py-2 px-1 text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
-                                </TableRow>
-                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
-                                    <TableCell className="py-2 px-1"><div className="flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" /> <span className="font-medium">Total Completed</span></div></TableCell>
-                                    <TableCell className="py-2 px-1 text-right font-bold text-primary">{summaryCounts['completed'] || 0}</TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
+                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <ScanLine className="h-5 w-5 text-blue-500" />
+                                        <span className="font-medium">Scanning</span>
+                                    </div>
+                                    <span className="font-bold text-lg">{summaryCounts['scanning'] || 0}</span>
+                                </div>
+                            </div>
+                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <FileCheck className="h-5 w-5 text-yellow-500" />
+                                        <span className="font-medium">Scanning-QC</span>
+                                    </div>
+                                    <span className="font-bold text-lg">{summaryCounts['scanning-qc'] || 0}</span>
+                                </div>
+                            </div>
+                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <ScanLine className="h-5 w-5 text-purple-500" />
+                                        <span className="font-medium">Page Cleaning+Cropping</span>
+                                    </div>
+                                    <span className="font-bold text-lg">{summaryCounts['page cleaning+cropping'] || 0}</span>
+                                </div>
+                            </div>
+                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <FileCheck className="h-5 w-5 text-orange-500" />
+                                        <span className="font-medium">PDF-QC</span>
+                                    </div>
+                                    <span className="font-bold text-lg">{summaryCounts['pdf-qc'] || 0}</span>
+                                </div>
+                            </div>
+                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <UploadCloud className="h-5 w-5 text-teal-500" />
+                                        <span className="font-medium">Uploading</span>
+                                    </div>
+                                    <span className="font-bold text-lg">{summaryCounts['uploading'] || 0}</span>
+                                </div>
+                            </div>
+                             <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-primary text-primary-foreground">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <CheckCircle className="h-5 w-5" />
+                                        <span className="font-medium">Completed</span>
+                                    </div>
+                                    <span className="font-bold text-lg">{summaryCounts['completed'] || 0}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </CardFooter>
         </Card>
