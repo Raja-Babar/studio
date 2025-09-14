@@ -872,7 +872,16 @@ export default function ScanningPage() {
                         ))}
                     </TableBody>
                 </Table>
-                <div className="border-t mt-4 pt-4">
+                </CardContent>
+                {hasMoreRecords && (
+                    <CardFooter className="justify-center border-t pt-4">
+                        <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)}>
+                            {isExpanded ? 'See Less' : 'See More'}
+                            {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+                        </Button>
+                    </CardFooter>
+                )}
+                 <div className="border-t mt-4 p-6">
                   <h3 className="text-lg font-semibold mb-2">Summary</h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
                       <Card>
@@ -922,15 +931,6 @@ export default function ScanningPage() {
                       </Card>
                   </div>
               </div>
-                 {hasMoreRecords && (
-                    <CardFooter className="justify-center border-t pt-4">
-                        <Button variant="ghost" onClick={() => setIsExpanded(!isExpanded)}>
-                            {isExpanded ? 'See Less' : 'See More'}
-                            {isExpanded ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
-                        </Button>
-                    </CardFooter>
-                )}
-            </CardContent>
         </Card>
         
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
@@ -985,3 +985,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
