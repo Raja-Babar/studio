@@ -457,24 +457,20 @@ export default function ScanningPage() {
                     Import CSV
                 </Button>
                 <CardDescription className="mt-2">Your CSV file should have the following columns. The order of columns is important.</CardDescription><CardDescription className="mt-2 font-sindhi text-lg">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي.</CardDescription>
-                <div className="overflow-x-auto mt-2">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>file_name</TableHead>
-                                <TableHead>title_english</TableHead>
-                                <TableHead>title_sindhi</TableHead>
-                                <TableHead>author_english</TableHead>
-                                <TableHead>author_sindhi</TableHead>
-                                <TableHead>year</TableHead>
-                                <TableHead>language</TableHead>
-                                <TableHead>link</TableHead>
-                                <TableHead>status</TableHead>
-                                <TableHead>source</TableHead>
-                                <TableHead>month</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                    </Table>
+                <div className="mt-2 text-sm text-muted-foreground">
+                    <ul className="list-disc list-inside space-y-1">
+                        <li>file_name</li>
+                        <li>title_english</li>
+                        <li>title_sindhi</li>
+                        <li>author_english</li>
+                        <li>author_sindhi</li>
+                        <li>year</li>
+                        <li>language</li>
+                        <li>link</li>
+                        <li>status</li>
+                        <li>source</li>
+                        <li>month</li>
+                    </ul>
                 </div>
             </CardContent>
         </Card>
@@ -538,7 +534,7 @@ export default function ScanningPage() {
                     </div>
                     <Input id="new-language" value={newRecord.language} onChange={(e) => handleNewRecordInputChange('language', e.target.value)} />
                 </div>
-                 <div className="space-y-2">
+                <div className="space-y-2">
                     <div className="flex justify-between items-center">
                         <Label htmlFor="new-link">Link</Label>
                         <Label htmlFor="new-link" className="font-sindhi text-lg">لنڪ</Label>
@@ -845,4 +841,5 @@ export default function ScanningPage() {
     
 
     
+
 
