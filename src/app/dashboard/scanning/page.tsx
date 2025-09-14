@@ -274,6 +274,36 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
+                <CardDescription className="mt-4">
+                  Your CSV file should have the following columns. The order of columns is important.
+                </CardDescription>
+                <div className="overflow-x-auto mt-2">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>book_id</TableHead>
+                                <TableHead>file_name</TableHead>
+                                <TableHead>file_name_sindhi</TableHead>
+                                <TableHead>title_english</TableHead>
+                                <TableHead>title_sindhi</TableHead>
+                                <TableHead>author_english</TableHead>
+                                <TableHead>author_sindhi</TableHead>
+                                <TableHead>year</TableHead>
+                                <TableHead>language</TableHead>
+                                <TableHead>link</TableHead>
+                                <TableHead>status</TableHead>
+                                <TableHead>scanned_by</TableHead>
+                                <TableHead>assigned_to</TableHead>
+                                <TableHead>uploaded_by</TableHead>
+                                <TableHead>source</TableHead>
+                                <TableHead>created_time</TableHead>
+                                <TableHead>last_edited_time</TableHead>
+                                <TableHead>last_edited_by</TableHead>
+                                <TableHead>month</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                    </Table>
+                </div>
             </CardContent>
         </Card>
 
