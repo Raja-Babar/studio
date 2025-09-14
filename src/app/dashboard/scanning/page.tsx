@@ -1,4 +1,3 @@
-
 // src/app/dashboard/scanning/page.tsx
 'use client';
 
@@ -112,7 +111,6 @@ export default function ScanningPage() {
   const [selectedRecord, setSelectedRecord] = useState<ScanningRecord | null>(null);
   
   const initialNewRecordState = {
-    book_id: '',
     file_name: '',
     title_english: '',
     title_sindhi: '',
@@ -209,8 +207,8 @@ export default function ScanningPage() {
             ...record, 
             status: editedStatus,
             created_time: editedCreatedTime,
-            last_edited_time: editedLastEditedTime,
-            last_edited_by: editedLastEditedBy,
+            last_edited_time: new Date().toISOString(),
+            last_edited_by: user?.name || null,
           }
         : record
       );
@@ -251,6 +249,7 @@ export default function ScanningPage() {
             const now = new Date().toISOString();
             const mappedData = (results.data as any[]).map(row => ({
                 ...row,
+                book_id: row.book_id || `BK-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 created_time: now,
                 last_edited_time: now,
                 last_edited_by: user?.name || null,
@@ -286,17 +285,18 @@ export default function ScanningPage() {
   };
   
   const handleAddRecord = () => {
-    if (!newRecord.book_id || !newRecord.title_english) {
+    if (!newRecord.title_english) {
       toast({
         variant: "destructive",
         title: "Missing Fields",
-        description: "Book ID and English Title are required.",
+        description: "English Title is required.",
       });
       return;
     }
     const now = new Date().toISOString();
     const recordToAdd: ScanningRecord = {
       ...newRecord,
+      book_id: `BK-${Date.now()}`,
       created_time: now,
       last_edited_time: now,
       last_edited_by: user?.name || null,
@@ -351,7 +351,6 @@ export default function ScanningPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>book_id</TableHead>
                                 <TableHead>file_name</TableHead>
                                 <TableHead>title_english</TableHead>
                                 <TableHead>title_sindhi</TableHead>
@@ -380,10 +379,6 @@ export default function ScanningPage() {
           </CardHeader>
           <CardContent className="space-y-4">
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="new-book_id">Book ID</Label>
-                    <Input id="new-book_id" value={newRecord.book_id} onChange={(e) => handleNewRecordInputChange('book_id', e.target.value)} />
-                </div>
                  <div className="space-y-2">
                     <Label htmlFor="new-file_name">File Name</Label>
                     <Input id="new-file_name" value={newRecord.file_name} onChange={(e) => handleNewRecordInputChange('file_name', e.target.value)} />
@@ -620,18 +615,6 @@ export default function ScanningPage() {
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="created_time" className="text-right">Created Time</Label>
-                        <Input id="created_time" value={editedCreatedTime} onChange={(e) => setEditedCreatedTime(e.target.value)} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="last_edited_time" className="text-right">Last Edited</Label>
-                        <Input id="last_edited_time" value={editedLastEditedTime} onChange={(e) => setEditedLastEditedTime(e.target.value)} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="last_edited_by" className="text-right">Edited By</Label>
-                        <Input id="last_edited_by" value={editedLastEditedBy} onChange={(e) => setEditedLastEditedBy(e.target.value)} className="col-span-3" />
                     </div>
                 </div>
                 <DialogFooter>
