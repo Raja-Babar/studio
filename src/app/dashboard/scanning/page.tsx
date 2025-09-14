@@ -350,12 +350,12 @@ export default function ScanningPage() {
                             <TableHead>Status</TableHead>
                             <TableHead>Scanned By</TableHead>
                             <TableHead>Assigned To</TableHead>
+                            <TableHead>Uploaded By</TableHead>
                             <TableHead>Source</TableHead>
                             <TableHead>Created time</TableHead>
                             <TableHead>Last edited time</TableHead>
                             <TableHead>Last edited by</TableHead>
                             <TableHead>Month</TableHead>
-                            <TableHead>Uploaded</TableHead>
                             <TableHead>
                                 <span className="sr-only">Actions</span>
                             </TableHead>
@@ -379,12 +379,12 @@ export default function ScanningPage() {
                                 </TableCell>
                                 <TableCell>{record.scanned_by || 'N/A'}</TableCell>
                                 <TableCell>{record.assigned_to || 'N/A'}</TableCell>
+                                <TableCell></TableCell>
                                 <TableCell>{record.source}</TableCell>
                                 <TableCell>{formatDateTime(record.created_time)}</TableCell>
                                 <TableCell>{formatDateTime(record.last_edited_time)}</TableCell>
                                 <TableCell>{record.last_edited_by || 'N/A'}</TableCell>
                                 <TableCell>{record.month}</TableCell>
-                                <TableCell></TableCell>
                                 <TableCell>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
