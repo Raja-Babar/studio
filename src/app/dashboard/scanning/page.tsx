@@ -131,9 +131,6 @@ export default function ScanningPage() {
   const [newRecord, setNewRecord] = useState(initialNewRecordState);
   
   const [editedStatus, setEditedStatus] = useState('');
-  const [editedCreatedTime, setEditedCreatedTime] = useState('');
-  const [editedLastEditedTime, setEditedLastEditedTime] = useState('');
-  const [editedLastEditedBy, setEditedLastEditedBy] = useState('');
 
 
   const [filters, setFilters] = useState({
@@ -195,9 +192,6 @@ export default function ScanningPage() {
   const handleEditClick = (record: ScanningRecord) => {
     setSelectedRecord(record);
     setEditedStatus(record.status);
-    setEditedCreatedTime(record.created_time);
-    setEditedLastEditedTime(record.last_edited_time);
-    setEditedLastEditedBy(record.last_edited_by || '');
     setIsEditDialogOpen(true);
   };
 
@@ -208,7 +202,6 @@ export default function ScanningPage() {
         ? { 
             ...record, 
             status: editedStatus,
-            created_time: editedCreatedTime,
             last_edited_time: new Date().toISOString(),
             last_edited_by: user?.name || null,
           }
@@ -603,6 +596,10 @@ export default function ScanningPage() {
                     <DialogTitle>Edit Book Record</DialogTitle>
                     <DialogDescription>
                         Update the record for <span className="font-semibold">{selectedRecord?.title_english}</span>.
+                        <br />
+                        <span className="text-xs text-muted-foreground">
+                            Last updated by {selectedRecord?.last_edited_by || 'N/A'} on {selectedRecord ? new Date(selectedRecord.last_edited_time).toLocaleString() : 'N/A'}
+                        </span>
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
@@ -620,24 +617,6 @@ export default function ScanningPage() {
                                 ))}
                             </SelectContent>
                         </Select>
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="createdTime" className="text-right">
-                            Created Time
-                        </Label>
-                        <Input id="createdTime" value={editedCreatedTime} onChange={(e) => setEditedCreatedTime(e.target.value)} className="col-span-3" />
-                    </div>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="lastEditedTime" className="text-right">
-                            Last Edited Time
-                        </Label>
-                        <Input id="lastEditedTime" value={editedLastEditedTime} onChange={(e) => setEditedLastEditedTime(e.target.value)} className="col-span-3" />
-                    </div>
-                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="lastEditedBy" className="text-right">
-                            Last Edited By
-                        </Label>
-                        <Input id="lastEditedBy" value={editedLastEditedBy} onChange={(e) => setEditedLastEditedBy(e.target.value)} className="col-span-3" />
                     </div>
                 </div>
                 <DialogFooter>
