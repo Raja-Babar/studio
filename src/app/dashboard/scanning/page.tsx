@@ -339,6 +339,8 @@ export default function ScanningPage() {
       created_time: now,
       last_edited_time: now,
       last_edited_by: user?.name || null,
+      scanned_by: newRecord.status.toLowerCase() === 'scanning' ? user?.name || null : null,
+      uploaded_by: newRecord.status.toLowerCase() === 'uploading' ? user?.name || null : null,
     };
     
     const updatedRecords = [recordToAdd, ...scanningRecords];
@@ -485,42 +487,69 @@ export default function ScanningPage() {
           <CardContent>
             <div className="space-y-4 max-w-lg">
                 <div className="space-y-2">
-                    <Label htmlFor="new-file_name">File Name</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-file_name">File Name</Label>
+                        <Label htmlFor="new-file_name" className="font-sindhi text-lg">فائل جو نالو</Label>
+                    </div>
                     <div className="flex gap-2 items-center">
                       <Input id="new-file_name" value={newRecord.file_name} onChange={(e) => handleNewRecordInputChange('file_name', e.target.value)} onBlur={handleParseFilename} />
                       {isParsing && <Loader2 className="animate-spin" />}
                     </div>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-title_english">Title (English)</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-title_english">Title (English)</Label>
+                        <Label htmlFor="new-title_english" className="font-sindhi text-lg">عنوان (انگريزي)</Label>
+                    </div>
                     <Input id="new-title_english" value={newRecord.title_english} onChange={(e) => handleNewRecordInputChange('title_english', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-title_sindhi">Title (Sindhi)</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-title_sindhi">Title (Sindhi)</Label>
+                        <Label htmlFor="new-title_sindhi" className="font-sindhi text-lg">عنوان (سنڌي)</Label>
+                    </div>
                     <Input id="new-title_sindhi" className="font-sindhi" dir="rtl" value={newRecord.title_sindhi} onChange={(e) => handleNewRecordInputChange('title_sindhi', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-author_english">Author (English)</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-author_english">Author (English)</Label>
+                        <Label htmlFor="new-author_english" className="font-sindhi text-lg">ليکڪ (انگريزي)</Label>
+                    </div>
                     <Input id="new-author_english" value={newRecord.author_english} onChange={(e) => handleNewRecordInputChange('author_english', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-author_sindhi">Author (Sindhi)</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-author_sindhi">Author (Sindhi)</Label>
+                        <Label htmlFor="new-author_sindhi" className="font-sindhi text-lg">ليکڪ (سنڌي)</Label>
+                    </div>
                     <Input id="new-author_sindhi" className="font-sindhi" dir="rtl" value={newRecord.author_sindhi} onChange={(e) => handleNewRecordInputChange('author_sindhi', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-year">Year</Label>
+                     <div className="flex justify-between items-center">
+                        <Label htmlFor="new-year">Year</Label>
+                        <Label htmlFor="new-year" className="font-sindhi text-lg">سال</Label>
+                    </div>
                     <Input id="new-year" value={newRecord.year} onChange={(e) => handleNewRecordInputChange('year', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-language">Language</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-language">Language</Label>
+                        <Label htmlFor="new-language" className="font-sindhi text-lg">ٻولي</Label>
+                    </div>
                     <Input id="new-language" value={newRecord.language} onChange={(e) => handleNewRecordInputChange('language', e.target.value)} />
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="new-link">Link</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-link">Link</Label>
+                        <Label htmlFor="new-link" className="font-sindhi text-lg">لنڪ</Label>
+                    </div>
                     <Input id="new-link" value={newRecord.link} onChange={(e) => handleNewRecordInputChange('link', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-status">Status</Label>
+                    <div className="flex justify-between items-center">
+                        <Label htmlFor="new-status">Status</Label>
+                        <Label htmlFor="new-status" className="font-sindhi text-lg">اسٽيٽس</Label>
+                    </div>
                     <Select value={newRecord.status} onValueChange={(v) => handleNewRecordInputChange('status', v)}>
                         <SelectTrigger id="new-status">
                             <SelectValue placeholder="Select status" />
@@ -531,11 +560,17 @@ export default function ScanningPage() {
                     </Select>
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-source">Source</Label>
+                     <div className="flex justify-between items-center">
+                        <Label htmlFor="new-source">Source</Label>
+                        <Label htmlFor="new-source" className="font-sindhi text-lg">ذريعو</Label>
+                    </div>
                     <Input id="new-source" value={newRecord.source} onChange={(e) => handleNewRecordInputChange('source', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="new-month">Month</Label>
+                     <div className="flex justify-between items-center">
+                        <Label htmlFor="new-month">Month</Label>
+                        <Label htmlFor="new-month" className="font-sindhi text-lg">مهينو</Label>
+                    </div>
                     <Input id="new-month" value={newRecord.month} onChange={(e) => handleNewRecordInputChange('month', e.target.value)} />
                 </div>
             </div>
@@ -810,3 +845,4 @@ export default function ScanningPage() {
     
 
     
+
