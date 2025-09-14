@@ -527,7 +527,7 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
-                <p className="mt-2 text-primary">Your CSV file should have the following columns. The order of columns is important.</p><p className="mt-2 font-sindhi text-lg text-primary">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p>
+                <p className="mt-2 text-purple-500">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 font-sindhi text-lg text-purple-500">Your CSV file should have the following columns. The order of columns is important.</p>
                 <div className="mt-2 text-sm text-muted-foreground">
                     <ul className="list-disc list-inside space-y-1">
                         <li>file_name</li>
