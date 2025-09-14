@@ -432,7 +432,7 @@ export default function ScanningPage() {
           month: newRecord.year ? new Date(parseInt(newRecord.year), 0, 1).toLocaleString('default', { month: 'long' }) : '',
         };
         
-        const updatedRecords = [...scanningRecords, recordToAdd];
+        const updatedRecords = [recordToAdd, ...scanningRecords];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -890,32 +890,40 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                        <div className="flex flex-col gap-1 text-sm">
-                            <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                                <div className="flex items-center gap-1.5"><ScanLine className="h-4 w-4 text-blue-500" /> <span className="font-medium">Scanning</span></div>
-                                <span className="font-semibold">{summaryCounts['scanning'] || 0}</span>
-                            </div>
-                            <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                                <div className="flex items-center gap-1.5"><FileCheck className="h-4 w-4 text-yellow-500" /> <span className="font-medium">Scanning-QC</span></div>
-                                <span className="font-semibold">{summaryCounts['scanning-qc'] || 0}</span>
-                            </div>
-                            <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                                <div className="flex items-center gap-1.5"><ScanLine className="h-4 w-4 text-purple-500" /> <span className="font-medium">Page Cleaning+Cropping</span></div>
-                                <span className="font-semibold">{summaryCounts['page cleaning+cropping'] || 0}</span>
-                            </div>
-                            <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                                <div className="flex items-center gap-1.5"><FileCheck className="h-4 w-4 text-orange-500" /> <span className="font-medium">PDF-QC</span></div>
-                                <span className="font-semibold">{summaryCounts['pdf-qc'] || 0}</span>
-                            </div>
-                            <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                                <div className="flex items-center gap-1.5"><UploadCloud className="h-4 w-4 text-teal-500" /> <span className="font-medium">Uploading</span></div>
-                                <span className="font-semibold">{summaryCounts['uploading'] || 0}</span>
-                            </div>
-                             <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
-                                <div className="flex items-center gap-1.5 text-primary"><CheckCircle className="h-4 w-4" /> <span className="font-medium">Total Completed</span></div>
-                                <span className="font-bold text-primary">{summaryCounts['completed'] || 0}</span>
-                            </div>
-                        </div>
+                         <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-1/2">Stage</TableHead>
+                                    <TableHead className="text-right">Count</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
+                                    <TableCell><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-blue-500" /> <span className="font-medium">Scanning</span></div></TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
+                                    <TableCell><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-yellow-500" /> <span className="font-medium">Scanning-QC</span></div></TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['scanning-qc'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
+                                    <TableCell><div className="flex items-center gap-2"><ScanLine className="h-5 w-5 text-purple-500" /> <span className="font-medium">Page Cleaning+Cropping</span></div></TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['page cleaning+cropping'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
+                                    <TableCell><div className="flex items-center gap-2"><FileCheck className="h-5 w-5 text-orange-500" /> <span className="font-medium">PDF-QC</span></div></TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
+                                    <TableCell><div className="flex items-center gap-2"><UploadCloud className="h-5 w-5 text-teal-500" /> <span className="font-medium">Uploading</span></div></TableCell>
+                                    <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
+                                </TableRow>
+                                <TableRow className="shadow-md transition-transform transform hover:scale-105 hover:shadow-lg">
+                                    <TableCell><div className="flex items-center gap-2 text-primary"><CheckCircle className="h-5 w-5" /> <span className="font-medium">Total Completed</span></div></TableCell>
+                                    <TableCell className="text-right font-bold text-primary">{summaryCounts['completed'] || 0}</TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </div>
                 </CardFooter>
         </Card>
@@ -972,6 +980,7 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
 
 
