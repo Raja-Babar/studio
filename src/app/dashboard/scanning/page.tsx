@@ -426,7 +426,7 @@ export default function ScanningPage() {
           month: newRecord.year ? format(new Date(parseInt(newRecord.year), 0, 1), 'MMMM') : '',
         };
         
-        const updatedRecords = [recordToAdd, ...scanningRecords];
+        const updatedRecords = [...scanningRecords, recordToAdd];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -477,29 +477,34 @@ export default function ScanningPage() {
 
   const handleParseFilename = async () => {
       const filename = newRecord.file_name.replace(/\.[^/.]+$/, ""); // remove extension
-      const parts = filename.split('-');
+      const parts = filename.split(/[-_]/);
 
       let title = '';
       let author = '';
       let year = '';
+      
+      const yearPart = filename.match(/(\d{4})/);
+      if (yearPart) {
+        year = yearPart[0];
+      }
 
       if (parts.length > 0) {
-        title = parts[0]?.replace(/_/g, ' ').trim() || '';
-      }
-      if (parts.length > 1) {
-        author = parts[1]?.replace(/_/g, ' ').trim() || '';
-      }
-      if (parts.length > 2 && /^\d{4}$/.test(parts[parts.length - 1])) {
-        year = parts[parts.length - 1];
-        // If year is the last part, the author part might contain the year as well
-        const authorParts = author.split(' ');
-        if(authorParts[authorParts.length - 1] === year) {
-            author = authorParts.slice(0, -1).join(' ');
-        }
-      } else {
-        const yearPart = filename.match(/(\d{4})/);
-        if (yearPart) {
-          year = yearPart[0];
+        // Assume the part before the first hyphen or the whole string if no hyphen is the title
+        const titleParts = filename.split('-');
+        title = titleParts[0]?.replace(/_/g, ' ').trim() || '';
+
+        if (titleParts.length > 1) {
+            // Everything between the first and last hyphen (or end of string if no last hyphen)
+            const authorAndMaybeYear = titleParts.slice(1).join('-').replace(/_/g, ' ').trim();
+            const authorParts = authorAndMaybeYear.split(' ');
+            const lastPart = authorParts[authorParts.length - 1];
+
+            if (/\d{4}/.test(lastPart) && !year) {
+                year = lastPart;
+                author = authorParts.slice(0, -1).join(' ').trim();
+            } else {
+                author = authorAndMaybeYear.replace(year, '').trim();
+            }
         }
       }
 
@@ -910,27 +915,27 @@ export default function ScanningPage() {
                                 </TableHeader>
                                 <TableBody>
                                     <TableRow>
-                                        <TableCell>Scanning</TableCell>
+                                        <TableCell><div className="flex items-center gap-2"><ScanLine className="h-4 w-4" /> Scanning</div></TableCell>
                                         <TableCell className="text-right font-bold">{summaryCounts['scanning'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell>Scanning-QC</TableCell>
+                                        <TableCell><div className="flex items-center gap-2"><FileCheck className="h-4 w-4" /> Scanning-QC</div></TableCell>
                                         <TableCell className="text-right font-bold">{summaryCounts['scanning-qc'] || 0}</TableCell>
                                     </TableRow>
                                      <TableRow>
-                                        <TableCell>Page Cleaning+Cropping</TableCell>
+                                        <TableCell><div className="flex items-center gap-2"><ScanLine className="h-4 w-4" /> Page Cleaning+Cropping</div></TableCell>
                                         <TableCell className="text-right font-bold">{summaryCounts['page cleaning+cropping'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell>PDF-QC</TableCell>
+                                        <TableCell><div className="flex items-center gap-2"><FileCheck className="h-4 w-4" /> PDF-QC</div></TableCell>
                                         <TableCell className="text-right font-bold">{summaryCounts['pdf-qc'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow>
-                                        <TableCell>Uploading</TableCell>
+                                        <TableCell><div className="flex items-center gap-2"><UploadCloud className="h-4 w-4" /> Uploading</div></TableCell>
                                         <TableCell className="text-right font-bold">{summaryCounts['uploading'] || 0}</TableCell>
                                     </TableRow>
                                     <TableRow className="bg-muted font-bold">
-                                        <TableCell>Total Completed</TableCell>
+                                        <TableCell><div className="flex items-center gap-2"><CheckCircle className="h-4 w-4" /> Total Completed</div></TableCell>
                                         <TableCell className="text-right">{summaryCounts['completed'] || 0}</TableCell>
                                     </TableRow>
                                 </TableBody>
