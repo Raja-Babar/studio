@@ -79,6 +79,7 @@ export default function AutoGenerateBillPage() {
   const [quantity, setQuantity] = useState('');
   const [unitPrice, setUnitPrice] = useState('');
   const [discountPercent, setDiscountPercent] = useState('0');
+  const [isBookSelected, setIsBookSelected] = useState(false);
 
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<BillEntry | null>(null);
@@ -171,6 +172,7 @@ export default function AutoGenerateBillPage() {
   const handleSelectBookForBill = (book: Book) => {
     setBookTitle(book.title);
     setUnitPrice(book.unitPrice.toString());
+    setIsBookSelected(true);
     toast({
         title: 'Book Selected',
         description: `"${book.title}" has been added to the form.`,
@@ -215,6 +217,7 @@ export default function AutoGenerateBillPage() {
     setQuantity('');
     setUnitPrice('');
     setDiscountPercent('0');
+    setIsBookSelected(false);
 
     toast({
       title: 'Entry Added',
@@ -462,6 +465,7 @@ export default function AutoGenerateBillPage() {
                   onChange={(e) => setBookTitle(e.target.value)}
                   placeholder="e.g., History of Sindh"
                   dir="auto"
+                  readOnly={isBookSelected}
                 />
               </div>
               <div className="space-y-2">
@@ -503,7 +507,7 @@ export default function AutoGenerateBillPage() {
                   <Label htmlFor="unitPrice">Unit Price (Rs.)</Label>
                   <span className="font-sindhi text-lg" dir="rtl">يونٽ جي قيمت (روپيا)</span>
                 </div>
-                <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" />
+                <Input id="unitPrice" type="number" value={unitPrice} onChange={e => setUnitPrice(e.target.value)} placeholder="e.g., 500" readOnly={isBookSelected} />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -736,3 +740,4 @@ export default function AutoGenerateBillPage() {
     
 
     
+
