@@ -341,6 +341,9 @@ export default function ScanningPage() {
                     <Upload className="mr-2 h-4 w-4" />
                     Import CSV
                 </Button>
+                <CardDescription className="mt-2">
+                  Your CSV file should have the following columns. The order of columns is important.
+                </CardDescription>
                 <CardDescription className="mt-2 font-sindhi text-lg">
                   توهان جي. CSV فائل ۾ هيٺيان ڪالمن هجڻ گهرجن. ڪالمن جي ترتيب اهم آهي.
                 </CardDescription>
