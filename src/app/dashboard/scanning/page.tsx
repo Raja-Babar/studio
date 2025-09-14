@@ -157,7 +157,7 @@ export default function ScanningPage() {
     month: '',
   };
   const [newRecord, setNewRecord] = useState(initialNewRecordState);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   
   const [editedStatus, setEditedStatus] = useState('');
   const [editedAssignedTo, setEditedAssignedTo] = useState<string | null>(null);
@@ -411,7 +411,7 @@ export default function ScanningPage() {
           scanned_by: newRecord.status.toLowerCase() === 'scanning' ? user?.name || null : null,
           uploaded_by: newRecord.status.toLowerCase() === 'uploading' ? user?.name || null : null,
           month: selectedDate ? format(selectedDate, 'MMMM') : '',
-          year: selectedDate ? format(selectedDate, 'yyyy') : newRecord.year
+          year: selectedDate ? format(selectedDate, 'yyyy') : newRecord.year,
         };
         
         const updatedRecords = [recordToAdd, ...scanningRecords];
@@ -471,12 +471,14 @@ export default function ScanningPage() {
     const parts = filename.split(/[-_]/).map(p => p.trim());
 
     if (parts.length < 2) {
+      setNewRecord(prev => ({...prev, year: ''}));
+      setSelectedDate(new Date());
       return;
     }
 
     const title = parts[0]?.replace(/_/g, ' ') || '';
     const author = parts[1]?.replace(/_/g, ' ') || '';
-    const year = parts[2] || '';
+    const year = parts.find(p => /^\d{4}$/.test(p)) || '';
     
     const isSindhi = (text: string) => /[\u0600-\u06FF]/.test(text);
 
@@ -492,6 +494,19 @@ export default function ScanningPage() {
         year: year,
         language: language,
     }));
+    
+    if (year) {
+        const dateFromYear = new Date(parseInt(year, 10), 0, 1);
+        if (!isNaN(dateFromYear.getTime())) {
+            setSelectedDate(dateFromYear);
+        } else {
+            setSelectedDate(new Date());
+            setNewRecord(prev => ({...prev, year: ''}));
+        }
+    } else {
+        setSelectedDate(new Date());
+        setNewRecord(prev => ({...prev, year: ''}));
+    }
 
     if (title || author) {
         setIsParsing(true);
