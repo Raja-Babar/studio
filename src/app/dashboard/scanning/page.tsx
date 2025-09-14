@@ -890,62 +890,14 @@ export default function ScanningPage() {
                     )}
                      <div className="w-full mt-4">
                         <h3 className="text-lg font-semibold mb-2">Summary</h3>
-                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <ScanLine className="h-5 w-5 text-blue-500" />
-                                        <span className="font-medium">Scanning</span>
-                                    </div>
-                                    <span className="font-bold text-lg">{summaryCounts['scanning'] || 0}</span>
-                                </div>
-                            </div>
-                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <FileCheck className="h-5 w-5 text-yellow-500" />
-                                        <span className="font-medium">Scanning-QC</span>
-                                    </div>
-                                    <span className="font-bold text-lg">{summaryCounts['scanning-qc'] || 0}</span>
-                                </div>
-                            </div>
-                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <ScanLine className="h-5 w-5 text-purple-500" />
-                                        <span className="font-medium">Page Cleaning+Cropping</span>
-                                    </div>
-                                    <span className="font-bold text-lg">{summaryCounts['page cleaning+cropping'] || 0}</span>
-                                </div>
-                            </div>
-                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <FileCheck className="h-5 w-5 text-orange-500" />
-                                        <span className="font-medium">PDF-QC</span>
-                                    </div>
-                                    <span className="font-bold text-lg">{summaryCounts['pdf-qc'] || 0}</span>
-                                </div>
-                            </div>
-                            <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-card">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <UploadCloud className="h-5 w-5 text-teal-500" />
-                                        <span className="font-medium">Uploading</span>
-                                    </div>
-                                    <span className="font-bold text-lg">{summaryCounts['uploading'] || 0}</span>
-                                </div>
-                            </div>
-                             <div className="p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg bg-primary text-primary-foreground">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <CheckCircle className="h-5 w-5" />
-                                        <span className="font-medium">Completed</span>
-                                    </div>
-                                    <span className="font-bold text-lg">{summaryCounts['completed'] || 0}</span>
-                                </div>
-                            </div>
-                        </div>
+                         <ul className="space-y-2">
+                            {Object.entries(summaryCounts).map(([status, count]) => (
+                                <li key={status} className="flex items-center justify-between p-2 rounded-lg bg-card">
+                                    <span className="font-medium capitalize">{status}</span>
+                                    <span className="font-bold text-lg">{count}</span>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </CardFooter>
         </Card>
