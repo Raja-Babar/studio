@@ -115,6 +115,11 @@ const months = [
     "July", "August", "September", "October", "November", "December"
 ];
 
+const csvColumns = [
+    "file_name", "title_english", "title_sindhi", "author_english", 
+    "author_sindhi", "year", "language", "link", "status", "source", "month"
+];
+
 
 export default function ScanningPage() {
   const { user, importScanningRecords, getUsers } = useAuth();
@@ -179,6 +184,7 @@ export default function ScanningPage() {
   });
 
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isImportListExpanded, setIsImportListExpanded] = useState(false);
   const RECORDS_TO_SHOW = 3;
 
   const filterOptions = useMemo(() => {
@@ -369,7 +375,7 @@ export default function ScanningPage() {
     }
 
     const existingRecord = scanningRecords.find(
-      (record) => record && record.file_name && record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
+        (record) => record && record.file_name && record.file_name.trim().toLowerCase() === newRecord.file_name.trim().toLowerCase()
     );
 
     if (existingRecord) {
@@ -426,7 +432,7 @@ export default function ScanningPage() {
           month: newRecord.year ? new Date(parseInt(newRecord.year), 0, 1).toLocaleString('default', { month: 'long' }) : '',
         };
         
-        const updatedRecords = [...scanningRecords, recordToAdd];
+        const updatedRecords = [recordToAdd, ...scanningRecords];
         setScanningRecords(updatedRecords);
         localStorage.setItem('scanningProgressRecords', JSON.stringify(updatedRecords));
         toast({ title: 'Record Added', description: `Record for "${recordToAdd.title_english}" has been added.` });
@@ -554,18 +560,15 @@ export default function ScanningPage() {
                 <p className="mt-2 text-purple-500">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 font-sindhi text-lg text-purple-500">Your CSV file should have the following columns. The order of columns is important.</p>
                 <div className="mt-2 text-sm text-muted-foreground">
                     <ul className="list-disc list-inside space-y-1">
-                        <li>file_name</li>
-                        <li>title_english</li>
-                        <li>title_sindhi</li>
-                        <li>author_english</li>
-                        <li>author_sindhi</li>
-                        <li>year</li>
-                        <li>language</li>
-                        <li>link</li>
-                        <li>status</li>
-                        <li>source</li>
-                        <li>month</li>
+                        {(isImportListExpanded ? csvColumns : csvColumns.slice(0, 3)).map(col => (
+                            <li key={col}>{col}</li>
+                        ))}
                     </ul>
+                    {csvColumns.length > 3 && (
+                        <Button variant="link" size="sm" onClick={() => setIsImportListExpanded(!isImportListExpanded)} className="p-0 h-auto mt-1">
+                            {isImportListExpanded ? 'See Less' : 'See More'}
+                        </Button>
+                    )}
                 </div>
             </CardContent>
         </Card>
@@ -890,27 +893,27 @@ export default function ScanningPage() {
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 text-sm">
                             <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-1.5"><ScanLine className="h-4 w-4 text-blue-500" /> <span className="font-medium">Scanning</span></div>
-                                <span className="font-semibold text-base">{summaryCounts['scanning'] || 0}</span>
+                                <span className="font-semibold">{summaryCounts['scanning'] || 0}</span>
                             </div>
                             <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-1.5"><FileCheck className="h-4 w-4 text-yellow-500" /> <span className="font-medium">Scanning-QC</span></div>
-                                <span className="font-semibold text-base">{summaryCounts['scanning-qc'] || 0}</span>
+                                <span className="font-semibold">{summaryCounts['scanning-qc'] || 0}</span>
                             </div>
                             <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-1.5"><ScanLine className="h-4 w-4 text-purple-500" /> <span className="font-medium">Page Cleaning+Cropping</span></div>
-                                <span className="font-semibold text-base">{summaryCounts['page cleaning+cropping'] || 0}</span>
+                                <span className="font-semibold">{summaryCounts['page cleaning+cropping'] || 0}</span>
                             </div>
                             <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-1.5"><FileCheck className="h-4 w-4 text-orange-500" /> <span className="font-medium">PDF-QC</span></div>
-                                <span className="font-semibold text-base">{summaryCounts['pdf-qc'] || 0}</span>
+                                <span className="font-semibold">{summaryCounts['pdf-qc'] || 0}</span>
                             </div>
                             <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-1.5"><UploadCloud className="h-4 w-4 text-teal-500" /> <span className="font-medium">Uploading</span></div>
-                                <span className="font-semibold text-base">{summaryCounts['uploading'] || 0}</span>
+                                <span className="font-semibold">{summaryCounts['uploading'] || 0}</span>
                             </div>
                              <div className="flex items-center justify-between p-1.5 rounded-md hover:bg-muted/50">
                                 <div className="flex items-center gap-1.5 text-primary"><CheckCircle className="h-4 w-4" /> <span className="font-medium">Total Completed</span></div>
-                                <span className="font-bold text-base text-primary">{summaryCounts['completed'] || 0}</span>
+                                <span className="font-bold text-primary">{summaryCounts['completed'] || 0}</span>
                             </div>
                         </div>
                     </div>
@@ -969,6 +972,7 @@ export default function ScanningPage() {
     </div>
   );
 }
+
 
 
 
