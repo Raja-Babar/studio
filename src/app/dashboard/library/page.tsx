@@ -632,7 +632,7 @@ export default function AutoGenerateBillPage() {
                           <TableHead>Book Title(s)</TableHead>
                           <TableHead>Date & Time</TableHead>
                           <TableHead>Total Amount (Rs.)</TableHead>
-                          <TableHead><span className="sr-only">Actions</span></TableHead>
+                          <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -743,6 +743,7 @@ export default function AutoGenerateBillPage() {
     
 
     
+
 
 
 
