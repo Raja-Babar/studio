@@ -803,10 +803,10 @@ export default function ScanningPage() {
                             <TableHead>Title (Sindhi)</TableHead>
                             <TableHead>Author (English)</TableHead>
                             <TableHead>Author (Sindhi)</TableHead>
-                            <TableHead>Year|سال</TableHead>
-                            <TableHead>Language|ٻولي</TableHead>
-                            <TableHead>Status|اسٽيٽس</TableHead>
-                            <TableHead>Details|تفصيل</TableHead>
+                            <TableHead>Year</TableHead>
+                            <TableHead>Language</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Details</TableHead>
                             {user?.role === 'Admin' && <TableHead>
                                 <span className="sr-only">Actions</span>
                             </TableHead>}
