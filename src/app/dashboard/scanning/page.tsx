@@ -370,6 +370,10 @@ export default function ScanningPage() {
         },
       });
     }
+    // Reset file input to allow re-uploading the same file
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
   
   const handleAddRecord = () => {
