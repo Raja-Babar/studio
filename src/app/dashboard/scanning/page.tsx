@@ -648,7 +648,7 @@ export default function ScanningPage() {
                 />
                 <Button onClick={() => fileInputRef.current?.click()}>
                     <Upload className="mr-2 h-4 w-4" />
-                    Import CSV
+                    Libri office
                 </Button>
                 <p className="mt-2 text-white">توهان جي فائل ۾ هيٺيان ڪالمن هجڻ گهرجن، ڪالمن جي ترتيب اهم آهي۔</p><p className="mt-2 text-white">Your CSV file should have the following columns. The order of columns is important.</p>
                 <div className="mt-2 text-sm text-muted-foreground">
@@ -1049,3 +1049,4 @@ export default function ScanningPage() {
     </div>
   );
 }
+
