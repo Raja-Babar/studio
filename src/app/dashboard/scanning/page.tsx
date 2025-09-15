@@ -635,7 +635,7 @@ export default function ScanningPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Import from CSV</CardTitle>
+                <CardTitle>Libre</CardTitle>
                 <CardDescription>Upload a CSV file to populate the digitization progress table.</CardDescription>
             </CardHeader>
             <CardContent>
